@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import YearsSince from '../components/YearsSince.jsx';
+---
+<BaseLayout title="Aleksander Adamowski - Resume">
+  <link rel="stylesheet" href="/styles/global.css" />
+  <div>
+    <h1 style="font-size: 3.5em;">My Resume</h1>
+
+    <h1 class="resume-section">Experience</h1>
+
+    <h2 class="resume-company">
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="ext-link">Facebook, Inc.</a>
+    </h2>
+
+    <h4 class="resume-period">
+      March 2016 - Now (<client:component><YearsSince startDate="2016-03-01T09:00:00-07:00" /></client:component> years)
+    </h4>
+    <h3 class="resume-position">
+      <a href="https://engineering.fb.com/category/production-engineering/" target="_blank" rel="noopener">Production Engineer</a>
+    </h3>
+    <q>
+      Production Engineering at Facebook is a hybrid between software and
+      systems engineering; it keeps Facebook running smoothly and scaling
+      efficiently. The Production Engineering team works within Facebook’s
+      product and infrastructure teams to make sure our services are
+      reliable and scalable. The team writes code and debugs hard problems
+      in live production that impact more than 2 billion people around the
+      world.
+    </q>
+    <p> </p>
+
+    <h4 class="resume-period">Oct 2014 - Feb 2016 (1.5 years)</h4>
+    <h3 class="resume-position">
+      <a href="https://engineering.fb.com/category/security/" target="_blank" rel="noopener">Security Engineer</a>
+    </h3>
+    <q>
+      Facebook Security strives to create and maintain the safest
+      environment possible for people on Facebook. We are building the
+      technologies that lay the groundwork for more than 2 billion people
+      around the world to connect and share with each other safely.
+    </q>
+    <p> </p>
+
+    <h2 class="resume-company">
+      <a href="https://www.pzu.pl/" target="_blank" rel="noopener" class="ext-link">Grupa PZU</a>
+    </h2>
+
+    <h4 class="resume-period">Oct 2010 - Sep 2014 (4 years)</h4>
+    <h3 class="resume-position">
+      <a href="http://en.wikipedia.org/wiki/Systems_architect" target="_blank" rel="noopener">Systems Architect</a>
+    </h3>
+
+    <ul>
+      <li>Defined architecture and requirements for information systems</li>
+      <li>
+        Provided technical expertise during negotiations with external
+        software houses
+      </li>
+      <li>Implemented key pieces of systems</li>
+      <li>Defined internal technology standards</li>
+    </ul>
+
+    <h2 class="resume-company">
+      <a href="https://www.fiserv.com/en-pl/" target="_blank" rel="noopener" class="ext-link">First Data Polska S.A.</a>
+    </h2>
+
+    <h4 class="resume-period">Sep 2008 - Nov 2010 (2 years)</h4>
+    <h3 class="resume-position">Senior Application Developer</h3>
+    <p>Design and development of card payments processing applications.</p>
+
+    <h2 class="resume-company">
+      <a href="https://www.altkom.pl" target="_blank" rel="noopener" class="ext-link">Altkom Akademia S.A.</a>
+    </h2>
+
+    <h4 class="resume-period">Oct 2003 - Aug 2008 (5 years)</h4>
+    <h3 class="resume-position">Corporate Systems Administrator</h3>
+    <p>
+      System administrator in one of the largest IT companies in Poland.
+    </p>
+
+    <p>Gained experience with the following technologies and concepts:</p>
+    <ul>
+      <li>
+        IT Systems security (no single intrusion/incident during the whole
+        period up to date)
+      </li>
+      <li>
+        LDAP (mainly OpenLDAP administration and writing lots of software
+        that interfaces with LDAP servers, plus devising a replication +
+        failover scheme for the company's main directory)
+      </li>
+      <li>
+        Network backup - IBM Tivoli Storage Manager, a multi-terabyte
+        installation that includes a SAN array and a fully automated
+        dual-drive 20 TB tape library
+      </li>
+      <li>
+        Internet mail and groupware (Courier mail system and eGroupWare +
+        own customizations)
+      </li>
+      <li> Automation of administrative processes and workflow</li>
+      <li>
+        Knowledge management (with the help of TWiki and eGroupWare systems)
+      </li>
+    </ul>
+
+    <h4 class="resume-period">Oct 1999 - Sep 2003 (4 years)</h4>
+    <h3 class="resume-position">Trainer and Consultant</h3>
+    <p>
+      Trainer in the area of office applications, VBA programming, and web
+      development.
+    </p>
+
+    <h2 class="resume-company">Daewoo Dacom Communications</h2>
+
+    <h4 class="resume-period">1998 - 1999 (1 year)</h4>
+    <h3 class="resume-position">IT Specialist</h3>
+    <p>
+      Maintaining office computers, printers, small networking maintenance
+    </p>
+  </div>
+
+  <h1 class="resume-section">Education</h1>
+
+  <h2 class="resume-company">
+    <a href="https://www.pja.edu.pl" target="_blank" rel="noopener" class="ext-link">Polish-Japanese Academy of Information Technology</a>
+  </h2>
+
+  <h4 class="resume-period">2008 - 2012 (4 years)</h4>
+  <h3 class="resume-diploma">
+    Master of Computer Science, Systems and Network Programming
+  </h3>
+
+  <h4 class="resume-period">1999 - 2008 (9 years)</h4>
+  <h3 class="resume-diploma">
+    Graduate Engineer (Bachelor's), Systems and Network Programming
+  </h3>
+
+  <h2 class="resume-company">
+    <a href="https://www.pw.edu.pl/engpw/Academics/Faculties/Faculty-of-Mechatronics" target="_blank" rel="noopener" class="ext-link">Warsaw University of Technology</a>
+  </h2>
+
+  <h4 class="resume-period">1997 - 1999 (2 years)</h4>
+  <h3 class="resume-diploma">Faculty of Mechatronics</h3>
+</BaseLayout>

@@ -1,0 +1,394 @@
+:root {
+  --color-primary: #0e8de6;
+  --color-bg: #ffffff;
+  --color-text: #212121;
+  --color-muted: #767676;
+  --color-heading: #212121;
+  --color-link: var(--color-primary);
+  --color-code-bg: #f5f5f5;
+  --color-border: #e2e2e2;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  --font-heading: var(--font-body);
+  --font-mono: Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
+  --max-width: 672px;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #111111;
+  --color-text: #e0e0e0;
+  --color-muted: #999999;
+  --color-heading: #f5f5f5;
+  --color-code-bg: #1e1e1e;
+  --color-border: #333333;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-heading);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.25em;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.75em;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.4em;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+pre {
+  background: var(--color-code-bg);
+  padding: 1em;
+  overflow-x: auto;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+code {
+  font-family: var(--font-mono);
+  background: var(--color-code-bg);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+ul, ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2em 0;
+}
+
+/* Layout */
+.site-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  padding: 1.5rem 1.5rem 0;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.site-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.site-header-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  flex: 1;
+}
+
+.site-header-title a {
+  color: var(--color-heading);
+  text-decoration: none;
+}
+
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 0.95em;
+}
+
+.site-nav a {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-link);
+}
+
+.site-nav a:hover {
+  text-decoration: underline;
+}
+
+.site-nav .nav-sep {
+  color: var(--color-muted);
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  outline: none;
+}
+
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  transition: background-color 0.25s ease;
+}
+
+.theme-toggle .theme-icons {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 3px;
+  z-index: 1;
+  font-size: 10px;
+  color: #fff;
+}
+
+.theme-toggle .theme-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 2;
+  transition: transform 0.25s ease;
+}
+
+[data-theme="dark"] .theme-toggle::before {
+  background-color: #000;
+}
+
+[data-theme="light"] .theme-toggle::before {
+  background-color: #ffffff;
+}
+
+[data-theme="light"] .theme-toggle .theme-icons {
+  color: #000;
+}
+
+[data-theme="light"] .theme-toggle .theme-knob {
+  transform: translateX(24px);
+}
+
+.site-bio {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.95em;
+}
+
+.site-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.site-bio-text {
+  color: var(--color-muted);
+}
+
+.site-bio-text a {
+  color: var(--color-link);
+}
+
+.site-main {
+  flex: 1;
+  max-width: var(--max-width);
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  width: 100%;
+}
+
+.site-footer {
+  padding: 2rem 1.5rem;
+  font-size: 0.85em;
+  color: var(--color-muted);
+}
+
+/* Bio (header area) */
+.site-bio {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem 0.75rem;
+  font-size: 0.95em;
+}
+
+/* Blog post list */
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list li {
+  margin-bottom: 0.75em;
+}
+
+.post-list a {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.post-date {
+  display: block;
+  font-size: 0.85em;
+  color: var(--color-muted);
+}
+
+/* Notes list */
+.notes-list {
+  list-style: none;
+  padding: 0;
+}
+
+.notes-list li {
+  margin-bottom: 0.5em;
+}
+
+/* External link style */
+.ext-link {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ext-link:hover {
+  text-decoration: underline;
+}
+
+/* Resume styles */
+.resume-section {
+  border-top: double gray;
+  padding-top: 0.5em;
+  margin-top: 1em;
+}
+
+.resume-company {
+  border-top: thin solid gray;
+  padding-top: 0.5em;
+  margin-bottom: 0.7em;
+  font-weight: 700;
+}
+
+.resume-period {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+.resume-position {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  font-weight: 600;
+}
+
+.resume-diploma {
+  font-size: 1.2em;
+  font-weight: 300;
+  margin-bottom: 1em;
+}
+
+/* Para wrapper */
+.para-wrapper {
+  margin-left: 1.5rem;
+  margin-right: auto;
+}
+
+/* TOC sidebar */
+.toc-container {
+  position: fixed;
+  left: calc(67%);
+  top: 15%;
+  max-height: 70vh;
+  max-width: 30em;
+  display: flex;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.toc-inner {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.toc-container ul {
+  list-style: none;
+  padding-left: 1em;
+  margin: 0.5em 0;
+}
+
+.toc-container a {
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.toc-container a:hover {
+  text-decoration: underline;
+}

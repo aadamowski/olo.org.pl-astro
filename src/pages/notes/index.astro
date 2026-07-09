@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('notes');
+---
+<BaseLayout title="Aleksander Adamowski - Notes">
+  <link rel="stylesheet" href="/styles/global.css" />
+  <h1>Notes</h1>
+  <p>Random technical notes and scripts.</p>
+  <ul class="notes-list">
+    {notes.map(note => (
+      <li>
+        <a href={`/notes/${note.slug}`}>{note.data.title}</a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

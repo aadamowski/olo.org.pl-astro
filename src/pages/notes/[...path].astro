@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map(note => ({
+    params: { path: note.slug },
+    props: { note }
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await note.render();
+---
+<BaseLayout title={`Aleksander Adamowski - ${note.data.title}`}>
+  <link rel="stylesheet" href="/styles/global.css" />
+  <article>
+    <h1>{note.data.title}</h1>
+    <Content />
+  </article>
+</BaseLayout>

@@ -1,0 +1,54 @@
+---
+title: Migrating from Gatsby 2 to Astro
+date: 2026-07-07
+---
+
+import Navlink from "../../components/Navlink.astro"
+
+This site was originally built on [Gatsby 2](https://www.gatsbyjs.com) with
+[theme-ui](https://theme-ui.com), and it served me well for years. But the
+ecosystem moved on, and maintaining a Gatsby 2 stack became less pleasant:
+slower builds, heavier runtime, and a lot of complexity for a mostly static
+site.
+
+So this weekend I (well, mostly my AI agent) migrated the whole thing to
+[Astro](https://astro.build).
+
+High-level summary of what changed:
+
+- Static-site core:
+  - Astro handles the same role Gatsby did: generating static HTML from
+    templates and content, but with a simpler, more direct model and faster
+    builds.
+- Content:
+  - Markdown posts and notes are now managed via Astro Content Collections
+    with Zod-based schemas, instead of Gatsby’s GraphQL layer.
+  - This removes the need for graphql queries everywhere and makes the
+    content pipeline easier to reason about.
+- UI layer:
+  - Replaced theme-ui with plain CSS variables. The visual design is
+    preserved, but without the extra abstraction.
+  - Interactive bits (like the dynamic "years since" on my <Navlink to="/resume" text="resume" />) are handled by small React islands via @astrojs/react, instead of full-page hydration.
+- Routing:
+  - Astro’s file-based routing replaced Gatsby’s pages directory and
+    createPages. Dynamic routes (blog posts, notes) are generated via
+    getStaticPaths.
+
+AI agent stack used:
+
+- Local [`llama.cpp-tq3`](https://github.com/turbo-tan/llama.cpp-tq3) running
+  on nVidia GeForce RTX 4090 (when possible, I run AI inference at home - no
+  paying for tokens, only electricity!)
+- [`Qwen3.6-27B-NEO-CODE-HERE-2T-OT-Q4_K_M.gguf`](https://huggingface.co/DavidAU/Qwen3.6-27B-Heretic-Uncensored-FINETUNE-NEO-CODE-Di-IMatrix-MAX-GGUF)
+  model quant with its corresponding `mmproj-BF16.gguf` for machine vision,
+  running with 196608 context size
+- [Hermes-agent](https://github.com/nousresearch/hermes-agent) harness
+
+
+The result:
+
+- Same content, same look and feel.
+- No more GraphQL.
+- Faster builds, smaller JS footprint, and a modern 2026 stack
+
+If you are reading this and nothing looks broken, the migration worked.

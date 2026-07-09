@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Aleksander Adamowski - Links">
+  <link rel="stylesheet" href="/styles/global.css" />
+  <div>
+    <h1>My Links</h1>
+    <p>
+      <a href="https://www.linkedin.com/in/aleksanderadamowski/" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/aadamowski" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">GitHub</a>
+    </p>
+
+    <p>
+      <a href="https://www.facebook.com/olo" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://twitter.com/the_olo" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">Twitter</a>
+    </p>
+    <p>
+      <a href="https://instagram.com/aadamowski" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://pinterest.com/aadamowski/" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">Pinterest</a>
+      <a href="https://www.flickr.com/photos/aleksanderadamowski/" class="ext-link" style="margin: 2em;" target="_blank" rel="noopener">Flickr</a>
+    </p>
+    <p>
+      <a href="mailto:aleksander.adamowski@gmail.com" class="ext-link" style="margin: 2em;">E-mail</a>
+    </p>
+    <hr />
+    <h2>Open source contributions</h2>
+
+    <a href="https://github.com/aadamowski?tab=overview&amp;from=2013-06-01&amp;to=2014-09-30" class="ext-link" style="margin: 2em; margin-top: 2em;" target="_blank" rel="noopener">Readium.js EPUB e-Book engine</a>
+    <div class="para-wrapper">
+      Implemented e-Book contents loading into memory from a remote EPUB
+      (essentially a zip archive) incrementally (without pre-emptive
+      unpacking of the ZIP archive).
+    </div>
+
+    <a href="https://bugzilla.mindrot.org/show_bug.cgi?id=2521" class="ext-link" style="margin: 2em; margin-top: 2em;" target="_blank" rel="noopener">OpenSSH</a>
+    <div class="para-wrapper">
+      Fixed an obscure bug in session key rekeying threshold computations.
+      This was a bug that was causing <code>scp</code> transfers above 64
+      GiB to fail on some SSH builds (notably RedHat/CentOS).
+    </div>
+
+    <a href="https://github.com/systemd/systemd/pull/2304" class="ext-link" style="margin: 2em; margin-top: 2em;" target="_blank" rel="noopener">systemd</a>
+    <div class="para-wrapper">
+      Fixed a <code>journald</code> logging bug.
+    </div>
+  </div>
+</BaseLayout>

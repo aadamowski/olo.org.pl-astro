@@ -1,0 +1,93 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Aleksander Adamowski. Professional electronic brain surgeon." } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body class="site-container">
+    <header class="site-header">
+      <div class="site-header-top">
+        <div class="site-header-title">
+          <a href="/">{title}</a>
+        </div>
+        <div class="site-header-right">
+          <nav class="site-nav">
+            <a href="/">About</a>
+            <span class="nav-sep">|</span>
+            <a href="/resume">Resume</a>
+            <span class="nav-sep">|</span>
+            <a href="/notes">Notes</a>
+            <span class="nav-sep">|</span>
+            <a href="/blog">Blog</a>
+            <span class="nav-sep">|</span>
+            <a href="/links">Links</a>
+          </nav>
+          <button
+            class="theme-toggle"
+            aria-label="Toggle dark mode"
+            onclick={/* jsx */ `
+              const root = document.documentElement;
+              const current = root.getAttribute('data-theme');
+              const next = current === 'dark' ? 'light' : 'dark';
+              root.setAttribute('data-theme', next);
+              localStorage.setItem('theme', next);
+            `}
+          >
+            <span class="theme-icons">
+              <span aria-hidden="true">🌙</span>
+              <span aria-hidden="true">☀️</span>
+            </span>
+            <span class="theme-knob"></span>
+          </button>
+        </div>
+      </div>
+      <div class="site-bio">
+        <img
+          src="/assets/avatar.jpg"
+          alt="Aleksander Adamowski"
+          class="site-avatar"
+        />
+        <div class="site-bio-text">
+          <a href="https://facebook.com/olo" target="_blank" rel="noopener">Aleksander Adamowski</a>'s page.
+          <br />
+          Just some ramblings.
+        </div>
+      </div>
+    </header>
+    <main class="site-main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        <a href="https://github.com/aadamowski" target="_blank" rel="noopener">GitHub</a>
+        &middot;
+        <a href="https://www.linkedin.com/in/aleksanderadamowski/" target="_blank" rel="noopener">LinkedIn</a>
+        &middot;
+        <a href="https://www.facebook.com/olo" target="_blank" rel="noopener">Facebook</a>
+        &middot;
+        <a href="https://www.instagram.com/aadamowski/" target="_blank" rel="noopener">Instagram</a>
+      </p>
+    </footer>
+  </body>
+</html>
