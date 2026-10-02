@@ -10,12 +10,11 @@ const sorted = posts.sort((a, b) => {
 });
 ---
 <BaseLayout title="Aleksander Adamowski - Blog">
-  <link rel="stylesheet" href="/styles/global.css" />
   <h1>Blog</h1>
   <ul class="post-list">
     {sorted.map(post => (
       <li>
-        <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+        <a href={`/blog/${post.id}`}>{post.data.title}</a>
         <span class="post-date">
           {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </span>
