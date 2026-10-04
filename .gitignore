@@ -10,8 +10,7 @@ dist/
 .env.*.local
 
 # Generated dev env files
-.astro/data-store.json
-.astro/dev.json
+.astro/
 
 # IDE / editors
 .vscode/
