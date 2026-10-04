@@ -11,66 +11,6 @@ Obviously, some may work on non-POSIX systems but it's not guaranteed.
 
 See also: [https://github.com/aadamowski/scripts](https://github.com/aadamowski/scripts)
 
-## Bash aliases
-
-
-```
-alias mkdir_curdate='mkdir $(date +%F)'
-alias mkdir_cd_curdate='mkdir $(date +%F); cd $_'
-alias cd_curdate='cd $(date +%F)'
-alias mkdir_curdate_time='mkdir -p $(date +%F)/$(date +%H_%M_%S)'
-alias mkdir_cd_curdate_time='mkdir -p $(date +%F)/$(date +%H_%M_%S); cd $_'
-alias cd_curdate_time='cd $(date +%F)'
-alias mkdir_curtimestamp='mkdir $(date +%F_%H_%M_%S)'
-alias mkdir_cd_curtimestamp='mkdir $(date +%F_%H_%M_%S); cd $_'
-```
-
-
-## No-fork cat in bash
-
-```
-clear IFS= read -rd '' contents < /proc/self/status; echo "$contents"
-```
-
-## Epoch timestamp to current date
-
-```
-date -d "@$1"
-```
-
-
-## sshping.sh
-
-```
-#!/bin/sh
-
-while true; do nc -zvw 1 "$1" 22; sleep 0.5; done;
-```
-
-
-## Exposing shells on the network
-
-
-```
-socat tcp-l:3333 exec:/bin/sh  <-- on the remote side
-socat tcp:localhost:3333 stdout
-ncat bmcaddr 3333
-```
-
-
-With full tty features:
-
-[https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method2usingsocat](https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method2usingsocat)
-
-
-```
-socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp6-l:1337
-
-socat file:tty,raw,echo=0 tcp6-connect:<remoteaddr>:1337
-```
-
-
-
 ## OpenSSL
 
 
@@ -241,7 +181,7 @@ fi
 
 
 
-## openssl_cat_PKCS12
+### openssl_cat_PKCS12
 
 
 ```
@@ -251,7 +191,7 @@ openssl pkcs12 -info -nodes -in "$1"
 
 
 
-## hexdump2asn1parse.sh
+### hexdump2asn1parse.sh
 
 Read and parse a hexdump of DER-encoded ASN.1 structure:
 
@@ -339,7 +279,186 @@ alias hgd='hg diff --noprefix --root . --color always | less -r'
 
 
 
-## base64_dec.py
+## Shell & Terminal
+
+### Bash aliases
+
+
+```
+alias mkdir_curdate='mkdir $(date +%F)'
+alias mkdir_cd_curdate='mkdir $(date +%F); cd $_'
+alias cd_curdate='cd $(date +%F)'
+alias mkdir_curdate_time='mkdir -p $(date +%F)/$(date +%H_%M_%S)'
+alias mkdir_cd_curdate_time='mkdir -p $(date +%F)/$(date +%H_%M_%S); cd $_'
+alias cd_curdate_time='cd $(date +%F)'
+alias mkdir_curtimestamp='mkdir $(date +%F_%H_%M_%S)'
+alias mkdir_cd_curtimestamp='mkdir $(date +%F_%H_%M_%S); cd $_'
+```
+
+
+### No-fork cat in bash
+
+```
+clear IFS= read -rd '' contents < /proc/self/status; echo "$contents"
+```
+
+### Exposing shells on the network
+
+
+```
+socat tcp-l:3333 exec:/bin/sh  <-- on the remote side
+socat tcp:localhost:3333 stdout
+ncat bmcaddr 3333
+```
+
+
+With full tty features:
+
+[https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method2usingsocat](https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method2usingsocat)
+
+
+```
+socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp6-l:1337
+
+socat file:tty,raw,echo=0 tcp6-connect:<remoteaddr>:1337
+```
+
+
+
+## SSH & Network Tools
+
+### sshping.sh
+
+```
+#!/bin/sh
+
+while true; do nc -zvw 1 "$1" 22; sleep 0.5; done;
+```
+
+
+### httrack-mirror_website.sh
+
+
+```
+#!/bin/sh
+httrack "$@" -j -%P -w -n -b1 -%h -%k -%B -C1 -P stacja.amarczuk:8080
+```
+
+
+
+### lookup_IP_country.sh
+
+
+```
+#!/bin/sh
+# Example usage:
+# List countries with which you currently have established TCP connections:
+# netstat -anp | fgrep ESTABLISHED | awk '{print $5}' | sort | uniq | fgrep -v 127.0.0.1 \
+# | perl -pe 's/:[^:]+$/\n/;' | xargs -n 1 lookup_IP_country.sh
+
+ip_addr=$1
+rev_ip_addr="$(echo "$ip_addr" | perl -pe 's/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/$4.$3.$2.$1/;')"
+# 227.73.63.60.cc.iploc.org descriptive text "CN"
+host -t TXT "${rev_ip_addr}.cc.iploc.org" | perl -pe 's/^[0-9.]+\.cc\.iploc\.org descriptive text \"([A-Za-z0-9]+)\"$/$1/;'
+```
+
+
+
+### ss_list_listening_sockets.sh
+
+List listening TCP sockets for selected port numbers:
+
+
+```
+#!/bin/bash
+# Example usage:
+# ss_list_listening_sockets.sh 22 80 443 8089
+
+filter=''
+
+while (($#)); do
+    if [ $notfirst ]; then
+        filter="$filter or"
+    fi
+    filter="$filter sport = $1"
+    notfirst=1
+    shift
+done
+
+echo "FILTER: $filter"
+
+ss -tlnup "$filter"
+```
+
+
+
+### pid_listening_on_tcp_port.sh
+
+
+```
+#!/bin/sh
+port=$1
+lsof -i TCP:$port
+```
+
+
+
+## Date & Time Utilities
+
+### Epoch timestamp to current date
+
+```
+date -d "@$1"
+```
+
+
+### epoch2time.pl
+
+Convert UNIX epoch to human readable time:
+
+
+```
+#!/usr/bin/perl -w
+#
+use strict;
+my $time = $ARGV[0];
+
+my ($sec, $min, $hour, $day,$month,$year) = (localtime($time))[0,1,2,3,4,5];
+# You can use 'gmtime' for GMT/UTC dates instead of 'localtime'
+
+print "Unix time ".$time." converts to ";
+printf("%04d-%02d-%02d %02d:%02d:%02d\n", $year+1900, $month + 1, $day, $hour, $min, $sec);
+
+my $localestrtime = localtime($time);
+
+print "In locale format: $localestrtime\n"
+```
+
+
+
+### epoch2time.sh
+
+
+```
+#!/bin/sh
+date -d "@${1}"
+```
+
+
+
+### epoch2time_bsd.sh
+
+
+```
+#!/bin/sh
+date -j -f %s "${1}"
+```
+
+
+
+## Encoding & Decoding
+
+### base64_dec.py
 
 
 ```
@@ -352,7 +471,7 @@ for line in sys.stdin.readlines():
 
 
 
-## base64_enc.py
+### base64_enc.py
 
 
 ```
@@ -365,7 +484,7 @@ for line in sys.stdin.readlines():
 
 
 
-## base64_dec
+### base64_dec
 
 
 ```
@@ -377,7 +496,7 @@ print MIME::Base64::decode($buf);
 
 
 
-## base64_enc
+### base64_enc
 
 
 ```
@@ -390,7 +509,7 @@ while (read(STDIN, $buf, 60*57)) {
 
 
 
-## quoted_printable_dec
+### quoted_printable_dec
 
 
 ```
@@ -402,7 +521,7 @@ print decode_qp($buf);
 
 
 
-## quoted_printable_enc
+### quoted_printable_enc
 
 
 ```
@@ -415,123 +534,82 @@ while (read(STDIN, $buf, 60*57)) {
 
 
 
-## all_pair_combinations.py
+### url_encode.pl
 
 
 ```
-#!/usr/bin/python
-import sys
-import itertools
-words=sys.stdin.readlines()
-combinations=itertools.combinations(words, 2)
-for combination in combinations:
-        print combination[0].rstrip() + ' ' + combination[1].rstrip()
-        print combination[1].rstrip() + ' ' + combination[0].rstrip()
+#!/usr/bin/perl -w -p
+s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
 ```
 
 
 
-## dusage_in_curdir.sh
+### url_decode.pl
 
 
 ```
-#!/bin/sh
-du -xk --max-depth=1 . | sort -n
+#!/usr/bin/perl
+$str=<>;
+$str =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
+print $str;
+print "\n";
 ```
 
 
 
-## db_dump.pl - dump a Berkeley DB database
-
- 
+### html_escape_with_entities.pl
 
 
 ```
-use warnings;
-use strict;
-use DB_File;
-use Fcntl;
+#!/usr/bin/perl -w -p
 
-my (%db, $key, $val);
-tie %db, 'DB_File', $ARGV[0], O_RDONLY, 0640, $DB_BTREE or die "Cannot open ".$ARGV[0].": $!\n";
-# Dump the complete database
-while (($key, $val) = each %db) {
-	    print "$key:$val\n";
+BEGIN { use HTML::Entities; }
+{
+ $_ = encode_entities($_, '<>&"');
 }
-untie %db;
 ```
 
 
 
-## bekap
+### iconv_utf8_to_ascii_translit
 
 
 ```
-#!/bin/sh
-# by OLO
-# skrypt tworzy kopie zapasowa pliku w wydzielonym katalogu ~/bekap.
-# kopia tworrzona jest z dopiskiem - numerem wersji pliku,
-# tworzonym z daty i czasu wykonania (z dokladnoscia do 1 sekundy)
-
-if [ $# -ge 1 ]; then
-	    while [ $# -ne 0 ]; do
-	            if [ -e "$1" ]; then
-	  curdate=$(date +%Y_%m_%d_%H=%M=%S)
-	  basename=$(basename "$1")
-	                    cp -ai "$1" ~/"bekap"/"$basename.${curdate}"
-	  bzip2 ~/"bekap"/"$basename.${curdate}"
-	            else
-	                    echo "plik $1 nie istnieje"
-	            fi
-	            shift
-	    done
-else
-	    echo "Uzycie: $0 plik_do_zachowania"
-fi
+iconv -f UTF-8 -t US-ASCII//TRANSLIT
 ```
 
 
 
-## bekap_in_place
+### encode_BCD.pl
 
 
 ```
-#!/bin/sh
-# by OLO
-# skrypt tworzy kopie zapasowa pliku w katalogu biezacym.
-# kopia tworrzona jest z dopiskiem - numerem wersji pliku,
-# tworzonym z daty i czasu wykonania (z dokladnoscia do 1 sekundy)
+#!/usr/bin/perl -w
+use strict;
 
-if [ $# -ge 1 ]; then
-	    while [ $# -ne 0 ]; do
-	            if [ -e "$1" ]; then
-	  curdate=$(date +%Y_%m_%d_%H=%M=%S)
-	  basename=$(basename "$1")
-	                    cp -ai "$1" "$1.${curdate}"
-	  bzip2 "$1.${curdate}"
-	            else
-	                    echo "plik $1 nie istnieje"
-	            fi
-	            shift
-	    done
-else
-	    echo "Uzycie: $0 plik_do_zachowania"
-fi
+sub encode_BCD {
+return pack "H*", join "", @_
+};
+
+my $decString = $ARGV[0];
+my $bin = unpack("B*",encode_BCD($decString));
+my $groupedBin = $bin;
+
+$groupedBin =~ s/(.{4})/$1 /g;
+print "Packed BCD representation of decimal string $decString:\n";
+print "binary:\n";
+print "$bin\n";
+print "grouped binary:\n";
+print "$groupedBin\n";
+print "hexadecimal (the same as decimal):\n";
+print "$decString\n";
 ```
 
 
 
-## httrack-mirror_website.sh
+## Polish ID Validation & Generation
 
-
-```
-#!/bin/sh
-httrack "$@" -j -%P -w -n -b1 -%h -%k -%B -C1 -P stacja.amarczuk:8080
-```
-
-
-
-## check_nip.py
+### check_nip.py
 
 
 ```
@@ -553,7 +631,7 @@ else:
 
 
 
-## generate_nip.py
+### generate_nip.py
 
 
 ```
@@ -574,7 +652,7 @@ print ''.join(nip)
 
 
 
-## check_nrb.py
+### check_nrb.py
 
 
 ```
@@ -607,7 +685,7 @@ else:
 
 
 
-## check_pesel.py
+### check_pesel.py
 
 
 ```
@@ -629,7 +707,7 @@ else:
 
 
 
-## generate_pesel.py
+### generate_pesel.py
 
 
 ```
@@ -657,7 +735,7 @@ print gen_pesel()
 
 
 
-## check_regon.py
+### check_regon.py
 
 
 ```
@@ -692,7 +770,9 @@ else:
 
 
 
-## luhnCalculator.py
+## Luhn Algorithm
+
+### luhnCalculator.py
 
 
 ```
@@ -733,7 +813,7 @@ while 1:
 
 
 
-## luhnCheck.py
+### luhnCheck.py
 
 
 ```
@@ -768,70 +848,431 @@ while 1:
 
 
 
-## chrome_bookmarks-extract_URLs.py
+## File & Disk Utilities
 
-Extracts URLs of all Chrome bookmarks in the specified bookmark folder (or many folders, if they collide by name). Works recursively.
+### dusage_in_curdir.sh
 
-It's also a nice example for general JSON parsing and querying (XPath-like) using Python.
 
-Requires the [jsonpath](http://pypi.python.org/pypi/jsonpath/) Python module (`pypi-install jsonpath`).
+```
+#!/bin/sh
+du -xk --max-depth=1 . | sort -n
+```
+
+
+
+### reread_partition_table_blockdev.sh
+
+
+```
+#!/bin/sh
+blockdev --rereadpt "$1"
+```
+
+
+
+### scsi_rescan_bus.sh
+
+
+```
+#!/bin/sh
+host_number="$1"
+echo "1" > /sys/class/fc_host/host${host_number}/issue_lip
+echo "- - -" > /sys/class/scsi_host/host${host_number}/scan
+```
+
+
+
+### do_postmark_tests.sh
+
+
+```
+#!/bin/sh
+# (c) 2010 Aleksander Adamowski
+# This script benchmarks various GPT partition offsets
+# in order to find an optimal one for performance.
+#
+# Written for optimal partitioning of my new 4 kB sector
+# Western Digital Advanced Format HDD (WD15EARS).
+#
+
+warning="WARNING!!!
+This script completely erases significant portions of the configured block 
+device (the \"device\" variable specified in its body).
+
+Shoots first, asks questions later.
+
+In order to certify that you know what you're doing and accept that you WON'T 
+HOLD THE AUTHOR OF THIS SCRIPT LIABLE FOR ANY DAMAGES THAT IT MIGH CAUSE,
+you have to modify the script by removing  or commenting out the \"exit 5\" 
+command that prevents it from running.
+EOD"
+
+echo "$warning"
+
+exit 5
+
+# Here begins the actual script logic
+device=sdb
+export LANG=C
+
+# part_offset in sectors (512B unless the device reports other size to parted):
+part_offset=41
+
+for part_offset in $(seq 41 64); do
+	umount /mnt/${device}1
+	parted /dev/$device unit s rm 1
+	sleep 1
+	parted_out="$(parted -s /dev/$device unit s "mkpart primary ext2 $part_offset -1")"
+	if [ $? -ne 0 ]; then
+	    echo "Parted error:"
+	    echo "$parted_out"
+	    last_sector="$(echo "$parted_out" | fgrep 'closest location we can manage' | perl -e '$_ = <>; if ($_ =~ /to ([0-9]+)s./) { print $1; }' )"
+	    echo "Last possible partition sector:"
+	    echo "[$last_sector]"
+	    parted_out="$(parted -s /dev/$device unit s "mkpart primary ext2 $part_offset $last_sector")"
+	    if [ $? -ne 0 ]; then
+	        echo "FATAL ERROR: could not determine proper sector range for new partition:"
+	        echo "$parted_out"
+	        exit 1
+	    fi
+	fi
+	sleep 1
+	parted /dev/$device unit s print | tee -a "parted_dev_${device}_partition_at_${part_offset}s.txt"
+	sync
+	mkfs.ext4 -T largefile4 /dev/${device}1
+	mount /dev/${device}1 /mnt/${device}1
+	ls -la /mnt/${device}1
+	cat /proc/partitions  | egrep "($device|major)" > "proc_partitions_${device}_start_at_${part_offset}s.txt"
+	sync
+	sleep 1
+	echo "Executing postmark-quick with partition offset $part_offset:"
+	postmark postmark-quick.conf | tee -a "postmark-quick_${device}_${part_offset}.txt"
+
+	echo "Sleeping 5 seconds..."
+	sleep 5
+done
+```
+
+
+
+## Backup Scripts
+
+### bekap
+
+
+```
+#!/bin/sh
+# by OLO
+# skrypt tworzy kopie zapasowa pliku w wydzielonym katalogu ~/bekap.
+# kopia tworrzona jest z dopiskiem - numerem wersji pliku,
+# tworzonym z daty i czasu wykonania (z dokladnoscia do 1 sekundy)
+
+if [ $# -ge 1 ]; then
+	    while [ $# -ne 0 ]; do
+	            if [ -e "$1" ]; then
+	  curdate=$(date +%Y_%m_%d_%H=%M=%S)
+	  basename=$(basename "$1")
+	                    cp -ai "$1" ~/"bekap"/"$basename.${curdate}"
+	  bzip2 ~/"bekap"/"$basename.${curdate}"
+	            else
+	                    echo "plik $1 nie istnieje"
+	            fi
+	            shift
+	    done
+else
+	    echo "Uzycie: $0 plik_do_zachowania"
+fi
+```
+
+
+
+### bekap_in_place
+
+
+```
+#!/bin/sh
+# by OLO
+# skrypt tworzy kopie zapasowa pliku w katalogu biezacym.
+# kopia tworrzona jest z dopiskiem - numerem wersji pliku,
+# tworzonym z daty i czasu wykonania (z dokladnoscia do 1 sekundy)
+
+if [ $# -ge 1 ]; then
+	    while [ $# -ne 0 ]; do
+	            if [ -e "$1" ]; then
+	  curdate=$(date +%Y_%m_%d_%H=%M=%S)
+	  basename=$(basename "$1")
+	                    cp -ai "$1" "$1.${curdate}"
+	  bzip2 "$1.${curdate}"
+	            else
+	                    echo "plik $1 nie istnieje"
+	            fi
+	            shift
+	    done
+else
+	    echo "Uzycie: $0 plik_do_zachowania"
+fi
+```
+
+
+
+## Text Processing
+
+### all_pair_combinations.py
 
 
 ```
 #!/usr/bin/python
+import sys
+import itertools
+words=sys.stdin.readlines()
+combinations=itertools.combinations(words, 2)
+for combination in combinations:
+        print combination[0].rstrip() + ' ' + combination[1].rstrip()
+        print combination[1].rstrip() + ' ' + combination[0].rstrip()
+```
 
+
+
+### remove_newline_at_eof.pl
+
+
+```
+#!/usr/bin/perl -i -p
+chomp if eof
+```
+
+
+Or directly from the shelll:
+
+
+```
+perl -i -pe 'chomp if eof' <filename>
+```
+
+
+
+## Media Processing
+
+### mplayer_play_DVD_iso_image_with_subs.sh
+
+
+```
+#!/bin/sh
+mplayer -sub $1 -subcp $2 -dvd-device $3 dvd://1
+```
+
+
+
+### jpegtran_from_jpegexif.sh
+
+
+```
+#!/bin/sh
+for jpg in "$@"; do
+    #randname="$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum -b | cut -b 1-32).tmp"
+    #touch -r "$jpg" -F 1 $randname
+    echo $orient "$jpg";
+    #jpegtran -copy all -rotate 90 "$jpg" > "$jpg.tmp" && mv -f "$jpg.tmp" "$jpg" &&  jpegexiforient -1 "$jpg";
+    jhead -autorot -ft "$jpg"
+    #touch -r $randname "$jpg"
+    #rm $randname
+done;
+```
+
+
+
+### Exif_timestamps_to_file_modtime_in_curdir.py
+
+
+```
+#!/usr/bin/env python
+
+import exifread
 import os
-import json
-import jsonpath
+import time
 
-bfile=open(os.path.expanduser("~/.config/chromium/Default/Bookmarks"))
-bookmarks=json.load(bfile)
-term_urls = jsonpath.jsonpath(bookmarks, "$..children[?(@.name=\"SomeBookmarkFolder\")]..url")
+def get_exif_timestamp(filename):
+    with open(filename) as f:
+        tags = exifread.process_file(f, stop_tag='DateTimeOriginal')
+        #print tags.keys()
+        return tags.get('EXIF DateTimeOriginal')
 
-for url in term_urls:
-        print url
+def exif_ts_to_unix_ts(exif_ts):
+    return time.mktime(time.strptime(exif_ts.values, "%Y:%m:%d %H:%M:%S"))
+
+def set_file_ts_from_exif(filename, exif_ts):
+    if exif_ts:
+        unix_ts = exif_ts_to_unix_ts(exif_ts)
+        os.utime(filename, (unix_ts, unix_ts))
+        print filename + ' timestamp set to: ' + str(unix_ts) + ' (' + exif_ts.values + ')'
+
+def main():
+    for filename in os.listdir('.'):
+        if not os.path.isfile(filename):
+            continue
+        try:
+            exif_ts = get_exif_timestamp(filename)
+            set_file_ts_from_exif(filename, exif_ts)
+        except:
+            print 'ERROR when processing file ' + filename
+
+if __name__ == '__main__':
+    main()
 ```
 
 
 
-## url_encode.pl
+### amr_to_wav.sh
 
 
 ```
-#!/usr/bin/perl -w -p
-s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-```
-
-
-
-## url_decode.pl
-
-
-```
-#!/usr/bin/perl
-$str=<>;
-$str =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
-print $str;
-print "\n";
+#!/bin/sh
+mplayer "$1" -ao pcm:file="$1.wav" -vc null -vo null
 ```
 
 
 
-## html_escape_with_entities.pl
+### convert_flac_to_mp3_subtree.sh
 
 
 ```
-#!/usr/bin/perl -w -p
+#!/bin/sh
+if [ $# -ge 1 ]; then
+find "$1" -type f -iname '*.flac' | xargs -n 1 dirname | uniq | perl -pe 's{^}{mp3/};' | xargs mkdir -p
 
-BEGIN { use HTML::Entities; }
-{
- $_ = encode_entities($_, '<>&"');
-}
+for file in $(find "$1" -type f -iname '*.flac' ); do
+	    ARTIST=`metaflac "$file" --show-tag=ARTIST | sed s/.*=//g`
+	    TITLE=`metaflac "$file" --show-tag=TITLE | sed s/.*=//g`
+	    ALBUM=`metaflac "$file" --show-tag=ALBUM | sed s/.*=//g`
+	    GENRE=`metaflac "$file" --show-tag=GENRE | sed s/.*=//g`
+	    TRACKNUMBER=`metaflac "$file" --show-tag=TRACKNUMBER | sed s/.*=//g`
+	    DATE=`metaflac "$file" --show-tag=DATE | sed s/.*=//g`
+
+	    outfile="mp3/$(echo "$file" | perl -pe 's/.flac$/.mp3/i')";
+	    flac -d -c  "$file" | lame --preset standard - "$outfile";
+	    id3 -t "$TITLE" -T "${TRACKNUMBER:-0}" -a "$ARTIST" -A "$ALBUM" -y "$DATE" -g "${GENRE:-12}" "$outfile"
+done;
+else
+	    echo "Usage: $0 directory_with_flac_files"
+fi
 ```
 
 
 
-## ldap_ssha_make.py
+### ffmpeg_transcode_avi_to_Android.sh
+
+
+```
+#!/bin/sh
+# Using a xargs queue for 4 parallel processes to fully utilise a 4-core CPU:
+(for krtekavi in ../*Krtek*.avi; do
+        krtekandroid="$(basename "$krtekavi").mp4"
+        echo " -threads 4 -strict experimental -i $krtekavi -s 480x320 -vcodec mpeg4 -acodec aac -ac 1 -ar 16000 -r 13 -ab 32000 -aspect 3:2 $krtekandroid"
+done) | xargs -t -P 4 -L 1 ffmpeg
+```
+
+
+  
+
+
+### rename_jpg_based_on_exif_timestamp.sh
+
+
+```
+#!/bin/sh
+for jpg in *.jpg; do
+	    tag="$(exif -m -t 0x9003 "$jpg" | perl -pe 'tr/: /-_/;')"
+	    mv -i "Renaming [$jpg] to [$tag.jpg]"
+	    mv -i "$jpg" "$tag.jpg"
+done
+```
+
+
+
+## Java & Keytool
+
+### keytool_add_ca_cert.sh
+
+
+```
+#!/bin/sh
+# default keystore pass: "changeit"
+keytool -import -keystore /etc/java-1.5.0-sun/security/cacerts -trustcacerts -alias FIRMA -file PATH/TO/firma.pem
+```
+
+
+
+### list PKCS#11 KeyStore
+
+
+```
+keytool -v -keystore NONE -storetype PKCS11 -providerClass sun.security.pkcs11.SunPKCS11   -providerArg /.../pkcs11.cfg -list
+```
+
+
+
+### list PKCS#12 KeyStore
+
+
+```
+keytool -v -keystore STORE.p12 -storetype PKCS12 -list
+```
+
+
+
+### Import PKCS#12 to JKS KeyStore
+
+keytool -importkeystore -srckeystore SRC.p12 -destkeystore DEST.jks -srcstoretype PKCS12 -deststoretype JKS -srcstorepass PASS1 -deststorepass PASS2
+
+
+### jboss_list_JNDI
+
+
+```
+sh /opt/jboss/bin/twiddle.sh invoke jboss:service=JNDIView list true
+```
+
+
+Listuje zawartość JNDI.
+
+
+### jboss_scp_deploy_and_wait.sh
+
+
+```
+#!/bin/sh
+# deploys EARs from a project to all server nodes of a JBoss cluster, 
+# waiting for successful deployment of each EAR on given server.
+# The target servers _must_ have the Expect package that contains the
+# "unbuffer" utility installed!
+
+BUILD_DIR=$HOME/workspace/projectname
+JBOSS_DIR=/opt/jboss/server/projectname
+
+for host in server01 server02; do
+	login=root@$host
+	for ear in projectname-integration projectname-business; do
+
+	    fullpath=$(find $BUILD_DIR/ -wholename "*ear/target/$ear-?.?.?.ear" | head -n 1)
+	    echo ========================================================
+	    echo $fullpath
+
+	    # Make sure that the file is deemed newer than any previously rsync-ed:
+	    touch $fullpath
+	    rsync -vP -T $JBOSS_DIR/tmp $fullpath $login:$JBOSS_DIR/deploy/
+	    # Monitor remote log file, waiting until the app starts up:
+	    ssh $login "grep -m 1 'Started J2EE application.*$ear-[-0-9.]\+.ear' <(unbuffer -p tail -n 0 -f $JBOSS_DIR/log/server.log)"
+	    echo "Deployment of $ear on $host ended."
+	    sleep 1
+	done;
+done;
+```
+
+
+
+## LDAP & Active Directory
+
+### ldap_ssha_make.py
 
 
 ```
@@ -856,7 +1297,7 @@ print makeSecret(password)
 
 
 
-## ldap_ssha_check.py
+### ldap_ssha_check.py
 
 
 ```
@@ -886,7 +1327,319 @@ else:
 
 
 
-## generate_passwords_no_ambiguous_chars.sh
+### ldapsearch_get_suffixes.sh
+
+
+```
+#!/bin/sh
+ldapsearch -x -H ldap://127.0.0.1 -b "" -s base "(objectclass=*)" namingContexts
+```
+
+
+AD_search_groups.sh
+
+
+```
+#!/bin/sh
+
+if [ $# -lt 2 ]; then
+
+	cat <<EOF >&2
+Usage:
+AD_search_groups.sh bind_DN member_DN
+e.g.:
+AD_search_groups.sh 'CN=Adamowski Aleksander,OU=Users,OU=Organization,DC=example,DC=com' 'CN=Adamowski Aleksander,OU=Users,OU=Organization,DC=example,DC=com'
+EOF
+else
+	ldapsearch -LLL -H ldap://your-dc-hostname-from-logonserver-windows-env-var -D "$1" -b DC=example,DC=com -W -x "member=$2" name displayname mail
+fi
+```
+
+
+
+## Process Management
+
+### exec_timeout_kill.pl
+
+
+```
+#!/usr/bin/perl -w
+# by OLO
+# czw lis  3 11:25:23 CET 2005
+# Skrypt uruchamia komende, czeka az komenda sie zakonczy lub minie timeout.
+# Jesli komenda sie zakonczy w zadanym czasie, zwraca taki kod, jak ta komenda;
+# jesli komenda dalej dziala - KILLuje ja najpierw SIGTERMem, potem SIGKILLem
+# jesli to nie pomoze i zwraca kod 1 (jesli wystarczyl SIGTERM) lub kod 2 (SIGKILL byl konieczny).
+
+use strict;
+use Getopt::Std;
+use POSIX;
+#use POSIX ":sys_wait_h";
+
+our($opt_t);
+getopts('t:');
+
+if (defined($opt_t) && defined($ARGV[0])) {
+  #print "$opt_t\n";
+  #print $ARGV[0]."\n";
+  my $pid = fork();
+  die "fork() failed: $!" unless defined $pid;
+  if ($pid) {
+    # Jestem tatusiem!
+    my $countdown = int($opt_t);
+    if (!$countdown > 0 ) {
+      die("Nieprawidlowa wartosc timeout!\n");
+    }
+    for ($countdown = int($opt_t); $countdown > 0; $countdown--) {
+      #print "$countdown\n";
+      sleep 1;
+      my $kid = waitpid($pid, WNOHANG);
+      my $status = $?;
+      if ($kid == 0) {
+        #print "Dziecko dziala\n";
+      } else {
+        my $retval = ($status >> 8);
+        #print "Retval: $retval\n";
+        #$?>> 8
+        exit $retval;
+      }
+    }
+    # Minal timeout, a dziecko caly czas dziala
+    # Killujemy zatem:
+    kill SIGTERM, $pid;
+    sleep 2;
+    my $kid = waitpid($pid, WNOHANG);
+    my $status = $?;
+    if ($kid == 0) {
+      print STDERR "Dziecko CIAGLE dziala, ubijam na twardo...\n";
+      kill SIGKILL, $pid;
+      exit 2;
+    } else {
+        my $retval = ($status >> 8);
+        #print "Retval: $retval\n";
+        #exit $retval;
+        exit 1;
+    }
+  }
+  else {
+    # Da-da!
+    exec(@ARGV) or die("Couldn't exec: ".join(' ', @ARGV));
+    exit(0);
+  }
+
+} else {
+  print STDERR "Usage:\n$0 -t timeout command [args] \n";
+}
+```
+
+
+
+### timed-run-err
+
+Expect's timed-run example script forks a command and if it does not complete in a given time, kills it.
+
+This variant of the timed-run example script exists with an error code when timeout occurs:
+
+
+```
+#!/bin/sh
+# \
+exec expect -f "$0" ${1+"$@"}
+# run a program for a given amount of time
+# i.e. time 20 long_running_program
+
+set timeout [lindex $argv 0]
+eval spawn [lrange $argv 1 end]
+expect {
+	timeout  {
+	    exit 1
+	}
+}
+```
+
+
+
+### ps_backtrace.sh
+
+get a ps process listing for the current process and all its ancestors up to init
+
+
+```
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 PID" > /dev/stderr
+  exit 1
+fi
+
+declare -i pid=$1;
+ppid=0;
+header_modifier="";
+while : ; do
+  if [ $ppid -ne 0 ]; then
+    header_modifier=h;
+  fi;
+  ppid=$(ps -o ppid= $pid);
+  ps uww $header_modifier -p $pid;
+  if [ $pid -eq 1 ]; then
+    break;
+  fi;
+  pid=$ppid;
+done;
+```
+
+
+Usage:
+
+
+```
+$ ps_backtrace.sh PROCESS_PID
+```
+
+
+e.g.:
+
+
+```
+$ ps_backtrace.sh $$
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+olo      3372425  0.0  0.0 108180  3632 pts/23   Ss   11:29   0:00 /bin/bash
+olo       212112  0.0  0.2 326644 208496 ?       Ss   Jan27   0:15 SCREEN -S www
+olo       212111  0.0  0.0 118996   980 pts/13   S+   Jan27   0:04 screen -S www
+olo        14054  0.0  0.0 107868  3200 pts/13   Ss   Jan27   0:00 -bash
+...
+root           1  0.0  0.0  19280   944 ?        Ss    2014   6:44 /sbin/init
+```
+
+
+
+### ps_descendants.sh
+
+
+```
+#!/bin/sh
+pstree -p $1 | perl -ne 'while (/\((\d+)\)/g) { print "$sep$1"; $sep="," }'
+```
+
+
+
+### ps_blocked_processes.sh
+
+
+```
+#!/bin/sh
+ps axr
+```
+
+
+
+## Monitoring & Logging
+
+### input_rate_notifier.pl
+
+
+```
+#!/usr/bin/perl -w
+# by Aleksander Adamowski
+# Wed Nov 23 23:26:12 CET 2005
+# Skrypt wykrywa przekroczenie pewnej ilosci wierszy na ilosc sekund na STDIN
+# i uruchamia dane polecenie powiadamiajace o przekroczeniu.
+
+use strict;
+
+if (scalar(@ARGV) < 3) {
+  die "Uzycie: $0 ilosc_wierszy ilosc_sekund polecenie_powiadamiajace\n";
+}
+
+my $rowcount = $ARGV[0];
+my $seconds = $ARGV[1];
+my $notificator = $ARGV[2];
+my @queue = ();
+
+# Kiedy ostatnio bylo powiadomienie (moze byc nie czesciej, niz ilosc_sekund aby uniknac spamowania):
+my $lastnotification = 0;
+
+my $time;
+my $tailtime;
+my $queuetime;
+
+while (<STDIN>) {
+  $time = time;
+  unshift @queue, $time;
+  # Jesli kolejka jest pelna, zaczynamy zdejmowac wpisy z jej konca:
+  if (scalar(@queue) > $rowcount) {
+    pop @queue;
+    # Czas na koncu kolejki:
+    $tailtime = $queue[$#queue];
+    # Jesli koniec kolejki jest malo oddalony w czasie (ponizej $seconds) od poczatku, to przeplywnosc jest przekroczona:
+    $queuetime = (time - $tailtime);
+    if ($queuetime < $seconds && (time - $lastnotification) > $seconds) {
+      # Powiadamiamy:
+      #print "Rate EXCEEDED! $rowcount rows / $queuetime seconds\n";
+      system $notificator or die $?;
+      $lastnotification = time;
+    }
+  }
+}
+```
+
+
+
+### monitor_logfile.pl
+
+
+```
+#!/usr/bin/perl -w
+# by OLO
+# Tue Aug 16 11:41:26 CEST 2005
+# Monitoruje przyrastajacy plik logow oczekujac na pojawienie sie wzorca.
+# Po pojawieniu sie wzorca wysyla powiadomienie pod zadany adres e-mail.
+use strict;
+use File::Tail;
+use Mail::Sendmail;
+use Getopt::Std;
+
+$| = 1;
+
+our($opt_n);
+getopts('n');
+
+if (scalar(@ARGV) < 3) {
+  print STDERR <<EOD
+Uzycie:
+ $0 [-n] plik_logu 'wzorzec regexp' adres_email_do_powiadomienia
+EOD
+;
+        die("Nieprawidlowa skladnia.\n");
+}
+
+my $regexp_source = $ARGV[1];
+my $regexp = qr/$regexp_source/;
+
+my $line;
+my $file=File::Tail->new(name => $ARGV[0], interval => 1, maxinterval => 2, ignore_nonexistant => 1);
+while (defined($line=$file->read)) {
+        if ($line =~ /$regexp/) {
+                my $message = "W pliku ${ARGV[0]} pojawil sie wiersz odpowiadajacy wzorcowi $regexp.\n\nOto ten wiersz:\n\n$line\n";
+                my %mail = ( To      => $ARGV[2],
+                                From    => 'postmaster@altkom.pl',
+                                Subject => 'Pojawil sie wpis w logu odpowiadajacy wzorcowi',
+                                Message => $message
+                                );
+                print $message;
+                sendmail(%mail) or die $Mail::Sendmail::error;
+    if (! $opt_n) {
+      exit 0;
+    }
+        }
+}
+```
+
+
+
+## Security & Network Tools
+
+### generate_passwords_no_ambiguous_chars.sh
 
 
 ```
@@ -895,7 +1648,7 @@ apg -M SNCL -E "O5Ss01Il:;|6b"
 
 
 
-## soap_digest_check.sh
+### soap_digest_check.sh
 
 
 ```
@@ -909,7 +1662,83 @@ pass=$3
 
 
 
-## rename_to_random.sh
+### ettercap_arp_sniff.sh
+
+
+```
+#!/bin/sh
+ettercap -Tq -M arp //
+```
+
+
+
+## Archive & Database
+
+### db_dump.pl - dump a Berkeley DB database
+
+ 
+
+
+```
+use warnings;
+use strict;
+use DB_File;
+use Fcntl;
+
+my (%db, $key, $val);
+tie %db, 'DB_File', $ARGV[0], O_RDONLY, 0640, $DB_BTREE or die "Cannot open ".$ARGV[0].": $!\n";
+# Dump the complete database
+while (($key, $val) = each %db) {
+	    print "$key:$val\n";
+}
+untie %db;
+```
+
+
+
+### explode_zips.sh
+
+
+```
+#!/bin/sh
+# Iteratively explode all ZIP/JAR/WAR/EAR archives in the current dir and all the archives they contain.
+
+foundzips=1
+while [ $foundzips -gt 0 ]; do
+  IFS=$'\n'
+  foundzips=0
+  # Not very efficient to re-find for each sublevel, but it's simple:
+  for zipfile in $(find ./ -type f -iname '*.zip' -or -iname '*.[jwe]ar'); do
+	foundzips=1
+	echo "Archive: [$zipfile]"
+	expdir="$zipfile.exploded"
+	if [ ! -e "$expdir" ]; then
+	  dirpushed=0
+	  zipfilebasename="$(basename "$zipfile")"
+	  echo "making $expdir" && \
+	  mkdir "$expdir" && \
+	  echo "entering $expdir" && \
+	  pushd "$expdir" && \
+	  dirpushed=1 && \
+	  echo "unzipping $PWD/../$zipfilebasename" && \
+	  unzip "../$zipfilebasename" && \
+	  echo "removing $PWD/../$zipfilebasename" && \
+	  rm "../$zipfilebasename" ||
+	  mv "../$zipfilebasename" "../$zipfilebasename.bad"
+	  if [ $dirpushed -gt 0 ]; then
+	    popd
+	  fi;
+	fi;
+	finish=0
+  done;
+done;
+```
+
+
+
+## File Renaming
+
+### rename_to_random.sh
 
 
 ```
@@ -935,7 +1764,7 @@ fi
 
 
 
-## rename_files_for_windows_fast.pl
+### rename_files_for_windows_fast.pl
 
 
 ```
@@ -966,7 +1795,7 @@ while (<>) {
 
 
 
-## rename_files_perl_expression.pl
+### rename_files_perl_expression.pl
 
 
 ```
@@ -1048,145 +1877,146 @@ sub process {
 
 
 
-## remove_newline_at_eof.pl
+## Web & Browser
+
+### chrome_bookmarks-extract_URLs.py
+
+Extracts URLs of all Chrome bookmarks in the specified bookmark folder (or many folders, if they collide by name). Works recursively.
+
+It's also a nice example for general JSON parsing and querying (XPath-like) using Python.
+
+Requires the [jsonpath](http://pypi.python.org/pypi/jsonpath/) Python module (`pypi-install jsonpath`).
 
 
 ```
-#!/usr/bin/perl -i -p
-chomp if eof
-```
+#!/usr/bin/python
 
+import os
+import json
+import jsonpath
 
-Or directly from the shelll:
+bfile=open(os.path.expanduser("~/.config/chromium/Default/Bookmarks"))
+bookmarks=json.load(bfile)
+term_urls = jsonpath.jsonpath(bookmarks, "$..children[?(@.name=\"SomeBookmarkFolder\")]..url")
 
-
-```
-perl -i -pe 'chomp if eof' <filename>
-```
-
-
-
-## reread_partition_table_blockdev.sh
-
-
-```
-#!/bin/sh
-blockdev --rereadpt "$1"
-```
-
-
-
-## scsi_rescan_bus.sh
-
-
-```
-#!/bin/sh
-host_number="$1"
-echo "1" > /sys/class/fc_host/host${host_number}/issue_lip
-echo "- - -" > /sys/class/scsi_host/host${host_number}/scan
+for url in term_urls:
+        print url
 ```
 
 
 
-## epoch2time.pl
-
-Convert UNIX epoch to human readable time:
+### wikiconv.pl
 
 
 ```
 #!/usr/bin/perl -w
-#
+
 use strict;
-my $time = $ARGV[0];
+use CGI;
 
-my ($sec, $min, $hour, $day,$month,$year) = (localtime($time))[0,1,2,3,4,5];
-# You can use 'gmtime' for GMT/UTC dates instead of 'localtime'
+my @standardFilteredTags = ('div', 'span', 'font');
+my $q = CGI->new();
+my $title = 'Konwerter HTML 2 MediaWiki';
+print $q->header(-type=>'text/html', -charset=>'utf-8'),
+	  $q->start_html($title),
+	  $q->h1($title);
 
-print "Unix time ".$time." converts to ";
-printf("%04d-%02d-%02d %02d:%02d:%02d\n", $year+1900, $month + 1, $day, $hour, $min, $sec);
+print $q->start_form(-method=>'POST'),
+	  $q->p('Filtrowane znaczniki HTML:'),
+	  $q->checkbox_group(-name=>'standard_tags',
+	      -values=> \@standardFilteredTags,
+	      -rows=>2, -columns=>2, -checked=>1),
+	  $q->p('Dodatkowe filtrowane znaczniki HTML (rozdziel spacjami):'),
+	    $q->textfield(-name=>'additional_tags',
+	        -size=>50),
+	    $q->p('Tekst HTML:'),
+	    $q->textarea(-name=>'htmltext',
+	        -default=>'<html><h1>Nagłówek 1</h1><h2>Nagłowek 2</h2><p><span class="klaska">Jakiś</span> <font color="red">tekst</font></p></html>',
+	        -rows=>20,
+	        -columns=>120),
+	    $q->p($q->submit(-name=>'submit',
+	        -value=>'Konwertuj')),
+	    $q->endform;
 
-my $localestrtime = localtime($time);
+if ($q->param('htmltext')) {
+  use HTML::WikiConverter;
+  my $wc = new HTML::WikiConverter( dialect => 'MediaWiki' );
 
-print "In locale format: $localestrtime\n"
+  my $mediaWikiText = $wc->html2wiki($q->param('htmltext'));
+
+  my @standards = $q->param('standard_tags');
+  my @standardsFiltered = map {+s/[^a-zA-Z0-9]//g; $_} @standards;
+  my @additionals = split(' ', $q->param('additional_tags'));
+  my @additionalsFiltered = map {+s/[^a-zA-Z0-9]//g; $_} @additionals;
+  my @tags = (@standardsFiltered, @additionalsFiltered);
+
+  foreach my $tag (@tags){
+	$mediaWikiText =~ s/\<\/?$tag[^>]*>//g;
+  }
+
+  print $q->h1('Wynik w formacie MediaWiki');
+  print '<pre style="border: thin solid black; background-color: lightgrey;">';
+  print "\n";
+  print $q->escapeHTML($mediaWikiText);
+#print $mediaWikiText;
+  print "</pre>\n";
+}
+print $q->end_html;
 ```
 
 
 
-## epoch2time.sh
+### wiki_indent
+
+
+```
+alias wiki_indent="perl -e '@all=<>; @out= map {\$_ = \" \".\$_;} @all; print @out; print \"\n\";'"
+```
+
+
+
+## GNU Screen
+
+### screentitle.sh
+
+GNU Screen - set titles for all current and future windows of the current screen session:
 
 
 ```
 #!/bin/sh
-date -d "@${1}"
+newtitle=$1
+screen -X eval "at \\\# title $newtitle" "shelltitle $newtitle" "hardstatus string $newtitle"
 ```
 
 
 
-## epoch2time_bsd.sh
+### screenfitall.sh
 
-
-```
-#!/bin/sh
-date -j -f %s "${1}"
-```
-
-
-
-## primes.sh
+GNU Screen - fit all windows of the current session to current terminal size (e.g. after resizes):
 
 
 ```
 #!/bin/sh
-(for int in `seq 1024`; do factor $int; done;) | grep '^[0-9]\+: [0-9]\+$'
+screen -X eval "at \\# fit"
+```
+
+
+Note that the same can be achieved interactively within a screen session by hitting:
+
+**CTRL-a, :**
+
+then typing the screen command:
+
+
+```
+at \# fit
 ```
 
 
 
-## mplayer_play_DVD_iso_image_with_subs.sh
+## Programming Utilities
 
-
-```
-#!/bin/sh
-mplayer -sub $1 -subcp $2 -dvd-device $3 dvd://1
-```
-
-
-
-## keytool_add_ca_cert.sh
-
-
-```
-#!/bin/sh
-# default keystore pass: "changeit"
-keytool -import -keystore /etc/java-1.5.0-sun/security/cacerts -trustcacerts -alias FIRMA -file PATH/TO/firma.pem
-```
-
-
-
-## list PKCS#11 KeyStore
-
-
-```
-keytool -v -keystore NONE -storetype PKCS11 -providerClass sun.security.pkcs11.SunPKCS11   -providerArg /.../pkcs11.cfg -list
-```
-
-
-
-## list PKCS#12 KeyStore
-
-
-```
-keytool -v -keystore STORE.p12 -storetype PKCS12 -list
-```
-
-
-
-## Import PKCS#12 to JKS KeyStore
-
-keytool -importkeystore -srckeystore SRC.p12 -destkeystore DEST.jks -srcstoretype PKCS12 -deststoretype JKS -srcstorepass PASS1 -deststorepass PASS2
-
-
-## python_compile.sh
+### python_compile.sh
 
 
 ```
@@ -1197,7 +2027,7 @@ keytool -importkeystore -srckeystore SRC.p12 -destkeystore DEST.jks -srcstoretyp
 
 
 
-## terroristize.lisp
+### terroristize.lisp
 
 
 ```
@@ -1278,487 +2108,7 @@ keytool -importkeystore -srckeystore SRC.p12 -destkeystore DEST.jks -srcstoretyp
 
 
 
-## jpegtran_from_jpegexif.sh
-
-
-```
-#!/bin/sh
-for jpg in "$@"; do
-    #randname="$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum -b | cut -b 1-32).tmp"
-    #touch -r "$jpg" -F 1 $randname
-    echo $orient "$jpg";
-    #jpegtran -copy all -rotate 90 "$jpg" > "$jpg.tmp" && mv -f "$jpg.tmp" "$jpg" &&  jpegexiforient -1 "$jpg";
-    jhead -autorot -ft "$jpg"
-    #touch -r $randname "$jpg"
-    #rm $randname
-done;
-```
-
-
-
-## Exif_timestamps_to_file_modtime_in_curdir.py
-
-
-```
-#!/usr/bin/env python
-
-import exifread
-import os
-import time
-
-def get_exif_timestamp(filename):
-    with open(filename) as f:
-        tags = exifread.process_file(f, stop_tag='DateTimeOriginal')
-        #print tags.keys()
-        return tags.get('EXIF DateTimeOriginal')
-
-def exif_ts_to_unix_ts(exif_ts):
-    return time.mktime(time.strptime(exif_ts.values, "%Y:%m:%d %H:%M:%S"))
-
-def set_file_ts_from_exif(filename, exif_ts):
-    if exif_ts:
-        unix_ts = exif_ts_to_unix_ts(exif_ts)
-        os.utime(filename, (unix_ts, unix_ts))
-        print filename + ' timestamp set to: ' + str(unix_ts) + ' (' + exif_ts.values + ')'
-
-def main():
-    for filename in os.listdir('.'):
-        if not os.path.isfile(filename):
-            continue
-        try:
-            exif_ts = get_exif_timestamp(filename)
-            set_file_ts_from_exif(filename, exif_ts)
-        except:
-            print 'ERROR when processing file ' + filename
-
-if __name__ == '__main__':
-    main()
-```
-
-
-
-## input_rate_notifier.pl
-
-
-```
-#!/usr/bin/perl -w
-# by Aleksander Adamowski
-# Wed Nov 23 23:26:12 CET 2005
-# Skrypt wykrywa przekroczenie pewnej ilosci wierszy na ilosc sekund na STDIN
-# i uruchamia dane polecenie powiadamiajace o przekroczeniu.
-
-use strict;
-
-if (scalar(@ARGV) < 3) {
-  die "Uzycie: $0 ilosc_wierszy ilosc_sekund polecenie_powiadamiajace\n";
-}
-
-my $rowcount = $ARGV[0];
-my $seconds = $ARGV[1];
-my $notificator = $ARGV[2];
-my @queue = ();
-
-# Kiedy ostatnio bylo powiadomienie (moze byc nie czesciej, niz ilosc_sekund aby uniknac spamowania):
-my $lastnotification = 0;
-
-my $time;
-my $tailtime;
-my $queuetime;
-
-while (<STDIN>) {
-  $time = time;
-  unshift @queue, $time;
-  # Jesli kolejka jest pelna, zaczynamy zdejmowac wpisy z jej konca:
-  if (scalar(@queue) > $rowcount) {
-    pop @queue;
-    # Czas na koncu kolejki:
-    $tailtime = $queue[$#queue];
-    # Jesli koniec kolejki jest malo oddalony w czasie (ponizej $seconds) od poczatku, to przeplywnosc jest przekroczona:
-    $queuetime = (time - $tailtime);
-    if ($queuetime < $seconds && (time - $lastnotification) > $seconds) {
-      # Powiadamiamy:
-      #print "Rate EXCEEDED! $rowcount rows / $queuetime seconds\n";
-      system $notificator or die $?;
-      $lastnotification = time;
-    }
-  }
-}
-```
-
-
-
-## monitor_logfile.pl
-
-
-```
-#!/usr/bin/perl -w
-# by OLO
-# Tue Aug 16 11:41:26 CEST 2005
-# Monitoruje przyrastajacy plik logow oczekujac na pojawienie sie wzorca.
-# Po pojawieniu sie wzorca wysyla powiadomienie pod zadany adres e-mail.
-use strict;
-use File::Tail;
-use Mail::Sendmail;
-use Getopt::Std;
-
-$| = 1;
-
-our($opt_n);
-getopts('n');
-
-if (scalar(@ARGV) < 3) {
-  print STDERR <<EOD
-Uzycie:
- $0 [-n] plik_logu 'wzorzec regexp' adres_email_do_powiadomienia
-EOD
-;
-        die("Nieprawidlowa skladnia.\n");
-}
-
-my $regexp_source = $ARGV[1];
-my $regexp = qr/$regexp_source/;
-
-my $line;
-my $file=File::Tail->new(name => $ARGV[0], interval => 1, maxinterval => 2, ignore_nonexistant => 1);
-while (defined($line=$file->read)) {
-        if ($line =~ /$regexp/) {
-                my $message = "W pliku ${ARGV[0]} pojawil sie wiersz odpowiadajacy wzorcowi $regexp.\n\nOto ten wiersz:\n\n$line\n";
-                my %mail = ( To      => $ARGV[2],
-                                From    => 'postmaster@altkom.pl',
-                                Subject => 'Pojawil sie wpis w logu odpowiadajacy wzorcowi',
-                                Message => $message
-                                );
-                print $message;
-                sendmail(%mail) or die $Mail::Sendmail::error;
-    if (! $opt_n) {
-      exit 0;
-    }
-        }
-}
-```
-
-
-
-## exec_timeout_kill.pl
-
-
-```
-#!/usr/bin/perl -w
-# by OLO
-# czw lis  3 11:25:23 CET 2005
-# Skrypt uruchamia komende, czeka az komenda sie zakonczy lub minie timeout.
-# Jesli komenda sie zakonczy w zadanym czasie, zwraca taki kod, jak ta komenda;
-# jesli komenda dalej dziala - KILLuje ja najpierw SIGTERMem, potem SIGKILLem
-# jesli to nie pomoze i zwraca kod 1 (jesli wystarczyl SIGTERM) lub kod 2 (SIGKILL byl konieczny).
-
-use strict;
-use Getopt::Std;
-use POSIX;
-#use POSIX ":sys_wait_h";
-
-our($opt_t);
-getopts('t:');
-
-if (defined($opt_t) && defined($ARGV[0])) {
-  #print "$opt_t\n";
-  #print $ARGV[0]."\n";
-  my $pid = fork();
-  die "fork() failed: $!" unless defined $pid;
-  if ($pid) {
-    # Jestem tatusiem!
-    my $countdown = int($opt_t);
-    if (!$countdown > 0 ) {
-      die("Nieprawidlowa wartosc timeout!\n");
-    }
-    for ($countdown = int($opt_t); $countdown > 0; $countdown--) {
-      #print "$countdown\n";
-      sleep 1;
-      my $kid = waitpid($pid, WNOHANG);
-      my $status = $?;
-      if ($kid == 0) {
-        #print "Dziecko dziala\n";
-      } else {
-        my $retval = ($status >> 8);
-        #print "Retval: $retval\n";
-        #$?>> 8
-        exit $retval;
-      }
-    }
-    # Minal timeout, a dziecko caly czas dziala
-    # Killujemy zatem:
-    kill SIGTERM, $pid;
-    sleep 2;
-    my $kid = waitpid($pid, WNOHANG);
-    my $status = $?;
-    if ($kid == 0) {
-      print STDERR "Dziecko CIAGLE dziala, ubijam na twardo...\n";
-      kill SIGKILL, $pid;
-      exit 2;
-    } else {
-        my $retval = ($status >> 8);
-        #print "Retval: $retval\n";
-        #exit $retval;
-        exit 1;
-    }
-  }
-  else {
-    # Da-da!
-    exec(@ARGV) or die("Couldn't exec: ".join(' ', @ARGV));
-    exit(0);
-  }
-
-} else {
-  print STDERR "Usage:\n$0 -t timeout command [args] \n";
-}
-```
-
-
-
-## ettercap_arp_sniff.sh
-
-
-```
-#!/bin/sh
-ettercap -Tq -M arp //
-```
-
-
-
-## amr_to_wav.sh
-
-
-```
-#!/bin/sh
-mplayer "$1" -ao pcm:file="$1.wav" -vc null -vo null
-```
-
-
-
-## convert_flac_to_mp3_subtree.sh
-
-
-```
-#!/bin/sh
-if [ $# -ge 1 ]; then
-find "$1" -type f -iname '*.flac' | xargs -n 1 dirname | uniq | perl -pe 's{^}{mp3/};' | xargs mkdir -p
-
-for file in $(find "$1" -type f -iname '*.flac' ); do
-	    ARTIST=`metaflac "$file" --show-tag=ARTIST | sed s/.*=//g`
-	    TITLE=`metaflac "$file" --show-tag=TITLE | sed s/.*=//g`
-	    ALBUM=`metaflac "$file" --show-tag=ALBUM | sed s/.*=//g`
-	    GENRE=`metaflac "$file" --show-tag=GENRE | sed s/.*=//g`
-	    TRACKNUMBER=`metaflac "$file" --show-tag=TRACKNUMBER | sed s/.*=//g`
-	    DATE=`metaflac "$file" --show-tag=DATE | sed s/.*=//g`
-
-	    outfile="mp3/$(echo "$file" | perl -pe 's/.flac$/.mp3/i')";
-	    flac -d -c  "$file" | lame --preset standard - "$outfile";
-	    id3 -t "$TITLE" -T "${TRACKNUMBER:-0}" -a "$ARTIST" -A "$ALBUM" -y "$DATE" -g "${GENRE:-12}" "$outfile"
-done;
-else
-	    echo "Usage: $0 directory_with_flac_files"
-fi
-```
-
-
-
-## ffmpeg_transcode_avi_to_Android.sh
-
-
-```
-#!/bin/sh
-# Using a xargs queue for 4 parallel processes to fully utilise a 4-core CPU:
-(for krtekavi in ../*Krtek*.avi; do
-        krtekandroid="$(basename "$krtekavi").mp4"
-        echo " -threads 4 -strict experimental -i $krtekavi -s 480x320 -vcodec mpeg4 -acodec aac -ac 1 -ar 16000 -r 13 -ab 32000 -aspect 3:2 $krtekandroid"
-done) | xargs -t -P 4 -L 1 ffmpeg
-```
-
-
-  
-
-
-## ldapsearch_get_suffixes.sh
-
-
-```
-#!/bin/sh
-ldapsearch -x -H ldap://127.0.0.1 -b "" -s base "(objectclass=*)" namingContexts
-```
-
-
-AD_search_groups.sh
-
-
-```
-#!/bin/sh
-
-if [ $# -lt 2 ]; then
-
-	cat <<EOF >&2
-Usage:
-AD_search_groups.sh bind_DN member_DN
-e.g.:
-AD_search_groups.sh 'CN=Adamowski Aleksander,OU=Users,OU=Organization,DC=example,DC=com' 'CN=Adamowski Aleksander,OU=Users,OU=Organization,DC=example,DC=com'
-EOF
-else
-	ldapsearch -LLL -H ldap://your-dc-hostname-from-logonserver-windows-env-var -D "$1" -b DC=example,DC=com -W -x "member=$2" name displayname mail
-fi
-```
-
-
-
-## iconv_utf8_to_ascii_translit
-
-
-```
-iconv -f UTF-8 -t US-ASCII//TRANSLIT
-```
-
-
-
-## wikiconv.pl
-
-
-```
-#!/usr/bin/perl -w
-
-use strict;
-use CGI;
-
-my @standardFilteredTags = ('div', 'span', 'font');
-my $q = CGI->new();
-my $title = 'Konwerter HTML 2 MediaWiki';
-print $q->header(-type=>'text/html', -charset=>'utf-8'),
-	  $q->start_html($title),
-	  $q->h1($title);
-
-print $q->start_form(-method=>'POST'),
-	  $q->p('Filtrowane znaczniki HTML:'),
-	  $q->checkbox_group(-name=>'standard_tags',
-	      -values=> \@standardFilteredTags,
-	      -rows=>2, -columns=>2, -checked=>1),
-	  $q->p('Dodatkowe filtrowane znaczniki HTML (rozdziel spacjami):'),
-	    $q->textfield(-name=>'additional_tags',
-	        -size=>50),
-	    $q->p('Tekst HTML:'),
-	    $q->textarea(-name=>'htmltext',
-	        -default=>'<html><h1>Nagłówek 1</h1><h2>Nagłowek 2</h2><p><span class="klaska">Jakiś</span> <font color="red">tekst</font></p></html>',
-	        -rows=>20,
-	        -columns=>120),
-	    $q->p($q->submit(-name=>'submit',
-	        -value=>'Konwertuj')),
-	    $q->endform;
-
-if ($q->param('htmltext')) {
-  use HTML::WikiConverter;
-  my $wc = new HTML::WikiConverter( dialect => 'MediaWiki' );
-
-  my $mediaWikiText = $wc->html2wiki($q->param('htmltext'));
-
-  my @standards = $q->param('standard_tags');
-  my @standardsFiltered = map {+s/[^a-zA-Z0-9]//g; $_} @standards;
-  my @additionals = split(' ', $q->param('additional_tags'));
-  my @additionalsFiltered = map {+s/[^a-zA-Z0-9]//g; $_} @additionals;
-  my @tags = (@standardsFiltered, @additionalsFiltered);
-
-  foreach my $tag (@tags){
-	$mediaWikiText =~ s/\<\/?$tag[^>]*>//g;
-  }
-
-  print $q->h1('Wynik w formacie MediaWiki');
-  print '<pre style="border: thin solid black; background-color: lightgrey;">';
-  print "\n";
-  print $q->escapeHTML($mediaWikiText);
-#print $mediaWikiText;
-  print "</pre>\n";
-}
-print $q->end_html;
-```
-
-
-
-## wiki_indent
-
-
-```
-alias wiki_indent="perl -e '@all=<>; @out= map {\$_ = \" \".\$_;} @all; print @out; print \"\n\";'"
-```
-
-
-
-## encode_BCD.pl
-
-
-```
-#!/usr/bin/perl -w
-use strict;
-
-sub encode_BCD {
-return pack "H*", join "", @_
-};
-
-my $decString = $ARGV[0];
-my $bin = unpack("B*",encode_BCD($decString));
-my $groupedBin = $bin;
-
-$groupedBin =~ s/(.{4})/$1 /g;
-print "Packed BCD representation of decimal string $decString:\n";
-print "binary:\n";
-print "$bin\n";
-print "grouped binary:\n";
-print "$groupedBin\n";
-print "hexadecimal (the same as decimal):\n";
-print "$decString\n";
-```
-
-
-
-## jboss_list_JNDI
-
-
-```
-sh /opt/jboss/bin/twiddle.sh invoke jboss:service=JNDIView list true
-```
-
-
-Listuje zawartość JNDI.
-
-
-## jboss_scp_deploy_and_wait.sh
-
-
-```
-#!/bin/sh
-# deploys EARs from a project to all server nodes of a JBoss cluster, 
-# waiting for successful deployment of each EAR on given server.
-# The target servers _must_ have the Expect package that contains the
-# "unbuffer" utility installed!
-
-BUILD_DIR=$HOME/workspace/projectname
-JBOSS_DIR=/opt/jboss/server/projectname
-
-for host in server01 server02; do
-	login=root@$host
-	for ear in projectname-integration projectname-business; do
-
-	    fullpath=$(find $BUILD_DIR/ -wholename "*ear/target/$ear-?.?.?.ear" | head -n 1)
-	    echo ========================================================
-	    echo $fullpath
-
-	    # Make sure that the file is deemed newer than any previously rsync-ed:
-	    touch $fullpath
-	    rsync -vP -T $JBOSS_DIR/tmp $fullpath $login:$JBOSS_DIR/deploy/
-	    # Monitor remote log file, waiting until the app starts up:
-	    ssh $login "grep -m 1 'Started J2EE application.*$ear-[-0-9.]\+.ear' <(unbuffer -p tail -n 0 -f $JBOSS_DIR/log/server.log)"
-	    echo "Deployment of $ear on $host ended."
-	    sleep 1
-	done;
-done;
-```
-
-
-
-## sizeof_void.c
+### sizeof_void.c
 
 
 ```
@@ -1825,225 +2175,7 @@ sizeof(long long) is 8
 Jak widać jedyna różnica jest w rozmiarze long-ów (model [LP64](http://en.wikipedia.org/wiki/64-bit#64-bit_data_models)) i wskaźników.
 
 
-## phl_dump_token.sh
-
-
-```
-#!/bin/sh
-(echo 6; echo N; echo; echo 99;) |/opt/PSV_linux_client/csv/utils/phl
-```
-
-
-
-## phl_object_deleter.sh
-
-
-```
-#!/bin/sh
-(echo 11; echo; echo; echo 35; echo; echo 38; echo; echo; echo 38; echo; echo;exit; ) | /opt/PSV_linux_client/csv/utils/phl
-```
-
-
-
-## explode_zips.sh
-
-
-```
-#!/bin/sh
-# Iteratively explode all ZIP/JAR/WAR/EAR archives in the current dir and all the archives they contain.
-
-foundzips=1
-while [ $foundzips -gt 0 ]; do
-  IFS=$'\n'
-  foundzips=0
-  # Not very efficient to re-find for each sublevel, but it's simple:
-  for zipfile in $(find ./ -type f -iname '*.zip' -or -iname '*.[jwe]ar'); do
-	foundzips=1
-	echo "Archive: [$zipfile]"
-	expdir="$zipfile.exploded"
-	if [ ! -e "$expdir" ]; then
-	  dirpushed=0
-	  zipfilebasename="$(basename "$zipfile")"
-	  echo "making $expdir" && \
-	  mkdir "$expdir" && \
-	  echo "entering $expdir" && \
-	  pushd "$expdir" && \
-	  dirpushed=1 && \
-	  echo "unzipping $PWD/../$zipfilebasename" && \
-	  unzip "../$zipfilebasename" && \
-	  echo "removing $PWD/../$zipfilebasename" && \
-	  rm "../$zipfilebasename" ||
-	  mv "../$zipfilebasename" "../$zipfilebasename.bad"
-	  if [ $dirpushed -gt 0 ]; then
-	    popd
-	  fi;
-	fi;
-	finish=0
-  done;
-done;
-```
-
-
-
-## rename_jpg_based_on_exif_timestamp.sh
-
-
-```
-#!/bin/sh
-for jpg in *.jpg; do
-	    tag="$(exif -m -t 0x9003 "$jpg" | perl -pe 'tr/: /-_/;')"
-	    mv -i "Renaming [$jpg] to [$tag.jpg]"
-	    mv -i "$jpg" "$tag.jpg"
-done
-```
-
-
-
-## do_postmark_tests.sh
-
-
-```
-#!/bin/sh
-# (c) 2010 Aleksander Adamowski
-# This script benchmarks various GPT partition offsets
-# in order to find an optimal one for performance.
-#
-# Written for optimal partitioning of my new 4 kB sector
-# Western Digital Advanced Format HDD (WD15EARS).
-#
-
-warning="WARNING!!!
-This script completely erases significant portions of the configured block 
-device (the \"device\" variable specified in its body).
-
-Shoots first, asks questions later.
-
-In order to certify that you know what you're doing and accept that you WON'T 
-HOLD THE AUTHOR OF THIS SCRIPT LIABLE FOR ANY DAMAGES THAT IT MIGH CAUSE,
-you have to modify the script by removing  or commenting out the \"exit 5\" 
-command that prevents it from running.
-EOD"
-
-echo "$warning"
-
-exit 5
-
-# Here begins the actual script logic
-device=sdb
-export LANG=C
-
-# part_offset in sectors (512B unless the device reports other size to parted):
-part_offset=41
-
-for part_offset in $(seq 41 64); do
-	umount /mnt/${device}1
-	parted /dev/$device unit s rm 1
-	sleep 1
-	parted_out="$(parted -s /dev/$device unit s "mkpart primary ext2 $part_offset -1")"
-	if [ $? -ne 0 ]; then
-	    echo "Parted error:"
-	    echo "$parted_out"
-	    last_sector="$(echo "$parted_out" | fgrep 'closest location we can manage' | perl -e '$_ = <>; if ($_ =~ /to ([0-9]+)s./) { print $1; }' )"
-	    echo "Last possible partition sector:"
-	    echo "[$last_sector]"
-	    parted_out="$(parted -s /dev/$device unit s "mkpart primary ext2 $part_offset $last_sector")"
-	    if [ $? -ne 0 ]; then
-	        echo "FATAL ERROR: could not determine proper sector range for new partition:"
-	        echo "$parted_out"
-	        exit 1
-	    fi
-	fi
-	sleep 1
-	parted /dev/$device unit s print | tee -a "parted_dev_${device}_partition_at_${part_offset}s.txt"
-	sync
-	mkfs.ext4 -T largefile4 /dev/${device}1
-	mount /dev/${device}1 /mnt/${device}1
-	ls -la /mnt/${device}1
-	cat /proc/partitions  | egrep "($device|major)" > "proc_partitions_${device}_start_at_${part_offset}s.txt"
-	sync
-	sleep 1
-	echo "Executing postmark-quick with partition offset $part_offset:"
-	postmark postmark-quick.conf | tee -a "postmark-quick_${device}_${part_offset}.txt"
-
-	echo "Sleeping 5 seconds..."
-	sleep 5
-done
-```
-
-
-
-## lookup_IP_country.sh
-
-
-```
-#!/bin/sh
-# Example usage:
-# List countries with which you currently have established TCP connections:
-# netstat -anp | fgrep ESTABLISHED | awk '{print $5}' | sort | uniq | fgrep -v 127.0.0.1 \
-# | perl -pe 's/:[^:]+$/\n/;' | xargs -n 1 lookup_IP_country.sh
-
-ip_addr=$1
-rev_ip_addr="$(echo "$ip_addr" | perl -pe 's/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/$4.$3.$2.$1/;')"
-# 227.73.63.60.cc.iploc.org descriptive text "CN"
-host -t TXT "${rev_ip_addr}.cc.iploc.org" | perl -pe 's/^[0-9.]+\.cc\.iploc\.org descriptive text \"([A-Za-z0-9]+)\"$/$1/;'
-```
-
-
-
-## ss_list_listening_sockets.sh
-
-List listening TCP sockets for selected port numbers:
-
-
-```
-#!/bin/bash
-# Example usage:
-# ss_list_listening_sockets.sh 22 80 443 8089
-
-filter=''
-
-while (($#)); do
-    if [ $notfirst ]; then
-        filter="$filter or"
-    fi
-    filter="$filter sport = $1"
-    notfirst=1
-    shift
-done
-
-echo "FILTER: $filter"
-
-ss -tlnup "$filter"
-```
-
-
-
-## timed-run-err
-
-Expect's timed-run example script forks a command and if it does not complete in a given time, kills it.
-
-This variant of the timed-run example script exists with an error code when timeout occurs:
-
-
-```
-#!/bin/sh
-# \
-exec expect -f "$0" ${1+"$@"}
-# run a program for a given amount of time
-# i.e. time 20 long_running_program
-
-set timeout [lindex $argv 0]
-eval spawn [lrange $argv 1 end]
-expect {
-	timeout  {
-	    exit 1
-	}
-}
-```
-
-
-
-## ctags_php
+### ctags_php
 
 
 ```
@@ -2052,20 +2184,7 @@ ctags -R --langmap=php:+.inc *
 
 
 
-## Minimal.desktop
-
-
-```
-[Desktop Entry]
-Type=Application
-Name=ArgoUML
-Exec=/var/soft/argouml/argouml.sh
-Icon=/var/soft/argouml/icon/ArgoIcon512x512.png
-```
-
-
-
-## node-reformat_JSON.js
+### node-reformat_JSON.js
 
 
 ```
@@ -2077,7 +2196,7 @@ console.log(JSON.stringify(JSON.parse(input), null, 2));
 
 
 
-## XML Starlet
+### XML Starlet
 
 
     Extract module identifier (groupId:artifactId) from a pom.xml file using XMLStarlet (note that the maven namespace must be assigned to a prefix):
@@ -2090,44 +2209,52 @@ console.log(JSON.stringify(JSON.parse(input), null, 2));
 
 
 
-## screentitle.sh
+## Miscellaneous
 
-GNU Screen - set titles for all current and future windows of the current screen session:
-
-
-```
-#!/bin/sh
-newtitle=$1
-screen -X eval "at \\\# title $newtitle" "shelltitle $newtitle" "hardstatus string $newtitle"
-```
-
-
-
-## screenfitall.sh
-
-GNU Screen - fit all windows of the current session to current terminal size (e.g. after resizes):
+### primes.sh
 
 
 ```
 #!/bin/sh
-screen -X eval "at \\# fit"
-```
-
-
-Note that the same can be achieved interactively within a screen session by hitting:
-
-**CTRL-a, :**
-
-then typing the screen command:
-
-
-```
-at \# fit
+(for int in `seq 1024`; do factor $int; done;) | grep '^[0-9]\+: [0-9]\+$'
 ```
 
 
 
-## randbetween.sh
+### phl_dump_token.sh
+
+
+```
+#!/bin/sh
+(echo 6; echo N; echo; echo 99;) |/opt/PSV_linux_client/csv/utils/phl
+```
+
+
+
+### phl_object_deleter.sh
+
+
+```
+#!/bin/sh
+(echo 11; echo; echo; echo 35; echo; echo 38; echo; echo; echo 38; echo; echo;exit; ) | /opt/PSV_linux_client/csv/utils/phl
+```
+
+
+
+### Minimal.desktop
+
+
+```
+[Desktop Entry]
+Type=Application
+Name=ArgoUML
+Exec=/var/soft/argouml/argouml.sh
+Icon=/var/soft/argouml/icon/ArgoIcon512x512.png
+```
+
+
+
+### randbetween.sh
 
 Generate a random integer number between two values (not less than 0 and not greater than 32767)
 
@@ -2137,92 +2264,7 @@ echo $(( ( RANDOM % ($2 - $1 + 1 ) ) + $1 )); \
 `
 
 
-## ps_backtrace.sh
-
-get a ps process listing for the current process and all its ancestors up to init
-
-
-```
-#!/bin/bash
-
-if [ $# -lt 1 ]; then
-  echo "Usage: $0 PID" > /dev/stderr
-  exit 1
-fi
-
-declare -i pid=$1;
-ppid=0;
-header_modifier="";
-while : ; do
-  if [ $ppid -ne 0 ]; then
-    header_modifier=h;
-  fi;
-  ppid=$(ps -o ppid= $pid);
-  ps uww $header_modifier -p $pid;
-  if [ $pid -eq 1 ]; then
-    break;
-  fi;
-  pid=$ppid;
-done;
-```
-
-
-Usage:
-
-
-```
-$ ps_backtrace.sh PROCESS_PID
-```
-
-
-e.g.:
-
-
-```
-$ ps_backtrace.sh $$
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-olo      3372425  0.0  0.0 108180  3632 pts/23   Ss   11:29   0:00 /bin/bash
-olo       212112  0.0  0.2 326644 208496 ?       Ss   Jan27   0:15 SCREEN -S www
-olo       212111  0.0  0.0 118996   980 pts/13   S+   Jan27   0:04 screen -S www
-olo        14054  0.0  0.0 107868  3200 pts/13   Ss   Jan27   0:00 -bash
-...
-root           1  0.0  0.0  19280   944 ?        Ss    2014   6:44 /sbin/init
-```
-
-
-
-## ps_descendants.sh
-
-
-```
-#!/bin/sh
-pstree -p $1 | perl -ne 'while (/\((\d+)\)/g) { print "$sep$1"; $sep="," }'
-```
-
-
-
-## ps_blocked_processes.sh
-
-
-```
-#!/bin/sh
-ps axr
-```
-
-
-
-## pid_listening_on_tcp_port.sh
-
-
-```
-#!/bin/sh
-port=$1
-lsof -i TCP:$port
-```
-
-
-
-## regexp_optimizer.pl
+### regexp_optimizer.pl
 
 
 ```
