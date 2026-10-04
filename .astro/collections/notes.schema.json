@@ -5,6 +5,10 @@
     "title": {
       "type": "string"
     },
+    "tocDepth": {
+      "default": 3,
+      "type": "number"
+    },
     "$schema": {
       "type": "string"
     }

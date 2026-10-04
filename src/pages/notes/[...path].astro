@@ -1,21 +1,24 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import PerNoteTOC from '../../components/PerNoteTOC.astro';
+import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes');
   return notes.map(note => ({
-    params: { path: note.id },
-    props: { note }
+    params: { path: note.id }
   }));
 }
 
-const { note } = Astro.props;
+const { path } = Astro.params;
+const note = await getEntry('notes', path);
 const { Content } = await render(note);
 ---
 <BaseLayout title={`Aleksander Adamowski - ${note.data.title}`}>
   <article>
     <h1>{note.data.title}</h1>
+    <!-- Per-note configurable Table of Contents -->
+    <PerNoteTOC frontmatter={note.data} />
     <Content />
   </article>
 </BaseLayout>
