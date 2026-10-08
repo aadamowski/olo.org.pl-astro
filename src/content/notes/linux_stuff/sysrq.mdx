@@ -5,6 +5,13 @@ tocDepth: 6
 
 # Two-way Calculator for SysRq Bitmask
 
+This is a simple JavaScript-based calculator for [Linux Magic System Request
+Key Hacks](https://docs.kernel.org/admin-guide/sysrq.html) configuration
+bitmask.
+
+See the above link for official Linux Kernel documentation covering the Magic
+SysRq Key.
+
 <input type="number" id="val" value="438" min="0" max="511"></input>
 <div id="sysrqbox"></div>
 <script set:html={`
@@ -36,6 +43,7 @@ tocDepth: 6
     // Decode: Value changes -> update checkboxes
     function decode() {
         let v = parseInt(valInput.value) || 0;
+        console.log('Decoding value ' + v + '...');
         checks.forEach(c => {
             let bit = parseInt(c.dataset.bit);
             c.checked = v === 1 || (v & bit) === bit;
@@ -49,6 +57,7 @@ tocDepth: 6
             if (c.checked) total += parseInt(c.dataset.bit);
         });
         valInput.value = total;
+        console.log('Encoded value ' + total + '.');
     }
 
     valInput.addEventListener('input', decode);
