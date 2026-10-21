@@ -5,6 +5,30 @@ interface Props {
 }
 
 const { title, description = "Aleksander Adamowski. Professional electronic brain surgeon." } = Astro.props;
+
+// Header title truncation: titles at or below TRUNCATE_ABOVE are shown in full;
+// longer ones are cut at a word boundary so the visible text (including the
+// appended "...") fits in MAX_DISPLAY_LENGTH chars, keeping the header
+// mobile-friendly.
+const TRUNCATE_ABOVE = 48;
+const MAX_DISPLAY_LENGTH = 32;
+
+function truncateTitle(input: string): string {
+  if (input.length <= TRUNCATE_ABOVE) return input;
+  const words = input.split(/\s+/);
+  let result = "";
+  for (const word of words) {
+    const candidate = result ? result + " " + word : word;
+    if (candidate.length + 3 > MAX_DISPLAY_LENGTH) break;
+    result = candidate;
+  }
+  // Never render a bare "...": keep the first word even if it alone exceeds
+  // the display length.
+  if (!result) result = words[0];
+  return result + "...";
+}
+
+const displayTitle = truncateTitle(title);
 ---
 <!doctype html>
 <html lang="en">
@@ -44,7 +68,7 @@ const { title, description = "Aleksander Adamowski. Professional electronic brai
     <header class="site-header">
       <div class="site-header-top">
         <div class="site-header-title">
-          <a href="/">{title}</a>
+          <a href="/" title={title}>{displayTitle}</a>
         </div>
         <div class="site-header-right">
           <nav class="site-nav">
