@@ -9,7 +9,7 @@ const sorted = posts.sort((a, b) => {
   return db.getTime() - da.getTime();
 });
 ---
-<BaseLayout title="Aleksander Adamowski - Blog">
+<BaseLayout title="Blog">
   <h1>Blog</h1>
   <ul class="post-list">
     {sorted.map(post => (

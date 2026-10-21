@@ -14,7 +14,7 @@ const { path } = Astro.params;
 const note = await getEntry('notes', path);
 const { Content } = await render(note);
 ---
-<BaseLayout title={`Aleksander Adamowski - ${note.data.title}`}>
+<BaseLayout title={`${note.data.title}`}>
   <article>
     <h1>{note.data.title}</h1>
     <!-- Per-note configurable Table of Contents -->

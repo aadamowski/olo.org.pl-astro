@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
-<BaseLayout title={`Aleksander Adamowski - ${post.data.title}`}>
+<BaseLayout title={`${post.data.title}`}>
   <article>
     <h1>{post.data.title}</h1>
     <span class="post-date">
