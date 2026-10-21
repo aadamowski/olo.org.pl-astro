@@ -1,0 +1,489 @@
+---
+title: "The imaginary component: what i is, why i² = −1, and how growth becomes rotation"
+tocDepth: 6
+---
+
+<style is:global>{`
+
+/* ===== Palette for the Euler note (theme-adaptive) ===== */
+:root {
+  --real:#c94f16;   --real-soft:#fdeee4;
+  --imag:#0b7666;   --imag-soft:#e2f2ee;
+  --gold:#b8860b;   --gold-soft:#fdf3d7;
+  --ink:#1c1a17;    --muted:#5f5a52;
+  --line:#ddd6c9;   --axis:#8a8378;
+}
+:root[data-theme="dark"] {
+  --real:#ff8a4d;   --real-soft:#3a2417;
+  --imag:#3ec9b2;   --imag-soft:#12322c;
+  --gold:#d6a419;   --gold-soft:#3a2f12;
+  --ink:#f0ebe1;    --muted:#b3aa9b;
+  --line:#3a352d;   --axis:#8a8378;
+}
+
+/* ===== Sizing / layout for the note's figures ===== */
+.ce-card svg, .ce-step svg, .ce-fig svg { display:block; width:100%; height:auto; }
+.ce-fig { margin: 10px auto; width: 100%; }
+.ce-fig.round { max-width: 440px; }
+.ce-fig.med   { max-width: 560px; }
+
+.ce-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 20px 0;
+}
+.ce-card > h3 { margin-top: 0; }
+.ce-card[dir="real"]    { border-top: 6px solid var(--real); }
+.ce-card[dir="imag"]    { border-top: 6px solid var(--imag); }
+.ce-card[dir="neg"]     { border-top: 6px solid var(--ink); }
+.ce-card[dir="negimag"] { border-top: 6px solid var(--gold); }
+
+.ce-formula {
+  font-family: var(--font-mono);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 1.02em;
+  overflow-wrap: anywhere;
+  margin: 18px 0;
+}
+.ce-formula.big {
+  font-size: clamp(1.05rem, 3vw, 1.45rem);
+  text-align: center;
+  padding: 22px;
+}
+
+.ce-callout {
+  border-left: 5px solid var(--imag);
+  background: var(--imag-soft);
+  border-radius: 0 12px 12px 0;
+  padding: 14px 18px;
+  margin: 20px 0;
+}
+.ce-callout h3 { margin-top: 0; }
+.ce-callout p:last-child { margin-bottom: 0; }
+.ce-callout.orange { border-left-color: var(--real); background: var(--real-soft); }
+
+.ce-dir-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+@media (max-width: 560px) {
+  .ce-dir-grid { grid-template-columns: 1fr; }
+}
+.ce-dir-grid .ce-card { margin: 0; }
+
+.ce-tag {
+  display:inline-block; font-family: var(--font-mono);
+  font-size:.78rem; font-weight:600; padding:2px 9px;
+  border-radius:999px; margin-bottom:8px;
+}
+.ce-tag.r { background: var(--real-soft);  color: var(--real); }
+.ce-tag.t { background: var(--imag-soft);  color: var(--imag); }
+.ce-tag.n { background: var(--color-code-bg); color: var(--color-text); border:1px solid var(--color-border); }
+.ce-tag.s { background: var(--gold-soft);  color: var(--gold); }
+
+.ce-legend { display:flex; gap:16px; flex-wrap:wrap; font-size:.9rem; margin:10px 0 0; }
+.ce-legend .ce-sw { display:inline-block; width:22px; height:4px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+
+.ce-readout {
+  font-family: var(--font-mono);
+  font-size:.9em; line-height:1.8;
+  background: var(--color-code-bg);
+  border:1px solid var(--color-border);
+  border-radius:10px;
+  padding:12px 14px;
+  margin:14px 0;
+  overflow-wrap: anywhere;
+}
+
+.ce-step {
+  background: var(--color-bg);
+  border:1px solid var(--color-border);
+  border-radius:16px;
+  padding: 18px;
+  margin: 22px 0;
+}
+.ce-step-head { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; justify-content:space-between; margin-bottom: 10px; }
+.ce-step-head h3 { margin:0; }
+.ce-fac { font-family: var(--font-mono); font-size:.9rem; color: var(--color-muted); }
+
+.ce-controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin: 12px 0; }
+.ce-controls button {
+  font: inherit; font-weight:700;
+  background: var(--color-text); color: var(--color-bg);
+  border:none; border-radius:999px; padding:9px 18px; cursor:pointer;
+}
+.ce-controls button.ce-secondary { background: transparent; color: var(--color-text); border: 1.5px solid var(--color-text); }
+
+.ce-slider-wrap { display:block; margin: 12px 0; }
+.ce-slider-wrap input[type="range"] { width:100%; accent-color: var(--imag); margin-top: 6px; }
+
+.ce-mono { font-family: var(--font-mono); font-size:.92em; color: var(--color-muted); }
+.ce-muted { color: var(--color-muted); }
+.ce-lede { font-size: 1.12em; }
+
+`}</style>
+
+<p class="ce-lede">The number line only lets you go forwards and backwards. The complex plane adds a second direction — up and down — and *i* is simply the name of “one step in that new direction.” Once you see multiplication by *i* as a quarter-turn, everything else follows: i² = −1 stops being a mysterious rule, and Euler’s formula e<sup>iθ</sup> = cos θ + i sin θ turns out to be compound growth that has learned to turn.</p>
+
+## Part 1 — Why does i² have to be −1?
+
+Start with the honest problem. On the ordinary number line, squaring any number — positive or negative — gives something positive or zero:
+
+<div class="ce-formula">3<sup>2</sup> = 9 &nbsp;·&nbsp; (−3)<sup>2</sup> = 9 &nbsp;·&nbsp; 0<sup>2</sup> = 0 &nbsp;·&nbsp; x<sup>2</sup> ≥ 0, always</div>
+
+So no real number squares to −1. Equations like x² + 1 = 0 simply have no answer on the line. Mathematicians had two choices: declare such equations unsolvable forever, or **invent a new direction** and see whether the resulting system stays consistent. They chose the second — and consistency is exactly what forces i² = −1. There are three ways to see why, and they all agree.
+
+### ① By definition — it’s the job description
+
+*i* is *defined* as a number whose square is −1, written i = √−1. That isn’t circular trickery; it’s how every number system grew. “−3” was once just as scandalous (“you can’t have fewer than nothing”), and “2/3” required inventing fractions. Each time, we kept the old rules of arithmetic and asked: what new object would make the unsolvable solvable? For x² = −1, the answer is an object with exactly one defining property: **square it and you get −1**.
+
+### ② By geometry — two quarter-turns must face you backwards
+
+Here is the deeper reason the definition *works*. Multiplying by −1 flips the number line 180°: 3 becomes −3. Now suppose multiplying by *i* means rotating 90° counter-clockwise (the diagrams in Part 2 justify this). Then multiplying by *i* twice is a 180° rotation — which is exactly what multiplying by −1 does. Two operations that do the same thing to *every* number must be the same operation:
+
+<div class="ce-formula">i · i = i² &nbsp;=&nbsp; rotate 90° then 90° &nbsp;=&nbsp; rotate 180° &nbsp;=&nbsp; ×(−1)</div>
+
+So i² = −1 isn’t an arbitrary decree. *Any* consistent “quarter-turn number” is forced to square to −1.
+
+<div class="ce-callout">
+<h3 id="by-consistency">③ By consistency — the alternatives break arithmetic</h3>
+<p>Suppose instead we declared i² = +1. Then i would just be ±1 in disguise — nothing new. Suppose i² = 0. Then (1 + i)(1 − i) = 1 − i² = 1, but also expanding carefully gives contradictions with the distributive law once you try to divide. Only i² = −1 keeps addition, multiplication, and division all working — and it pays off immediately: *every* polynomial equation now has solutions. That payoff is the real test, and i passes it.</p>
+</div>
+
+A complex number is then just a pair of instructions — **go this far along the real axis, then this far up the imaginary axis**:
+
+<div class="ce-formula big">z = a + b·i &nbsp;&nbsp;<span style="font-size:.8em">a = real part, b = imaginary part</span></div>
+
+The word “imaginary” is unfortunate historical baggage (Descartes meant it as an insult). The imaginary component is no less real than the “negative” component of a bank balance: it measures displacement along a genuine, usable direction — the vertical one.
+
+## Part 2 — The complex plane and its four major directions
+
+Draw the real numbers horizontally and the imaginary numbers vertically. Every complex number a + bi is a point — equivalently, an arrow from the origin. The four unit arrows, pointing right, up, left, and down, are the compass points of this plane. Multiplying any number by one of them rotates it; multiplying by *i* in particular rotates it exactly one compass point counter-clockwise.
+
+<div class="ce-dir-grid">
+<div class="ce-card" dir="real">
+  <span class="ce-tag r">EAST · angle 0°</span>
+  <h3 id="dir-east">1 = 1 + 0i</h3>
+  <svg viewBox="0 0 200 200" role="img" aria-label="Complex plane showing the number 1 on the positive real axis">
+        <line x1="10" y1="100" x2="190" y2="100" stroke="var(--axis)" stroke-width="1.5"/><line x1="100" y1="10" x2="100" y2="190" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="100" y1="100" x2="162" y2="100" stroke="var(--real)" stroke-width="4"/><circle cx="162" cy="100" r="6" fill="var(--real)"/>
+        <text x="150" y="86" font-size="15" font-weight="700" fill="var(--real)" class="axis-label">1</text>
+        <text x="172" y="94" font-size="11" fill="var(--muted)" class="axis-label">Re →</text><text x="106" y="24" font-size="11" fill="var(--muted)" class="axis-label">Im ↑</text>
+      </svg>
+  <p><strong>The starting direction.</strong> Purely real, no imaginary part. Multiplying by 1 changes nothing — rotation by 0°.</p>
+  <p class="ce-mono">1 × i⁰ — distance 1, angle 0°</p>
+</div><div class="ce-card" dir="imag">
+  <span class="ce-tag t">NORTH · angle 90°</span>
+  <h3 id="dir-north">i = 0 + 1i</h3>
+  <svg viewBox="0 0 200 200" role="img" aria-label="Complex plane showing the number i on the positive imaginary axis">
+        <line x1="10" y1="100" x2="190" y2="100" stroke="var(--axis)" stroke-width="1.5"/><line x1="100" y1="10" x2="100" y2="190" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M 138 100 A 38 38 0 0 0 100 62" fill="none" stroke="var(--imag)" stroke-width="2"/><text x="126" y="72" font-size="12" fill="var(--imag)" class="axis-label">90°</text>
+        <line x1="100" y1="100" x2="100" y2="38" stroke="var(--imag)" stroke-width="4"/><circle cx="100" cy="38" r="6" fill="var(--imag)"/>
+        <text x="110" y="44" font-size="15" font-weight="700" fill="var(--imag)" class="axis-label">i</text>
+        <text x="172" y="94" font-size="11" fill="var(--muted)" class="axis-label">Re →</text><text x="106" y="24" font-size="11" fill="var(--muted)" class="axis-label">Im ↑</text>
+      </svg>
+  <p><strong>One quarter-turn from 1.</strong> Purely imaginary. This is the new direction: 1 × i = i. Nothing on the number line points here.</p>
+  <p class="ce-mono">i × i⁰ — distance 1, angle 90°</p>
+</div><div class="ce-card" dir="neg">
+  <span class="ce-tag n">WEST · angle 180°</span>
+  <h3 id="dir-west">−1 = −1 + 0i</h3>
+  <svg viewBox="0 0 200 200" role="img" aria-label="Complex plane showing the number minus 1 on the negative real axis">
+        <line x1="10" y1="100" x2="190" y2="100" stroke="var(--axis)" stroke-width="1.5"/><line x1="100" y1="10" x2="100" y2="190" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M 138 100 A 38 38 0 0 0 62 100" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="92" y="52" font-size="12" fill="var(--ink)" class="axis-label">180°</text>
+        <line x1="100" y1="100" x2="38" y2="100" stroke="var(--ink)" stroke-width="4"/><circle cx="38" cy="100" r="6" fill="var(--ink)"/>
+        <text x="22" y="86" font-size="15" font-weight="700" fill="var(--ink)" class="axis-label">−1</text>
+        <text x="172" y="94" font-size="11" fill="var(--muted)" class="axis-label">Re →</text><text x="106" y="24" font-size="11" fill="var(--muted)" class="axis-label">Im ↑</text>
+      </svg>
+  <p><strong>Two quarter-turns from 1 — and this is i².</strong> Apply ×i again: i × i lands here. A half-turn is the same as negating, which is the geometric proof that i² = −1.</p>
+  <p class="ce-mono">i² = −1 — distance 1, angle 180°</p>
+</div><div class="ce-card" dir="negimag">
+  <span class="ce-tag s">SOUTH · angle 270°</span>
+  <h3 id="dir-south">−i = 0 − 1i</h3>
+  <svg viewBox="0 0 200 200" role="img" aria-label="Complex plane showing the number minus i on the negative imaginary axis">
+        <line x1="10" y1="100" x2="190" y2="100" stroke="var(--axis)" stroke-width="1.5"/><line x1="100" y1="10" x2="100" y2="190" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M 138 100 A 38 38 0 0 1 100 138" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="118" y="140" font-size="12" fill="var(--gold)" class="axis-label">270°</text>
+        <line x1="100" y1="100" x2="100" y2="162" stroke="var(--gold)" stroke-width="4"/><circle cx="100" cy="162" r="6" fill="var(--gold)"/>
+        <text x="110" y="168" font-size="15" font-weight="700" fill="var(--gold)" class="axis-label">−i</text>
+        <text x="172" y="94" font-size="11" fill="var(--muted)" class="axis-label">Re →</text><text x="106" y="24" font-size="11" fill="var(--muted)" class="axis-label">Im ↑</text>
+      </svg>
+  <p><strong>Three quarter-turns from 1:</strong> i³ = i² · i = −i. It is also one quarter-turn <em>clockwise</em> from 1 — multiplying by −i rotates the other way.</p>
+  <p class="ce-mono">i³ = −i — distance 1, angle 270° (or −90°)</p>
+</div>
+</div>
+
+<div class="ce-callout orange">
+<h3 id="cycle-closes">The cycle closes: i⁴ = 1</h3>
+<p>Four quarter-turns make a full turn, so the powers of i repeat forever with period 4: <code>1 → i → −1 → −i → 1 → i → …</code> Keep this cycle in mind. In Part 4, growth steps will take *tiny* fractions of a quarter-turn at a time — and that is where circles and Euler’s formula come from.</p>
+</div>
+
+<div class="ce-card">
+<h3 id="try-multiply-i">Try it: multiply by i, over and over</h3>
+<p>Start at 3 + 1i. Each click multiplies by i using the rule (a + bi)·i = −b + ai — watch the arrow turn 90° and the coordinates swap and negate.</p>
+<div class="ce-fig round"><svg id="rotSvg" viewBox="0 0 300 300" role="img" aria-label="Interactive diagram: an arrow on the complex plane that rotates 90 degrees each time you multiply by i"><line x1="10" y1="150" x2="290" y2="150" stroke="var(--muted)" stroke-width="1.2"/><line x1="150" y1="10" x2="150" y2="290" stroke="var(--muted)" stroke-width="1.2"/><line x1="22" y1="145" x2="22" y2="155" stroke="var(--muted)"/><line x1="145" y1="278" x2="155" y2="278" stroke="var(--muted)"/><line x1="54" y1="145" x2="54" y2="155" stroke="var(--muted)"/><line x1="145" y1="246" x2="155" y2="246" stroke="var(--muted)"/><line x1="86" y1="145" x2="86" y2="155" stroke="var(--muted)"/><line x1="145" y1="214" x2="155" y2="214" stroke="var(--muted)"/><line x1="118" y1="145" x2="118" y2="155" stroke="var(--muted)"/><line x1="145" y1="182" x2="155" y2="182" stroke="var(--muted)"/><line x1="182" y1="145" x2="182" y2="155" stroke="var(--muted)"/><line x1="145" y1="118" x2="155" y2="118" stroke="var(--muted)"/><line x1="214" y1="145" x2="214" y2="155" stroke="var(--muted)"/><line x1="145" y1="86" x2="155" y2="86" stroke="var(--muted)"/><line x1="246" y1="145" x2="246" y2="155" stroke="var(--muted)"/><line x1="145" y1="54" x2="155" y2="54" stroke="var(--muted)"/><line x1="278" y1="145" x2="278" y2="155" stroke="var(--muted)"/><line x1="145" y1="22" x2="155" y2="22" stroke="var(--muted)"/><text x="278" y="142" font-size="11" fill="var(--muted)">Re</text><text x="158" y="22" font-size="11" fill="var(--muted)">Im</text><line x1="150" y1="150" x2="246" y2="118" stroke="var(--imag)" stroke-width="4"/><circle cx="246" cy="118" r="7" fill="var(--imag)"/><circle cx="150" cy="150" r="3.5" fill="var(--ink)"/></svg></div>
+<div class="ce-readout" id="rotReadout"></div>
+<div class="ce-controls">
+  <button id="rotBtn" type="button">Multiply by i (×i)</button>
+  <button id="rotReset" type="button" class="ce-secondary">Reset</button>
+</div>
+<p class="ce-muted">After 4 clicks you are back where you started — the period-4 cycle, felt rather than just stated. After 2 clicks the value is exactly negated: that is i² = −1 doing its work on a general number, not just on 1.</p>
+</div>
+
+## Part 3 — The familiar story: compound growth and e
+
+Put $1 in an account paying 100% interest per year. If the interest is credited once, you end with $2. Credited twice (50% every six months), you end with (1 + ½)² = $2.25 — a little more, because the first interest itself earns interest. Credited n times a year, each credit adds 1/n of your current balance:
+
+<div class="ce-formula big">( 1 + 1/n )<sup>n</sup></div>
+
+As n grows the total creeps upward but never explodes — it settles at a specific number, e ≈ 2.71828. This limit *defines* e, and its continuous version is the most important growth formula in mathematics:
+
+<div class="ce-formula big">e<sup>x</sup> = lim<sub>n→∞</sub> ( 1 + x/n )<sup>n</sup></div>
+
+The chart below is the “raw” growth story — the one every later diagram will be overlaid against. Orange shows what happens inside a single year of compounding as you raise the crediting frequency: the balance climbs along (1 + 1/n)<sup>k</sup> and the endpoint creeps toward e.
+
+<div class="ce-card">
+<svg id="realChart" viewBox="0 0 640 340" role="img" aria-label="Line chart of real compound growth: curves for n equals 1, 2, 4, 12 and 365 rising toward e"><line x1="54" y1="272.4" x2="624" y2="272.4" stroke="var(--line)"/><text x="46" y="276.4" font-size="11" text-anchor="end" fill="var(--muted)">1.0</text><line x1="54" y1="208.3" x2="624" y2="208.3" stroke="var(--line)"/><text x="46" y="212.3" font-size="11" text-anchor="end" fill="var(--muted)">1.5</text><line x1="54" y1="144.2" x2="624" y2="144.2" stroke="var(--line)"/><text x="46" y="148.2" font-size="11" text-anchor="end" fill="var(--muted)">2.0</text><line x1="54" y1="80.1" x2="624" y2="80.1" stroke="var(--line)"/><text x="46" y="84.1" font-size="11" text-anchor="end" fill="var(--muted)">2.5</text><line x1="54" y1="16.0" x2="624" y2="16.0" stroke="var(--line)"/><text x="46" y="20.0" font-size="11" text-anchor="end" fill="var(--muted)">3.0</text><line x1="54" y1="52.1" x2="624" y2="52.1" stroke="var(--ink)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="624" y="45.1" font-size="12" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="54.0,272.4 624.0,144.2" fill="none" stroke="#f3b48c" stroke-width="1.8"/><circle cx="624.0" cy="144.2" r="4" fill="var(--ink)"/><text x="620.0" y="134.2" font-size="11" text-anchor="end" fill="var(--muted)">n=1: 2.000</text><polyline points="54.0,272.4 339.0,208.3 624.0,112.1" fill="none" stroke="#e98a54" stroke-width="1.8"/><circle cx="624.0" cy="112.1" r="4" fill="var(--ink)"/><text x="620.0" y="102.1" font-size="11" text-anchor="end" fill="var(--muted)">n=2: 2.250</text><polyline points="54.0,272.4 196.5,240.3 339.0,200.3 481.5,150.2 624.0,87.6" fill="none" stroke="#d96a2e" stroke-width="1.8"/><circle cx="624.0" cy="87.6" r="4" fill="var(--ink)"/><text x="620.0" y="77.6" font-size="11" text-anchor="end" fill="var(--muted)">n=4: 2.441</text><polyline points="54.0,272.4 101.5,261.7 149.0,250.1 196.5,237.6 244.0,224.0 291.5,209.3 339.0,193.3 386.5,176.1 434.0,157.4 481.5,137.1 529.0,115.1 576.5,91.4 624.0,65.6" fill="none" stroke="#c94f16" stroke-width="1.8"/><circle cx="624.0" cy="65.6" r="4" fill="var(--ink)"/><text x="620.0" y="55.6" font-size="11" text-anchor="end" fill="var(--muted)">n=12: 2.613</text><polyline points="54.0,272.4 55.6,272.0 57.1,271.7 58.7,271.3 60.2,271.0 61.8,270.6 63.4,270.2 64.9,269.9 66.5,269.5 68.1,269.2 69.6,268.8 71.2,268.4 72.7,268.1 74.3,267.7 75.9,267.4 77.4,267.0 79.0,266.6 80.5,266.3 82.1,265.9 83.7,265.5 85.2,265.2 86.8,264.8 88.4,264.4 89.9,264.0 91.5,263.7 93.0,263.3 94.6,262.9 96.2,262.5 97.7,262.2 99.3,261.8 100.8,261.4 102.4,261.0 104.0,260.6 105.5,260.3 107.1,259.9 108.7,259.5 110.2,259.1 111.8,258.7 113.3,258.3 114.9,257.9 116.5,257.5 118.0,257.1 119.6,256.8 121.2,256.4 122.7,256.0 124.3,255.6 125.8,255.2 127.4,254.8 129.0,254.4 130.5,254.0 132.1,253.6 133.6,253.2 135.2,252.8 136.8,252.4 138.3,252.0 139.9,251.5 141.5,251.1 143.0,250.7 144.6,250.3 146.1,249.9 147.7,249.5 149.3,249.1 150.8,248.7 152.4,248.3 153.9,247.8 155.5,247.4 157.1,247.0 158.6,246.6 160.2,246.2 161.8,245.7 163.3,245.3 164.9,244.9 166.4,244.5 168.0,244.0 169.6,243.6 171.1,243.2 172.7,242.7 174.2,242.3 175.8,241.9 177.4,241.4 178.9,241.0 180.5,240.6 182.1,240.1 183.6,239.7 185.2,239.2 186.7,238.8 188.3,238.4 189.9,237.9 191.4,237.5 193.0,237.0 194.5,236.6 196.1,236.1 197.7,235.7 199.2,235.2 200.8,234.8 202.4,234.3 203.9,233.9 205.5,233.4 207.0,232.9 208.6,232.5 210.2,232.0 211.7,231.6 213.3,231.1 214.8,230.6 216.4,230.2 218.0,229.7 219.5,229.2 221.1,228.8 222.7,228.3 224.2,227.8 225.8,227.4 227.3,226.9 228.9,226.4 230.5,225.9 232.0,225.4 233.6,225.0 235.2,224.5 236.7,224.0 238.3,223.5 239.8,223.0 241.4,222.5 243.0,222.1 244.5,221.6 246.1,221.1 247.6,220.6 249.2,220.1 250.8,219.6 252.3,219.1 253.9,218.6 255.5,218.1 257.0,217.6 258.6,217.1 260.1,216.6 261.7,216.1 263.3,215.6 264.8,215.1 266.4,214.6 267.9,214.1 269.5,213.6 271.1,213.1 272.6,212.5 274.2,212.0 275.8,211.5 277.3,211.0 278.9,210.5 280.4,209.9 282.0,209.4 283.6,208.9 285.1,208.4 286.7,207.9 288.2,207.3 289.8,206.8 291.4,206.3 292.9,205.7 294.5,205.2 296.1,204.7 297.6,204.1 299.2,203.6 300.7,203.0 302.3,202.5 303.9,202.0 305.4,201.4 307.0,200.9 308.5,200.3 310.1,199.8 311.7,199.2 313.2,198.7 314.8,198.1 316.4,197.6 317.9,197.0 319.5,196.5 321.0,195.9 322.6,195.3 324.2,194.8 325.7,194.2 327.3,193.6 328.8,193.1 330.4,192.5 332.0,191.9 333.5,191.4 335.1,190.8 336.7,190.2 338.2,189.6 339.8,189.1 341.3,188.5 342.9,187.9 344.5,187.3 346.0,186.7 347.6,186.2 349.2,185.6 350.7,185.0 352.3,184.4 353.8,183.8 355.4,183.2 357.0,182.6 358.5,182.0 360.1,181.4 361.6,180.8 363.2,180.2 364.8,179.6 366.3,179.0 367.9,178.4 369.5,177.8 371.0,177.2 372.6,176.6 374.1,175.9 375.7,175.3 377.3,174.7 378.8,174.1 380.4,173.5 381.9,172.9 383.5,172.2 385.1,171.6 386.6,171.0 388.2,170.3 389.8,169.7 391.3,169.1 392.9,168.4 394.4,167.8 396.0,167.2 397.6,166.5 399.1,165.9 400.7,165.3 402.2,164.6 403.8,164.0 405.4,163.3 406.9,162.7 408.5,162.0 410.1,161.4 411.6,160.7 413.2,160.0 414.7,159.4 416.3,158.7 417.9,158.1 419.4,157.4 421.0,156.7 422.5,156.1 424.1,155.4 425.7,154.7 427.2,154.0 428.8,153.4 430.4,152.7 431.9,152.0 433.5,151.3 435.0,150.7 436.6,150.0 438.2,149.3 439.7,148.6 441.3,147.9 442.8,147.2 444.4,146.5 446.0,145.8 447.5,145.1 449.1,144.4 450.7,143.7 452.2,143.0 453.8,142.3 455.3,141.6 456.9,140.9 458.5,140.2 460.0,139.5 461.6,138.8 463.2,138.0 464.7,137.3 466.3,136.6 467.8,135.9 469.4,135.2 471.0,134.4 472.5,133.7 474.1,133.0 475.6,132.2 477.2,131.5 478.8,130.8 480.3,130.0 481.9,129.3 483.5,128.5 485.0,127.8 486.6,127.0 488.1,126.3 489.7,125.5 491.3,124.8 492.8,124.0 494.4,123.3 495.9,122.5 497.5,121.8 499.1,121.0 500.6,120.2 502.2,119.5 503.8,118.7 505.3,117.9 506.9,117.1 508.4,116.4 510.0,115.6 511.6,114.8 513.1,114.0 514.7,113.2 516.2,112.4 517.8,111.7 519.4,110.9 520.9,110.1 522.5,109.3 524.1,108.5 525.6,107.7 527.2,106.9 528.7,106.1 530.3,105.3 531.9,104.5 533.4,103.6 535.0,102.8 536.5,102.0 538.1,101.2 539.7,100.4 541.2,99.6 542.8,98.7 544.4,97.9 545.9,97.1 547.5,96.2 549.0,95.4 550.6,94.6 552.2,93.7 553.7,92.9 555.3,92.1 556.8,91.2 558.4,90.4 560.0,89.5 561.5,88.7 563.1,87.8 564.7,86.9 566.2,86.1 567.8,85.2 569.3,84.4 570.9,83.5 572.5,82.6 574.0,81.8 575.6,80.9 577.2,80.0 578.7,79.1 580.3,78.2 581.8,77.4 583.4,76.5 585.0,75.6 586.5,74.7 588.1,73.8 589.6,72.9 591.2,72.0 592.8,71.1 594.3,70.2 595.9,69.3 597.5,68.4 599.0,67.5 600.6,66.6 602.1,65.7 603.7,64.7 605.3,63.8 606.8,62.9 608.4,62.0 609.9,61.1 611.5,60.1 613.1,59.2 614.6,58.3 616.2,57.3 617.8,56.4 619.3,55.4 620.9,54.5 622.4,53.5 624.0,52.6" fill="none" stroke="#8f3408" stroke-width="2.6"/><circle cx="624.0" cy="52.6" r="4" fill="var(--ink)"/><text x="620.0" y="42.6" font-size="11" text-anchor="end" fill="var(--muted)">n=365: 2.715</text><text x="339" y="332" font-size="12" text-anchor="middle" fill="var(--muted)">progress through the year (step k of n) →</text><text x="15" y="170" font-size="12" fill="var(--muted)" transform="rotate(-90 15 170)" text-anchor="middle">balance ($)</text></svg>
+<div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>(1 + 1/n)<sup>k</sup> for k = 0…n steps</span><span><span class="ce-sw" style="background:var(--ink)"></span>endpoint (1 + 1/n)<sup>n</sup> → e ≈ 2.718</span></div>
+<p>Key observation for what follows: with real growth, every step multiplies the balance by (1 + 1/n) — a factor *bigger than 1 pointing in the same direction*. The path never turns; it just stretches along the number line. Now ask the question this whole page exists to answer: **what changes if the “1/n” we add each step points up instead of right?**</p>
+</div>
+
+## Part 4 — Now add the imaginary component
+
+Make one tiny change to the compounding factor. Instead of growing by a real 1/n each step, grow by an *imaginary* 1/n — i/n:
+
+<div class="ce-formula big">( 1 + i/n )<sup>n</sup> &nbsp;→&nbsp; e<sup>i</sup> &nbsp; as n → ∞</div>
+
+Each step now multiplies by a number that is *mostly* 1 (so the size barely changes) but tilted slightly upward (so the direction rotates a little). Multiplication in the plane does two things at once — it **scales** by the factor’s length and **rotates** by the factor’s angle. The factor (1 + i/n) has length √(1 + 1/n²), just above 1, and angle arctan(1/n), a small turn. Repeat it n times and the small turns add up to exactly 1 radian (about 57.3°) while the extra length washes out to 1.
+
+**How to read each diagram below:** every figure shows the two versions of the same formula side by side, for the same n and the same step counts. On the **left**, the raw compound-growth line chart from Part 3 — (1 + 1/n)<sup>k</sup> climbing along toward e. On the **right**, the same formula with the imaginary component added — (1 + i/n)<sup>k</sup> plotted in the complex plane, with the orange dots on the axis marking where the plain real steps land, so the two can be compared directly. Watch the teal path bend further as n increases.
+
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-1">Step 1 — n = 1: one giant, crude turn</h3><span class="ce-fac">factor per step: 1 + i/1</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 1: left, the raw compound growth line chart of (1 + 1/1) to the k; right, the same formula with the imaginary component added, (1 + i/1) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/1)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 252.0,142.2" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="142.2" r="4.5" fill="var(--real)"/><text x="250.0" y="158.2" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.000</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…1 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/1)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,124.0" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="572.0" cy="196" r="5" fill="var(--real)"/><circle cx="500.0" cy="124.0" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/1)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/1)<sup>k</sup> — same steps with i added</span></div>
+  <p>A single step multiplies by (1 + i) — equal parts “stay” and “turn.” Its angle is a full 45° and its length is √2 ≈ 1.414, so the one teal point lands at 1 + i, far outside the unit circle. The real version makes the same single leap to (1 + 1) = 2. Neither is close to its limit yet — but notice the geometry is already different in kind: the orange curve on the left just climbs, the teal point on the right has left the axis entirely.</p>
+  <div class="ce-readout">After 1 steps:<br />real → <b>2.000</b> (limit e = 2.718)<br />complex → <b>1.000 + 1.000i</b><br />length = 1.414 (limit 1) · angle = 45.0° (limit 57.3° = 1 rad)</div>
+</article>
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-2">Step 2 — n = 2: two half-size turns</h3><span class="ce-fac">factor per step: 1 + i/2</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 2: left, the raw compound growth line chart of (1 + 1/2) to the k; right, the same formula with the imaginary component added, (1 + i/2) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/2)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 144.0,201.2 252.0,112.7" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="112.7" r="4.5" fill="var(--real)"/><text x="250.0" y="128.7" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.250</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…2 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/2)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,160.0 482.0,124.0" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="536.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="160.0" r="3" fill="var(--imag)"/><circle cx="590.0" cy="196" r="5" fill="var(--real)"/><circle cx="482.0" cy="124.0" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/2)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/2)<sup>k</sup> — same steps with i added</span></div>
+  <p>Two steps of (1 + i/2). Each factor has length ≈ 1.118 and angle ≈ 26.6°, so after two steps the total turn is ≈ 53.1° and the point sits at 0.75 + 1.00i. The path now visibly bends at the midpoint instead of jumping in one diagonal. The real twin, (1.5)² = 2.25, has inched closer to e.</p>
+  <div class="ce-readout">After 2 steps:<br />real → <b>2.250</b> (limit e = 2.718)<br />complex → <b>0.750 + 1.000i</b><br />length = 1.250 (limit 1) · angle = 53.1° (limit 57.3° = 1 rad)</div>
+</article>
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-3">Step 3 — n = 4: the staircase starts to curve</h3><span class="ce-fac">factor per step: 1 + i/4</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 4: left, the raw compound growth line chart of (1 + 1/4) to the k; right, the same formula with the imaginary component added, (1 + i/4) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/4)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 90.0,230.7 144.0,193.8 198.0,147.7 252.0,90.1" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="90.1" r="4.5" fill="var(--real)"/><text x="250.0" y="106.1" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.441</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…4 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/4)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,178.0 495.5,160.0 486.5,143.1 473.3,128.5" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="518.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="178.0" r="3" fill="var(--imag)"/><circle cx="540.5" cy="196" r="3" fill="var(--real)"/><circle cx="495.5" cy="160.0" r="3" fill="var(--imag)"/><circle cx="568.6" cy="196" r="3" fill="var(--real)"/><circle cx="486.5" cy="143.1" r="3" fill="var(--imag)"/><circle cx="603.8" cy="196" r="5" fill="var(--real)"/><circle cx="473.3" cy="128.5" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/4)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/4)<sup>k</sup> — same steps with i added</span></div>
+  <p>Four steps of (1 + 0.25i), each turning only ≈ 14°. The teal staircase now hugs a curve: the endpoint is ≈ 0.629 + 0.938i, with length ≈ 1.13 — the unwanted growth is shrinking, while the accumulated turn (≈ 56.1°) is closing in on 1 radian. The orange line chart, by contrast, keeps bunching exponentially toward (1.25)⁴ ≈ 2.441.</p>
+  <div class="ce-readout">After 4 steps:<br />real → <b>2.441</b> (limit e = 2.718)<br />complex → <b>0.629 + 0.938i</b><br />length = 1.129 (limit 1) · angle = 56.1° (limit 57.3° = 1 rad)</div>
+</article>
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-4">Step 4 — n = 8: recognisably an arc</h3><span class="ce-fac">factor per step: 1 + i/8</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 8: left, the raw compound growth line chart of (1 + 1/8) to the k; right, the same formula with the imaginary component added, (1 + i/8) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/8)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 63.0,245.4 90.0,228.9 117.0,210.2 144.0,189.2 171.0,165.6 198.0,139.0 225.0,109.1 252.0,75.4" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="75.4" r="4.5" fill="var(--real)"/><text x="250.0" y="91.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.566</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…8 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/8)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,187.0 498.9,178.0 496.6,169.1 493.3,160.6 488.8,152.4 483.4,144.8 477.0,137.9 469.7,131.8" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="509.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="187.0" r="3" fill="var(--imag)"/><circle cx="519.1" cy="196" r="3" fill="var(--real)"/><circle cx="498.9" cy="178.0" r="3" fill="var(--imag)"/><circle cx="530.5" cy="196" r="3" fill="var(--real)"/><circle cx="496.6" cy="169.1" r="3" fill="var(--imag)"/><circle cx="543.3" cy="196" r="3" fill="var(--real)"/><circle cx="493.3" cy="160.6" r="3" fill="var(--imag)"/><circle cx="557.7" cy="196" r="3" fill="var(--real)"/><circle cx="488.8" cy="152.4" r="3" fill="var(--imag)"/><circle cx="574.0" cy="196" r="3" fill="var(--real)"/><circle cx="483.4" cy="144.8" r="3" fill="var(--imag)"/><circle cx="592.2" cy="196" r="3" fill="var(--real)"/><circle cx="477.0" cy="137.9" r="3" fill="var(--imag)"/><circle cx="612.7" cy="196" r="5" fill="var(--real)"/><circle cx="469.7" cy="131.8" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/8)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/8)<sup>k</sup> — same steps with i added</span></div>
+  <p>Eight steps of ≈ 7.1° each. The teal points trace a clear arc of total turn ≈ 57.0°, ending near 0.579 + 0.893i with length ≈ 1.06. Two trends are now unmistakable: the endpoint’s angle is converging to exactly 1 radian, and its length is converging down to 1 — growth is draining away, pure rotation remains.</p>
+  <div class="ce-readout">After 8 steps:<br />real → <b>2.566</b> (limit e = 2.718)<br />complex → <b>0.579 + 0.892i</b><br />length = 1.064 (limit 1) · angle = 57.0° (limit 57.3° = 1 rad)</div>
+</article>
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-5">Step 5 — n = 32: almost the circle</h3><span class="ce-fac">factor per step: 1 + i/32</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 32: left, the raw compound growth line chart of (1 + 1/32) to the k; right, the same formula with the imaginary component added, (1 + i/32) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/32)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 42.8,256.5 49.5,252.7 56.2,248.8 63.0,244.7 69.8,240.6 76.5,236.3 83.2,231.8 90.0,227.3 96.8,222.5 103.5,217.7 110.2,212.7 117.0,207.5 123.8,202.2 130.5,196.7 137.2,191.0 144.0,185.1 150.8,179.1 157.5,172.9 164.2,166.5 171.0,159.8 177.8,153.0 184.5,146.0 191.2,138.7 198.0,131.2 204.8,123.5 211.5,115.6 218.2,107.4 225.0,98.9 231.8,90.2 238.5,81.2 245.2,71.9 252.0,62.3" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="62.3" r="4.5" fill="var(--real)"/><text x="250.0" y="78.3" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.677</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…32 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/32)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,193.8 499.9,191.5 499.8,189.3 499.6,187.0 499.3,184.8 498.9,182.5 498.5,180.3 498.0,178.1 497.5,175.9 496.9,173.8 496.2,171.6 495.4,169.5 494.6,167.4 493.7,165.3 492.7,163.2 491.7,161.2 490.6,159.2 489.5,157.3 488.2,155.4 487.0,153.5 485.6,151.6 484.3,149.8 482.8,148.1 481.3,146.4 479.8,144.7 478.2,143.1 476.5,141.5 474.8,140.0 473.1,138.5 471.3,137.1 469.4,135.8 467.5,134.5" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="502.2" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="193.8" r="3" fill="var(--imag)"/><circle cx="504.6" cy="196" r="3" fill="var(--real)"/><circle cx="499.9" cy="191.5" r="3" fill="var(--imag)"/><circle cx="507.0" cy="196" r="3" fill="var(--real)"/><circle cx="499.8" cy="189.3" r="3" fill="var(--imag)"/><circle cx="509.4" cy="196" r="3" fill="var(--real)"/><circle cx="499.6" cy="187.0" r="3" fill="var(--imag)"/><circle cx="512.0" cy="196" r="3" fill="var(--real)"/><circle cx="499.3" cy="184.8" r="3" fill="var(--imag)"/><circle cx="514.6" cy="196" r="3" fill="var(--real)"/><circle cx="498.9" cy="182.5" r="3" fill="var(--imag)"/><circle cx="517.3" cy="196" r="3" fill="var(--real)"/><circle cx="498.5" cy="180.3" r="3" fill="var(--imag)"/><circle cx="520.1" cy="196" r="3" fill="var(--real)"/><circle cx="498.0" cy="178.1" r="3" fill="var(--imag)"/><circle cx="523.0" cy="196" r="3" fill="var(--real)"/><circle cx="497.5" cy="175.9" r="3" fill="var(--imag)"/><circle cx="525.9" cy="196" r="3" fill="var(--real)"/><circle cx="496.9" cy="173.8" r="3" fill="var(--imag)"/><circle cx="529.0" cy="196" r="3" fill="var(--real)"/><circle cx="496.2" cy="171.6" r="3" fill="var(--imag)"/><circle cx="532.2" cy="196" r="3" fill="var(--real)"/><circle cx="495.4" cy="169.5" r="3" fill="var(--imag)"/><circle cx="535.4" cy="196" r="3" fill="var(--real)"/><circle cx="494.6" cy="167.4" r="3" fill="var(--imag)"/><circle cx="538.8" cy="196" r="3" fill="var(--real)"/><circle cx="493.7" cy="165.3" r="3" fill="var(--imag)"/><circle cx="542.2" cy="196" r="3" fill="var(--real)"/><circle cx="492.7" cy="163.2" r="3" fill="var(--imag)"/><circle cx="545.8" cy="196" r="3" fill="var(--real)"/><circle cx="491.7" cy="161.2" r="3" fill="var(--imag)"/><circle cx="549.5" cy="196" r="3" fill="var(--real)"/><circle cx="490.6" cy="159.2" r="3" fill="var(--imag)"/><circle cx="553.3" cy="196" r="3" fill="var(--real)"/><circle cx="489.5" cy="157.3" r="3" fill="var(--imag)"/><circle cx="557.2" cy="196" r="3" fill="var(--real)"/><circle cx="488.2" cy="155.4" r="3" fill="var(--imag)"/><circle cx="561.2" cy="196" r="3" fill="var(--real)"/><circle cx="487.0" cy="153.5" r="3" fill="var(--imag)"/><circle cx="565.4" cy="196" r="3" fill="var(--real)"/><circle cx="485.6" cy="151.6" r="3" fill="var(--imag)"/><circle cx="569.7" cy="196" r="3" fill="var(--real)"/><circle cx="484.3" cy="149.8" r="3" fill="var(--imag)"/><circle cx="574.1" cy="196" r="3" fill="var(--real)"/><circle cx="482.8" cy="148.1" r="3" fill="var(--imag)"/><circle cx="578.7" cy="196" r="3" fill="var(--real)"/><circle cx="481.3" cy="146.4" r="3" fill="var(--imag)"/><circle cx="583.4" cy="196" r="3" fill="var(--real)"/><circle cx="479.8" cy="144.7" r="3" fill="var(--imag)"/><circle cx="588.2" cy="196" r="3" fill="var(--real)"/><circle cx="478.2" cy="143.1" r="3" fill="var(--imag)"/><circle cx="593.3" cy="196" r="3" fill="var(--real)"/><circle cx="476.5" cy="141.5" r="3" fill="var(--imag)"/><circle cx="598.4" cy="196" r="3" fill="var(--real)"/><circle cx="474.8" cy="140.0" r="3" fill="var(--imag)"/><circle cx="603.7" cy="196" r="3" fill="var(--real)"/><circle cx="473.1" cy="138.5" r="3" fill="var(--imag)"/><circle cx="609.2" cy="196" r="3" fill="var(--real)"/><circle cx="471.3" cy="137.1" r="3" fill="var(--imag)"/><circle cx="614.9" cy="196" r="3" fill="var(--real)"/><circle cx="469.4" cy="135.8" r="3" fill="var(--imag)"/><circle cx="620.7" cy="196" r="5" fill="var(--real)"/><circle cx="467.5" cy="134.5" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/32)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/32)<sup>k</sup> — same steps with i added</span></div>
+  <p>Thirty-two steps of ≈ 1.8° each. The staircase is nearly indistinguishable from a circular arc, ending within about 0.01 of the target eⁱ = cos 1 + i sin 1 ≈ 0.540 + 0.841i on the unit circle (dashed). Meanwhile the real version has reached (1 + 1/32)³² ≈ 2.677, close to e — it converged by stretching; the imaginary version converged by bending.</p>
+  <div class="ce-readout">After 32 steps:<br />real → <b>2.677</b> (limit e = 2.718)<br />complex → <b>0.549 + 0.855i</b><br />length = 1.016 (limit 1) · angle = 57.3° (limit 57.3° = 1 rad)</div>
+</article>
+<article class="ce-step">
+  <div class="ce-step-head"><h3 id="step-6">Step 6 — n = 200 → ∞: Euler’s formula</h3><span class="ce-fac">factor per step: 1 + i/200</span></div>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Step diagram for n equals 200: left, the raw compound growth line chart of (1 + 1/200) to the k; right, the same formula with the imaginary component added, (1 + i/200) to the k, plotted in the complex plane"><text x="36" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">RAW REAL GROWTH — (1 + 1/200)^k</text><line x1="36" y1="260.2" x2="252" y2="260.2" stroke="var(--line)"/><text x="31" y="263.7" font-size="10" text-anchor="end" fill="var(--muted)">1.0</text><line x1="36" y1="201.2" x2="252" y2="201.2" stroke="var(--line)"/><text x="31" y="204.7" font-size="10" text-anchor="end" fill="var(--muted)">1.5</text><line x1="36" y1="142.2" x2="252" y2="142.2" stroke="var(--line)"/><text x="31" y="145.7" font-size="10" text-anchor="end" fill="var(--muted)">2.0</text><line x1="36" y1="83.2" x2="252" y2="83.2" stroke="var(--line)"/><text x="31" y="86.7" font-size="10" text-anchor="end" fill="var(--muted)">2.5</text><line x1="36" y1="57.4" x2="252" y2="57.4" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1.2"/><text x="252" y="52.4" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--ink)">e ≈ 2.718</text><polyline points="36.0,260.2 38.2,259.0 40.3,257.8 42.5,256.6 44.6,255.4 46.8,254.2 49.0,252.9 51.1,251.7 53.3,250.4 55.4,249.1 57.6,247.8 59.8,246.5 61.9,245.2 64.1,243.9 66.2,242.5 68.4,241.2 70.6,239.8 72.7,238.4 74.9,237.0 77.0,235.6 79.2,234.1 81.4,232.7 83.5,231.2 85.7,229.8 87.8,228.3 90.0,226.8 92.2,225.3 94.3,223.7 96.5,222.2 98.6,220.6 100.8,219.0 103.0,217.4 105.1,215.8 107.3,214.2 109.4,212.6 111.6,210.9 113.8,209.2 115.9,207.5 118.1,205.8 120.2,204.1 122.4,202.3 124.6,200.6 126.7,198.8 128.9,197.0 131.0,195.2 133.2,193.3 135.4,191.5 137.5,189.6 139.7,187.7 141.8,185.8 144.0,183.9 146.2,181.9 148.3,180.0 150.5,178.0 152.6,176.0 154.8,174.0 157.0,171.9 159.1,169.8 161.3,167.8 163.4,165.6 165.6,163.5 167.8,161.4 169.9,159.2 172.1,157.0 174.2,154.8 176.4,152.5 178.6,150.3 180.7,148.0 182.9,145.7 185.0,143.3 187.2,141.0 189.4,138.6 191.5,136.2 193.7,133.8 195.8,131.3 198.0,128.9 200.2,126.4 202.3,123.8 204.5,121.3 206.6,118.7 208.8,116.1 211.0,113.5 213.1,110.8 215.3,108.1 217.4,105.4 219.6,102.7 221.8,99.9 223.9,97.2 226.1,94.3 228.2,91.5 230.4,88.6 232.6,85.7 234.7,82.8 236.9,79.8 239.0,76.8 241.2,73.8 243.4,70.8 245.5,67.7 247.7,64.6 249.8,61.4 252.0,58.2" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="252.0" cy="58.2" r="4.5" fill="var(--real)"/><text x="250.0" y="74.2" font-size="10.5" text-anchor="end" font-weight="700" fill="var(--real)">→ 2.712</text><line x1="36" y1="272" x2="252" y2="272" stroke="var(--muted)"/><line x1="36" y1="36" x2="36" y2="272" stroke="var(--muted)"/><text x="144" y="290" font-size="10.5" text-anchor="middle" fill="var(--muted)">step k = 0…200 →</text><text x="144" y="306" font-size="10.5" text-anchor="middle" fill="var(--muted)">balance, growing toward e</text><text x="300" y="20" font-size="10.5" font-weight="700" fill="var(--muted)" class="axis-label">WITH i ADDED — (1 + i/200)^k IN THE PLANE</text><line x1="296" y1="196" x2="634" y2="196" stroke="var(--muted)" stroke-width="1.2"/><line x1="428" y1="30" x2="428" y2="302" stroke="var(--muted)" stroke-width="1.2"/><text x="630" y="188" font-size="11" text-anchor="end" fill="var(--muted)">Re →</text><text x="436" y="42" font-size="11" fill="var(--muted)">Im ↑</text><circle cx="428" cy="196" r="72" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.2"/><text x="480" y="137" font-size="10.5" fill="var(--muted)">unit circle</text><text x="500" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><text x="572" y="212" font-size="11" text-anchor="middle" fill="var(--muted)">2</text><text x="624" y="212" font-size="11" text-anchor="middle" font-weight="700" fill="var(--real)">e</text><circle cx="466.9" cy="135.4" r="6" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="460.9" y="123.4" font-size="11" font-weight="700" text-anchor="end" fill="var(--ink)">target e^i ≈ 0.540 + 0.841i</text><polyline points="500.0,196.0 500.0,195.6 500.0,195.3 500.0,194.9 500.0,194.6 500.0,194.2 500.0,193.8 500.0,193.5 499.9,193.1 499.9,192.8 499.9,192.4 499.9,192.0 499.9,191.7 499.9,191.3 499.8,191.0 499.8,190.6 499.8,190.2 499.8,189.9 499.7,189.5 499.7,189.2 499.7,188.8 499.6,188.5 499.6,188.1 499.5,187.7 499.5,187.4 499.5,187.0 499.4,186.7 499.4,186.3 499.3,185.9 499.3,185.6 499.2,185.2 499.2,184.9 499.1,184.5 499.1,184.2 499.0,183.8 498.9,183.5 498.9,183.1 498.8,182.7 498.7,182.4 498.7,182.0 498.6,181.7 498.5,181.3 498.5,181.0 498.4,180.6 498.3,180.3 498.2,179.9 498.1,179.6 498.1,179.2 498.0,178.9 497.9,178.5 497.8,178.2 497.7,177.8 497.6,177.5 497.5,177.1 497.4,176.8 497.3,176.4 497.2,176.1 497.1,175.7 497.0,175.4 496.9,175.1 496.8,174.7 496.7,174.4 496.6,174.0 496.5,173.7 496.4,173.3 496.3,173.0 496.2,172.6 496.1,172.3 495.9,172.0 495.8,171.6 495.7,171.3 495.6,171.0 495.4,170.6 495.3,170.3 495.2,169.9 495.1,169.6 494.9,169.3 494.8,168.9 494.7,168.6 494.5,168.3 494.4,167.9 494.2,167.6 494.1,167.3 494.0,166.9 493.8,166.6 493.7,166.3 493.5,166.0 493.4,165.6 493.2,165.3 493.1,165.0 492.9,164.6 492.7,164.3 492.6,164.0 492.4,163.7 492.3,163.4 492.1,163.0 491.9,162.7 491.8,162.4 491.6,162.1 491.4,161.8 491.3,161.4 491.1,161.1 490.9,160.8 490.7,160.5 490.6,160.2 490.4,159.9 490.2,159.6 490.0,159.2 489.8,158.9 489.7,158.6 489.5,158.3 489.3,158.0 489.1,157.7 488.9,157.4 488.7,157.1 488.5,156.8 488.3,156.5 488.1,156.2 487.9,155.9 487.7,155.6 487.5,155.3 487.3,155.0 487.1,154.7 486.9,154.4 486.7,154.1 486.5,153.8 486.3,153.5 486.1,153.2 485.8,152.9 485.6,152.6 485.4,152.4 485.2,152.1 485.0,151.8 484.8,151.5 484.5,151.2 484.3,150.9 484.1,150.7 483.9,150.4 483.6,150.1 483.4,149.8 483.2,149.5 482.9,149.3 482.7,149.0 482.5,148.7 482.2,148.4 482.0,148.2 481.8,147.9 481.5,147.6 481.3,147.4 481.0,147.1 480.8,146.8 480.5,146.6 480.3,146.3 480.0,146.0 479.8,145.8 479.5,145.5 479.3,145.3 479.0,145.0 478.8,144.8 478.5,144.5 478.3,144.2 478.0,144.0 477.7,143.7 477.5,143.5 477.2,143.2 477.0,143.0 476.7,142.8 476.4,142.5 476.2,142.3 475.9,142.0 475.6,141.8 475.3,141.6 475.1,141.3 474.8,141.1 474.5,140.8 474.3,140.6 474.0,140.4 473.7,140.2 473.4,139.9 473.1,139.7 472.9,139.5 472.6,139.2 472.3,139.0 472.0,138.8 471.7,138.6 471.4,138.4 471.1,138.1 470.9,137.9 470.6,137.7 470.3,137.5 470.0,137.3 469.7,137.1 469.4,136.9 469.1,136.7 468.8,136.5 468.5,136.3 468.2,136.1 467.9,135.9 467.6,135.7 467.3,135.5 467.0,135.3" fill="none" stroke="var(--imag)" stroke-width="1.8"/><circle cx="500.0" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="196.0" r="3" fill="var(--imag)"/><circle cx="501.8" cy="196" r="3" fill="var(--real)"/><circle cx="500.0" cy="194.2" r="3" fill="var(--imag)"/><circle cx="503.7" cy="196" r="3" fill="var(--real)"/><circle cx="499.9" cy="192.4" r="3" fill="var(--imag)"/><circle cx="505.6" cy="196" r="3" fill="var(--real)"/><circle cx="499.8" cy="190.6" r="3" fill="var(--imag)"/><circle cx="507.6" cy="196" r="3" fill="var(--real)"/><circle cx="499.7" cy="188.8" r="3" fill="var(--imag)"/><circle cx="509.6" cy="196" r="3" fill="var(--real)"/><circle cx="499.5" cy="187.0" r="3" fill="var(--imag)"/><circle cx="511.6" cy="196" r="3" fill="var(--real)"/><circle cx="499.2" cy="185.2" r="3" fill="var(--imag)"/><circle cx="513.7" cy="196" r="3" fill="var(--real)"/><circle cx="498.9" cy="183.5" r="3" fill="var(--imag)"/><circle cx="515.9" cy="196" r="3" fill="var(--real)"/><circle cx="498.6" cy="181.7" r="3" fill="var(--imag)"/><circle cx="518.1" cy="196" r="3" fill="var(--real)"/><circle cx="498.2" cy="179.9" r="3" fill="var(--imag)"/><circle cx="520.4" cy="196" r="3" fill="var(--real)"/><circle cx="497.8" cy="178.2" r="3" fill="var(--imag)"/><circle cx="522.7" cy="196" r="3" fill="var(--real)"/><circle cx="497.3" cy="176.4" r="3" fill="var(--imag)"/><circle cx="525.1" cy="196" r="3" fill="var(--real)"/><circle cx="496.8" cy="174.7" r="3" fill="var(--imag)"/><circle cx="527.6" cy="196" r="3" fill="var(--real)"/><circle cx="496.3" cy="173.0" r="3" fill="var(--imag)"/><circle cx="530.1" cy="196" r="3" fill="var(--real)"/><circle cx="495.7" cy="171.3" r="3" fill="var(--imag)"/><circle cx="532.7" cy="196" r="3" fill="var(--real)"/><circle cx="495.1" cy="169.6" r="3" fill="var(--imag)"/><circle cx="535.3" cy="196" r="3" fill="var(--real)"/><circle cx="494.4" cy="167.9" r="3" fill="var(--imag)"/><circle cx="538.0" cy="196" r="3" fill="var(--real)"/><circle cx="493.7" cy="166.3" r="3" fill="var(--imag)"/><circle cx="540.8" cy="196" r="3" fill="var(--real)"/><circle cx="492.9" cy="164.6" r="3" fill="var(--imag)"/><circle cx="543.6" cy="196" r="3" fill="var(--real)"/><circle cx="492.1" cy="163.0" r="3" fill="var(--imag)"/><circle cx="546.6" cy="196" r="3" fill="var(--real)"/><circle cx="491.3" cy="161.4" r="3" fill="var(--imag)"/><circle cx="549.6" cy="196" r="3" fill="var(--real)"/><circle cx="490.4" cy="159.9" r="3" fill="var(--imag)"/><circle cx="552.6" cy="196" r="3" fill="var(--real)"/><circle cx="489.5" cy="158.3" r="3" fill="var(--imag)"/><circle cx="555.8" cy="196" r="3" fill="var(--real)"/><circle cx="488.5" cy="156.8" r="3" fill="var(--imag)"/><circle cx="559.0" cy="196" r="3" fill="var(--real)"/><circle cx="487.5" cy="155.3" r="3" fill="var(--imag)"/><circle cx="562.3" cy="196" r="3" fill="var(--real)"/><circle cx="486.5" cy="153.8" r="3" fill="var(--imag)"/><circle cx="565.7" cy="196" r="3" fill="var(--real)"/><circle cx="485.4" cy="152.4" r="3" fill="var(--imag)"/><circle cx="569.2" cy="196" r="3" fill="var(--real)"/><circle cx="484.3" cy="150.9" r="3" fill="var(--imag)"/><circle cx="572.7" cy="196" r="3" fill="var(--real)"/><circle cx="483.2" cy="149.5" r="3" fill="var(--imag)"/><circle cx="576.4" cy="196" r="3" fill="var(--real)"/><circle cx="482.0" cy="148.2" r="3" fill="var(--imag)"/><circle cx="580.1" cy="196" r="3" fill="var(--real)"/><circle cx="480.8" cy="146.8" r="3" fill="var(--imag)"/><circle cx="584.0" cy="196" r="3" fill="var(--real)"/><circle cx="479.5" cy="145.5" r="3" fill="var(--imag)"/><circle cx="587.9" cy="196" r="3" fill="var(--real)"/><circle cx="478.3" cy="144.2" r="3" fill="var(--imag)"/><circle cx="592.0" cy="196" r="3" fill="var(--real)"/><circle cx="477.0" cy="143.0" r="3" fill="var(--imag)"/><circle cx="596.1" cy="196" r="3" fill="var(--real)"/><circle cx="475.6" cy="141.8" r="3" fill="var(--imag)"/><circle cx="600.3" cy="196" r="3" fill="var(--real)"/><circle cx="474.3" cy="140.6" r="3" fill="var(--imag)"/><circle cx="604.7" cy="196" r="3" fill="var(--real)"/><circle cx="472.9" cy="139.5" r="3" fill="var(--imag)"/><circle cx="609.2" cy="196" r="3" fill="var(--real)"/><circle cx="471.4" cy="138.4" r="3" fill="var(--imag)"/><circle cx="613.7" cy="196" r="3" fill="var(--real)"/><circle cx="470.0" cy="137.3" r="3" fill="var(--imag)"/><circle cx="618.4" cy="196" r="3" fill="var(--real)"/><circle cx="468.5" cy="136.3" r="3" fill="var(--imag)"/><circle cx="623.2" cy="196" r="5" fill="var(--real)"/><circle cx="467.0" cy="135.3" r="5.5" fill="var(--imag)"/><text x="472" y="322" font-size="10.5" text-anchor="middle" fill="var(--muted)">orange dots: the same real steps, on the axis</text></svg>
+  <div class="ce-legend"><span><span class="ce-sw" style="background:var(--real)"></span>left: raw real growth (1 + 1/200)<sup>k</sup> — the Part 3 line chart</span><span><span class="ce-sw" style="background:var(--imag)"></span>right: (1 + i/200)<sup>k</sup> — same steps with i added</span></div>
+  <p>At n = 200 the teal path lies on the unit circle for all practical purposes, landing at ≈ 0.541 + 0.843i. Let n → ∞ and the approximation becomes exact: the length factor (1 + 1/n²)^(n/2) → 1, the total angle n·arctan(1/n) → 1, and the endpoint is exactly cos 1 + i sin 1. That limiting statement, for a general total angle θ, is Euler’s formula: e<sup>iθ</sup> = cos θ + i sin θ.</p>
+  <div class="ce-readout">After 200 steps:<br />real → <b>2.712</b> (limit e = 2.718)<br />complex → <b>0.542 + 0.844i</b><br />length = 1.003 (limit 1) · angle = 57.3° (limit 57.3° = 1 rad)</div>
+</article>
+
+## Part 5 — The limit: Euler’s formula
+
+Nothing in Part 4 depended on the total turn being 1 radian. Replace i by i·θ — tilt each step so the turns add up to θ radians instead — and the same limit gives the general statement:
+
+<div class="ce-formula big">e<sup>iθ</sup> = cos θ + i sin θ</div>
+
+Read it geometrically: e<sup>iθ</sup> is the point you reach by taking infinitely many infinitesimal “grow-and-turn” steps whose turns total θ. Because the growth part washes out to a factor of exactly 1, you end up *on the unit circle*, at angle θ — whose coordinates are, by definition, (cos θ, sin θ). Exponential growth and circular motion are the same process, viewed along different axes.
+
+<div class="ce-card">
+<div class="ce-fig round"><svg viewBox="0 0 300 300" role="img" aria-label="Unit circle showing e to the i pi at the point minus 1">
+        <line x1="20" y1="150" x2="280" y2="150" stroke="var(--axis)" stroke-width="1.5"/><line x1="150" y1="20" x2="150" y2="280" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="150" cy="150" r="105" fill="none" stroke="var(--imag)" stroke-width="2.5"/>
+        <path d="M 255 150 A 105 105 0 0 0 45 150" fill="none" stroke="var(--real)" stroke-width="3.5"/>
+        <circle cx="45" cy="150" r="7" fill="var(--real)"/><circle cx="255" cy="150" r="5" fill="var(--ink)"/>
+        <text x="28" y="132" font-size="16" font-weight="700" fill="var(--real)" class="axis-label">−1</text>
+        <text x="246" y="132" font-size="14" fill="var(--ink)" class="axis-label">1</text>
+        <text x="140" y="86" font-size="14" fill="var(--real)" class="axis-label">θ = π (half-turn)</text>
+        <text x="158" y="44" font-size="12" fill="var(--muted)" class="axis-label">Im</text><text x="252" y="168" font-size="12" fill="var(--muted)" class="axis-label">Re</text>
+      </svg></div>
+<h3 id="euler-identity">The famous special case</h3>
+<p>Set θ = π — a half-turn, travelled by infinitely many tiny turns. Euler’s formula gives e<sup>iπ</sup> = cos π + i sin π = −1 + 0i, i.e.</p>
+<div class="ce-formula" style="text-align:center">e<sup>iπ</sup> + 1 = 0</div>
+<p>Euler’s identity. It is not a coincidence bolted together from five constants; it is the statement “a half-turn lands you at −1,” written in exponential language — the same fact as i² = −1, one level up.</p>
+</div>
+
+### Why this matters beyond beauty
+
+- **Rotation becomes multiplication.** To rotate any signal, vector, or waveform by θ, multiply by e<sup>iθ</sup> — one operation instead of a matrix.
+- **Waves become exponentials.** cos θ and sin θ are just the real and imaginary parts of e<sup>iθ</sup>, so oscillations can be added, differentiated, and filtered with ordinary algebra. This is the working language of AC circuits, audio, radio, and quantum mechanics.
+- **Growth and turning unify.** e<sup>x</sup> grows; e<sup>ix</sup> turns; e<sup>(a+bi)x</sup> spirals — one formula covers bank accounts, pendulums, and decaying oscillations.
+
+<div class="ce-callout">
+<p><strong>The one-sentence summary:</strong> i is a quarter-turn; i² = −1 because two quarter-turns make a half-turn; and Euler’s formula is what compound growth looks like when every growth step is also a tiny turn.</p>
+</div>
+
+## The lab: drag n and θ, watch growth become a circle
+
+The interactive plane below plots (1 + iθ/n)<sup>k</sup> step by step for your chosen n and total angle θ — compare it with the unit circle and the target point e<sup>iθ</sup>. The companion real chart shows (1 + x/n)<sup>n</sup> converging to e<sup>x</sup> with x = θ, so you can see the two limits together. Push n to the top (576) and the teal staircase melts onto the circle.
+
+<div class="ce-card">
+<div class="ce-fig round"><svg id="labSvg" viewBox="0 0 340 340" role="img" aria-label="Interactive complex plane: finite compounding steps approaching a point on the unit circle"><line x1="8" y1="170" x2="332" y2="170" stroke="var(--muted)"/><line x1="170" y1="8" x2="170" y2="332" stroke="var(--muted)"/><circle cx="170" cy="170" r="118" fill="none" stroke="var(--muted)" stroke-dasharray="4 4"/><text x="324" y="162" font-size="11" text-anchor="end" fill="var(--muted)">Re</text><text x="178" y="20" font-size="11" fill="var(--muted)">Im</text><circle cx="288.0" cy="170.0" r="2.6" fill="var(--imag)"/><line x1="288.0" y1="170.0" x2="288.0" y2="155.2" stroke="var(--imag)" stroke-width="1.6"/><circle cx="288.0" cy="155.2" r="2.6" fill="var(--imag)"/><line x1="288.0" y1="155.2" x2="286.2" y2="140.5" stroke="var(--imag)" stroke-width="1.6"/><circle cx="286.2" cy="140.5" r="2.6" fill="var(--imag)"/><line x1="286.2" y1="140.5" x2="282.5" y2="126.0" stroke="var(--imag)" stroke-width="1.6"/><circle cx="282.5" cy="126.0" r="2.6" fill="var(--imag)"/><line x1="282.5" y1="126.0" x2="277.0" y2="111.9" stroke="var(--imag)" stroke-width="1.6"/><circle cx="277.0" cy="111.9" r="2.6" fill="var(--imag)"/><line x1="277.0" y1="111.9" x2="269.7" y2="98.6" stroke="var(--imag)" stroke-width="1.6"/><circle cx="269.7" cy="98.6" r="2.6" fill="var(--imag)"/><line x1="269.7" y1="98.6" x2="260.8" y2="86.1" stroke="var(--imag)" stroke-width="1.6"/><circle cx="260.8" cy="86.1" r="2.6" fill="var(--imag)"/><line x1="260.8" y1="86.1" x2="250.3" y2="74.7" stroke="var(--imag)" stroke-width="1.6"/><circle cx="250.3" cy="74.7" r="2.6" fill="var(--imag)"/><line x1="250.3" y1="74.7" x2="238.4" y2="64.7" stroke="var(--imag)" stroke-width="1.6"/><circle cx="238.4" cy="64.7" r="5.5" fill="var(--imag)"/><circle cx="233.8" cy="70.7" r="7" fill="none" stroke="var(--ink)" stroke-width="2.2"/><line x1="170" y1="170" x2="233.8" y2="70.7" stroke="var(--ink)" stroke-dasharray="4 3"/></svg></div>
+<div class="ce-slider-wrap"><strong>n (steps) = <span id="nVal" class="ce-mono">8</span></strong><input type="range" id="nSlider" min="0" max="1000" value="230" /></div>
+<div class="ce-slider-wrap"><strong>θ (total turn) = <span id="tVal" class="ce-mono">1.00 rad</span></strong><input type="range" id="tSlider" min="10" max="628" value="100" /></div>
+<div class="ce-readout" id="labReadout"></div>
+</div>
+
+<div class="ce-card">
+<div class="ce-fig med"><svg id="labReal" viewBox="0 0 340 300" role="img" aria-label="Interactive line chart of real compound growth approaching e to the theta"><line x1="40" y1="47.5" x2="326" y2="47.5" stroke="var(--ink)" stroke-dasharray="5 4"/><text x="326" y="41.5" font-size="11.5" text-anchor="end" font-weight="700" fill="var(--ink)">e^θ = 2.72</text><line x1="40" y1="266" x2="326" y2="266" stroke="var(--muted)"/><line x1="40" y1="30" x2="40" y2="266" stroke="var(--muted)"/><polyline points="40.0,185.6 75.8,175.6 111.5,164.3 147.2,151.5 183.0,137.2 218.8,121.1 254.5,103.0 290.2,82.7 326.0,59.7" fill="none" stroke="var(--real)" stroke-width="2.2"/><circle cx="326.0" cy="59.7" r="4.5" fill="var(--real)"/><text x="183" y="292" font-size="11.5" text-anchor="middle" fill="var(--muted)">steps k = 0…8 of (1 + θ/n)^k → 2.566</text></svg></div>
+<p>The orange curve is (1 + θ/n)<sup>k</sup> over the same n steps; the dashed line is its limit e<sup>θ</sup>. Same n, same θ — the real version stretches, the imaginary version turns. That single swap, real 1/n → imaginary i/n, is the entire difference between an exponential and a circle.</p>
+<p class="ce-mono">Real limit: e<sup>θ</sup> &nbsp;·&nbsp; Imaginary limit: e<sup>iθ</sup> = cos θ + i sin θ</p>
+</div>
+
+<p class="ce-muted">All diagrams on this page are computed from the formulas shown — the step plots evaluate (1 + 1/n)<sup>k</sup> and (1 + i/n)<sup>k</sup> exactly for each finite n, and the dashed targets are e and e<sup>i</sup> = cos 1 + i sin 1 ≈ 0.540 + 0.841i.</p>
+
+---
+
+<p class="ce-muted">Footnote: most of this page was generated by Meta's Muse assistant from a zero-shot prompt. It contains only limited cosmetic tweaks I made afterwards for taste. This is pretty remarkable, considering that I gave the same task to all the other LLMs that major providers offer with a budget of daily free tokens - and all of them messed up somewhere, requiring several rounds of iterative refinement with lots of handholding while still providing an inferior end result. One model that I won't name (but it was from one of the top two providers) exhausted its daily tokens quota twice, and the result was still unsatisfactory, with factual errors and divergence from instructions given. Looks like Muse seems really well-suited for making visual explainers of this kind.</p>
+
+<script set:html={`
+(function(){
+"use strict";
+var REAL, IMAG, INK, MUTED, LINE;
+function refreshColors(){
+  var cs = getComputedStyle(document.documentElement);
+  REAL  = cs.getPropertyValue('--real').trim()  || '#c94f16';
+  IMAG  = cs.getPropertyValue('--imag').trim()  || '#0b7666';
+  INK   = cs.getPropertyValue('--ink').trim()   || '#1c1a17';
+  MUTED = cs.getPropertyValue('--muted').trim() || '#5f5a52';
+  LINE  = cs.getPropertyValue('--line').trim()  || '#ddd6c9';
+}
+refreshColors();
+function fmt(z){ return z.toFixed(3); }
+function cmul(a,b){ return {re:a.re*b.re - a.im*b.im, im:a.re*b.im + a.im*b.re}; }
+
+/* ---------- rotation explorer ---------- */
+var rot = {re:3, im:1}, rotCount = 0;
+var rotSvg = document.getElementById('rotSvg'), rotOut = document.getElementById('rotReadout');
+function drawRot(){
+  var S=300, c=S/2, sc=32, x=c+rot.re*sc, y=c-rot.im*sc;
+  var s='';
+  s+='<line x1="10" y1="'+c+'" x2="290" y2="'+c+'" stroke="'+MUTED+'" stroke-width="1.2"/>';
+  s+='<line x1="'+c+'" y1="10" x2="'+c+'" y2="290" stroke="'+MUTED+'" stroke-width="1.2"/>';
+  for(var g=-4; g<=4; g++){ if(g===0) continue;
+    s+='<line x1="'+(c+g*sc)+'" y1="'+(c-5)+'" x2="'+(c+g*sc)+'" y2="'+(c+5)+'" stroke="'+MUTED+'"/>';
+    s+='<line x1="'+(c-5)+'" y1="'+(c-g*sc)+'" x2="'+(c+5)+'" y2="'+(c-g*sc)+'" stroke="'+MUTED+'"/>';
+  }
+  s+='<text x="278" y="'+(c-8)+'" font-size="11" fill="'+MUTED+'">Re</text><text x="'+(c+8)+'" y="22" font-size="11" fill="'+MUTED+'">Im</text>';
+  s+='<line x1="'+c+'" y1="'+c+'" x2="'+x+'" y2="'+y+'" stroke="'+IMAG+'" stroke-width="4"/>';
+  s+='<circle cx="'+x+'" cy="'+y+'" r="7" fill="'+IMAG+'"/>';
+  s+='<circle cx="'+c+'" cy="'+c+'" r="3.5" fill="'+INK+'"/>';
+  rotSvg.innerHTML=s;
+  var ang = Math.atan2(rot.im, rot.re)*180/Math.PI; if(ang<0) ang+=360;
+  rotOut.innerHTML = 'Current value: <b>'+rot.re+' + ('+rot.im+')i</b><br>Distance from origin: '+Math.sqrt(rot.re*rot.re+rot.im*rot.im).toFixed(2)+' (never changes under ×i)<br>Angle: '+ang.toFixed(0)+'° &nbsp;·&nbsp; multiplications so far: '+rotCount;
+}
+document.getElementById('rotBtn').addEventListener('click', function(){
+  var nre = -rot.im, nim = rot.re; rot = {re:nre, im:nim}; rotCount++; drawRot();
+});
+document.getElementById('rotReset').addEventListener('click', function(){ rot={re:3,im:1}; rotCount=0; drawRot(); });
+drawRot();
+
+/* Part 3 chart and Part 4 step diagrams are baked into the HTML above as static SVG,
+   so every required diagram is present even before (or without) JavaScript. */
+
+/* ---------- lab ---------- */
+var nS=document.getElementById('nSlider'), tS=document.getElementById('tSlider');
+/* The n slider is exponential: the first quarter of its span steps through the
+   single-digit values (n = 1..9), then ramps up geometrically to 576 = 9·2⁶
+   (n doubles for every 1/6 of the remaining track). */
+function nFromSlider(rw){
+  rw=Math.max(0,Math.min(1000,rw));
+  if(rw<=250){ var q=(rw/250)*8; return Math.max(1,Math.min(9,1+Math.floor(q))); }
+  var t=(rw-250)/750;
+  return Math.min(576, Math.round(9*Math.pow(2, 6*t)));
+}
+function drawLab(){
+  var n=nFromSlider(parseInt(nS.value,10)), th=parseInt(tS.value,10)/100;
+  document.getElementById('nVal').textContent=n;
+  document.getElementById('tVal').textContent=th.toFixed(2)+' rad ('+(th*180/Math.PI).toFixed(0)+'°)';
+  var svg=document.getElementById('labSvg'), S=340, c=S/2, sc=118, s='';
+  s+='<line x1="8" y1="'+c+'" x2="'+(S-8)+'" y2="'+c+'" stroke="'+MUTED+'"/><line x1="'+c+'" y1="8" x2="'+c+'" y2="'+(S-8)+'" stroke="'+MUTED+'"/>';
+  s+='<circle cx="'+c+'" cy="'+c+'" r="'+sc+'" fill="none" stroke="'+MUTED+'" stroke-dasharray="4 4"/>';
+  s+='<text x="'+(S-16)+'" y="'+(c-8)+'" font-size="11" text-anchor="end" fill="'+MUTED+'">Re</text><text x="'+(c+8)+'" y="20" font-size="11" fill="'+MUTED+'">Im</text>';
+  var f={re:1, im:th/n}, v={re:1,im:0}, prev=null;
+  for(var k=0;k<=n;k++){
+    if(k>0) v=cmul(v,f);
+    var x=c+v.re*sc, y=c-v.im*sc;
+    if(n<=60 || k%Math.ceil(n/60)===0 || k===n){
+      if(prev) s+='<line x1="'+prev.x+'" y1="'+prev.y+'" x2="'+x+'" y2="'+y+'" stroke="'+IMAG+'" stroke-width="1.6"/>';
+      s+='<circle cx="'+x+'" cy="'+y+'" r="'+(k===n?5.5:2.6)+'" fill="'+IMAG+'"/>';
+    }
+    prev={x:x,y:y};
+  }
+  var tx=c+Math.cos(th)*sc, ty=c-Math.sin(th)*sc;
+  s+='<circle cx="'+tx+'" cy="'+ty+'" r="7" fill="none" stroke="'+INK+'" stroke-width="2.2"/>';
+  s+='<line x1="'+c+'" y1="'+c+'" x2="'+tx+'" y2="'+ty+'" stroke="'+INK+'" stroke-dasharray="4 3"/>';
+  svg.innerHTML=s;
+  var len=Math.sqrt(v.re*v.re+v.im*v.im);
+  document.getElementById('labReadout').innerHTML='(1 + iθ/n)<sup>n</sup> ≈ <b>'+v.re.toFixed(3)+' + '+v.im.toFixed(3)+'i</b>, length '+len.toFixed(3)+'<br>e<sup>iθ</sup> = cos θ + i sin θ = <b>'+Math.cos(th).toFixed(3)+' + '+Math.sin(th).toFixed(3)+'i</b>, length 1.000';
+  // real companion chart
+  var R=document.getElementById('labReal'), W=340,H=300,L=40,Rr=14,T=30,B=34;
+  var maxV=Math.max(Math.exp(th),2)*1.08;
+  function Y2(val){ return T+(1-val/maxV)*(H-T-B); }
+  function X2(k){ return L+(k/n)*(W-L-Rr); }
+  var yE=Y2(Math.exp(th));
+  var s2='<line x1="'+L+'" y1="'+yE+'" x2="'+(W-Rr)+'" y2="'+yE+'" stroke="'+INK+'" stroke-dasharray="5 4"/><text x="'+(W-Rr)+'" y="'+(yE-6)+'" font-size="11.5" text-anchor="end" font-weight="700" fill="'+INK+'">e^θ = '+Math.exp(th).toFixed(2)+'</text>';
+  s2+='<line x1="'+L+'" y1="'+(H-B)+'" x2="'+(W-Rr)+'" y2="'+(H-B)+'" stroke="'+MUTED+'"/><line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(H-B)+'" stroke="'+MUTED+'"/>';
+  /* integer value labels on the vertical axis: exact positions for 0,1,2,3…,
+     re-placed every time θ rescales the chart (e^θ is the top of the range).
+     When the range is large, the step grows (1→5→10→50…) so the axis stays
+     legible; for small θ you get 0,1,2,3… one by one. */
+  var pps=(H-T-B)/maxV, ladder=[1,2,5,10,20,50,100,200,500], step=ladder[ladder.length-1];
+  for(var li=0;li<ladder.length;li++){ if(pps*ladder[li]>=26){ step=ladder[li]; break; } }
+  for(var m2=0;m2<=Math.ceil(maxV-1e-9);m2+=step){
+    var yv=Y2(m2);
+    if(yv<T-8 || yv>H-B+1) continue;
+    if(Math.abs(yv-yE)<13) continue;
+    s2+='<line x1="'+(L-4)+'" y1="'+yv.toFixed(1)+'" x2="'+L+'" y2="'+yv.toFixed(1)+'" stroke="'+MUTED+'"/><text x="'+(L-6)+'" y="'+(yv+3.5).toFixed(1)+'" font-size="10" text-anchor="end" fill="'+MUTED+'">'+m2+'</text>';
+  }
+  var vals=[1], vr=1;
+  for(var k2=1;k2<=n;k2++){ vr*=(1+th/n); vals.push(vr); }
+  var pts=''; for(var p=0;p<=n;p++){ pts+=X2(p).toFixed(1)+','+Y2(vals[p]).toFixed(1)+' '; }
+  s2+='<polyline points="'+pts+'" fill="none" stroke="'+REAL+'" stroke-width="2.2"/>';
+  var ostep=Math.max(1,Math.ceil(n/60));
+  for(var k3=0;k3<=n;k3++){ if(k3%ostep===0 || k3===n){ s2+='<circle cx="'+X2(k3).toFixed(1)+'" cy="'+Y2(vals[k3]).toFixed(1)+'" r="'+(k3===n?4.5:2.6)+'" fill="'+REAL+'"/>'; } }
+  s2+='<text x="'+((L+W-Rr)/2)+'" y="'+(H-8)+'" font-size="11.5" text-anchor="middle" fill="'+MUTED+'">steps k = 0…'+n+' of (1 + θ/n)^k → '+vr.toFixed(3)+'</text>';
+  R.innerHTML=s2;
+}
+nS.addEventListener('input', drawLab); tS.addEventListener('input', drawLab); drawLab();
+
+/* Re-bake colors when the user toggles the theme at runtime */
+new MutationObserver(function(){
+  refreshColors();
+  drawRot();
+  drawLab();
+}).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+})();
+`} />
