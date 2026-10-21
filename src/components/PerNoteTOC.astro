@@ -12,7 +12,7 @@ if (!showToc) {
 ---
 {showToc && (
   <>
-    <div class="toc-container" style="
+    <div class="toc-container" id="toc-container" style="
       position: fixed;
       left: calc(67%);
       top: 15%;
@@ -28,6 +28,15 @@ if (!showToc) {
       font-family: var(--font-heading);
       font-weight: 600;
     ">
+      <button
+        id="toc-hide-btn"
+        class="toc-hide-btn"
+        type="button"
+        aria-label="Hide table of contents"
+        title="Hide table of contents"
+      >
+        »
+      </button>
       <div style="
         overflow: hidden;
         overflow-y: auto;
@@ -52,6 +61,21 @@ if (!showToc) {
         </div>
       </div>
     </div>
+
+    <!-- Shown only while the TOC is hidden: a compact tab on the screen's
+         right edge (same vertical anchor as the TOC). 44px tall so it stays
+         an easy touch target on mobile without covering more than a sliver
+         of the content column. -->
+    <button
+      id="toc-unhide-btn"
+      class="toc-unhide-btn"
+      type="button"
+      style="display: none;"
+      aria-label="Show table of contents"
+      title="Show table of contents"
+    >
+      TOC
+    </button>
 
     <script is:inline>
       document.addEventListener('DOMContentLoaded', function() {
@@ -137,5 +161,84 @@ if (!showToc) {
         });
       });
     </script>
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toc = document.getElementById('toc-container');
+        var hideBtn = document.getElementById('toc-hide-btn');
+        var showBtn = document.getElementById('toc-unhide-btn');
+        if (!toc || !hideBtn || !showBtn) return;
+
+        hideBtn.addEventListener('click', function() {
+          toc.style.display = 'none';
+          showBtn.style.display = 'inline-flex';
+          if (showBtn.focus) showBtn.focus();
+        });
+
+        showBtn.addEventListener('click', function() {
+          toc.style.display = '';
+          showBtn.style.display = 'none';
+          if (hideBtn.focus) hideBtn.focus();
+        });
+      });
+    </script>
+
+    <style>
+      /* Hide button: sits in the TOC's top-right corner, next to the header */
+      .toc-hide-btn {
+        position: absolute;
+        top: 0.4rem;
+        right: 0.4rem;
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        background: none;
+        border: none;
+        border-radius: 4px;
+        color: var(--color-muted);
+        font-size: 1.3rem;
+        line-height: 1;
+        font-family: var(--font-heading);
+        cursor: pointer;
+      }
+
+      .toc-hide-btn:hover {
+        color: var(--color-text);
+        background: var(--color-code-bg);
+      }
+
+      /* Unhide tab: compact, pinned to the right edge at the TOC's old
+         vertical position. 44px tall = comfortable touch target. */
+      .toc-unhide-btn {
+        position: fixed;
+        top: 15%;
+        right: 0;
+        z-index: 1000;
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.5rem;
+        background: var(--color-bg);
+        color: var(--color-muted);
+        border: 1px solid var(--color-border);
+        border-right: none;
+        border-radius: 6px 0 0 6px;
+        font-family: var(--font-heading);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .toc-unhide-btn:hover {
+        color: var(--color-text);
+      }
+    </style>
   </>
 )}
