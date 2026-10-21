@@ -10,4 +10,7 @@ export default defineConfig({
     react(),
     compress(),
   ],
+  // server: {
+  //  host: '127.0.0.1', // Listen on IPv4 localhost in addition to IPv6
+  // }
 });
