@@ -256,6 +256,13 @@ hr {
   color: var(--color-muted);
 }
 
+.site-bio-qr {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .site-bio-text a {
   color: var(--color-link);
 }

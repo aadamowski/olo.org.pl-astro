@@ -1,10 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
 import YearsSince from '../components/YearsSince.jsx';
+import linkedInQRImage from '../../public/assets/olo_linkedin_qr.png';
+
 ---
 <BaseLayout title="Resume">
   <div>
     <h1 style="font-size: 3.5em;">My Resume</h1>
+
+    <p>
+      <a href="https://www.linkedin.com/in/aleksanderadamowski">LinkedIn Profile</a>
+    </p>
+    <p>
+      <Image
+        src={linkedInQRImage}
+        alt="Aleksander Adamowski LinkedIn QR Code"
+        width={120}
+        height={120}
+      />
+    </p>
 
     <h1 class="resume-section">Experience</h1>
 

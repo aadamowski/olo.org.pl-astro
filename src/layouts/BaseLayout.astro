@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import oloQrImage from '../../public/assets/olo_qr.png';
+
 interface Props {
   title: string;
   description?: string;
@@ -112,6 +115,15 @@ const displayTitle = truncateTitle(title);
           <br />
           Just some ramblings.
         </div>
+        <Image
+          src={oloQrImage}
+          alt=""
+          width={370}
+          height={370}
+          format="png"
+          loading="eager"
+          class="site-bio-qr"
+        />
       </div>
     </header>
     <main class="site-main">
