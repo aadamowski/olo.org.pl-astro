@@ -256,11 +256,15 @@ hr {
   color: var(--color-muted);
 }
 
+.site-bio-qr-link {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .site-bio-qr {
   width: 48px;
   height: 48px;
-  flex-shrink: 0;
-  margin-left: auto;
+  display: block;
 }
 
 .site-bio-text a {
@@ -332,6 +336,10 @@ hr {
 }
 
 /* Resume styles */
+.resume-qr-link {
+  display: inline-block;
+}
+
 .resume-section {
   border-top: double gray;
   padding-top: 0.5em;
