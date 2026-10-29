@@ -3,15 +3,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const notes = await getCollection('notes');
+
+// Group notes by the directory one level below src/content/notes/, sorted
+// lexicographically by section name, with the notes inside each section also
+// sorted lexicographically (by note id / filename).
+const sections = {};
+for (const note of notes) {
+  const dir = note.id.includes('/') ? note.id.split('/')[0] : '';
+  (sections[dir] ??= []).push(note);
+}
+const sectionNames = Object.keys(sections).sort();
+const sectionTitle = (s) =>
+  s.split(/[_-]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+for (const name of sectionNames) sections[name].sort((a, b) => a.id.localeCompare(b.id));
 ---
 <BaseLayout title="Notes">
   <h1>Notes</h1>
   <p>Random technical notes and scripts.</p>
-  <ul class="notes-list">
-    {notes.map(note => (
-      <li>
-        <a href={`/notes/${note.id}`}>{note.data.title}</a>
-      </li>
-    ))}
-  </ul>
+  {sectionNames.map((name) => (
+    <section>
+      {name && <h2>{sectionTitle(name)}</h2>}
+      <ul class="notes-list">
+        {sections[name].map((note) => (
+          <li>
+            <a href={`/notes/${note.id}`}>{note.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 </BaseLayout>

@@ -151,7 +151,13 @@ if (!showToc) {
         document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
           anchor.addEventListener('click', function(e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const href = this.getAttribute('href');
+            if (!href || href.length < 2) return;
+            // getElementById, NOT querySelector(href): the href is a fragment
+            // like "#1--the-minkowski-map" and a CSS ID selector cannot start
+            // with a digit, so querySelector throws for numbered chapter
+            // headings (the click was already preventDefault()ed → dead link).
+            const target = document.getElementById(href.slice(1));
             if (target) {
               target.scrollIntoView({
                 behavior: 'smooth'
