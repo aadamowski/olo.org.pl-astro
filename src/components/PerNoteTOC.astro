@@ -113,9 +113,12 @@ if (!showToc) {
           // Skip if beyond our configured depth
           if (level > headingDepth) return;
 
-          // Skip the first h1 if it's the page title (to avoid duplication)
+          // Skip the first h1 if it's the page title (to avoid duplication).
+          // BaseLayout renders <title> as "<title> | Aleksander Adamowski", so
+          // strip that exact suffix (the old 'Aleksander Adamowski - ' never
+          // matched, leaving a dead '#' link for the title on every note).
           const isFirstH1 = heading === document.querySelector('article h1');
-          const pageTitle = document.title.replace('Aleksander Adamowski - ', '');
+          const pageTitle = document.title.replace(/ \| Aleksander Adamowski$/, '');
           const isPageTitle = isFirstH1 && heading.textContent.trim() === pageTitle;
           if (isFirstH1 && isPageTitle) return;
 

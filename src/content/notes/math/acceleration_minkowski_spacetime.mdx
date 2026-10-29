@@ -1,0 +1,940 @@
+---
+title: "Acceleration and Time Dilation in Minkowski Spacetime"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Minkowski note (theme-adaptive) =====
+   Aligned with the companion Euler note (i_complex_euler_formula.mdx): same
+   warm-paper neutrals and teal/orange/gold accents. The mn- namespace avoids
+   clashing with the Euler note's page-local vars and the global --color-* set.
+   --mn-blue / --mn-red are diagram-only extra colors this note needs;
+   --mn-surface aliases the page background (for text halos / dot strokes). */
+:root {
+  --mn-ink:#1c1a17;   --mn-ink2:#5f5a52;  --mn-ink3:#8a8378;
+  --mn-teal:#0b7666;  --mn-teal-soft:#e2f2ee;
+  --mn-orange:#c94f16; --mn-blue:#1c5cc4;
+  --mn-gold:#b8860b;  --mn-gold-soft:#fdf3d7;
+  --mn-red:#b4232a;   --mn-red-soft:#fbe7e7;
+  --mn-line:#ddd6c9;  --mn-surface:var(--color-bg);
+}
+:root[data-theme="dark"] {
+  --mn-ink:#f0ebe1;   --mn-ink2:#b3aa9b;  --mn-ink3:#8a8378;
+  --mn-teal:#3ec9b2;  --mn-teal-soft:#12322c;
+  --mn-orange:#ff8a4d; --mn-blue:#7aa8f5;
+  --mn-gold:#d6a419;  --mn-gold-soft:#3a2f12;
+  --mn-red:#ff7a72;   --mn-red-soft:#3a1f1f;
+  --mn-line:#3a352d;
+}
+
+/* ===== Note typography ===== */
+.mn-var { font-style: italic; }
+.mn-eyebrow { font-family: var(--font-mono); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--mn-teal); font-weight:600; margin:0 0 14px; }
+.mn-lede { font-size: 1.12em; }
+.mn-stepnum { font-family: var(--font-mono); font-size:.78rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--mn-orange); margin:34px 0 6px; }
+
+/* ===== Key idea box ===== */
+.mn-keybox { border-left:5px solid var(--mn-teal); background:var(--mn-teal-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.98em; }
+.mn-keybox p { margin:0; }
+.mn-keybox strong { color:var(--mn-teal); }
+
+/* ===== Callout / myth / readbox ===== */
+.mn-callout { border-left:5px solid var(--mn-gold); background:var(--mn-gold-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
+.mn-callout p { margin:0; }
+.mn-myth { border-left:5px solid var(--mn-red); background:var(--mn-red-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
+.mn-myth p { margin:0; }
+.mn-readbox { background:var(--color-code-bg); border:1px solid var(--color-border); border-radius:12px; padding:16px 18px; margin:16px 0; }
+.mn-readbox h3 { margin-top:0; margin-bottom:8px; font-size:.98rem; }
+.mn-readbox ul { margin:0; padding-left:20px; }
+.mn-readbox li { margin-bottom:6px; font-size:.96rem; }
+.mn-hint { color:var(--mn-ink2); font-size:.95rem; }
+
+/* ===== Formula display ===== */
+.mn-formula { font-family:var(--font-mono); font-size:1.05em; line-height:1.7; text-align:center; background:var(--color-code-bg); border:1px solid var(--color-border); border-radius:12px; padding:18px 20px; margin:18px 0; overflow-x:auto; white-space:nowrap; }
+.mn-formula small { display:block; font-size:.78em; color:var(--mn-ink2); margin-top:10px; white-space:normal; line-height:1.55; }
+.mn-formula-table { width:100%; border-collapse:collapse; margin:18px 0; background:var(--color-bg); }
+.mn-formula-table th, .mn-formula-table td { border:1px solid var(--color-border); padding:13px 14px; vertical-align:top; text-align:left; }
+.mn-formula-table th { background:var(--color-code-bg); font-family:var(--font-body); font-size:.84rem; letter-spacing:.02em; color:var(--mn-ink); width:210px; font-weight:600; }
+.mn-formula-table th span { display:block; font-weight:400; color:var(--mn-ink2); font-size:.8rem; margin-top:3px; }
+.mn-feq { font-size:1.12em; line-height:1.5; }
+.mn-fnote { font-size:.9rem; color:var(--mn-ink2); margin:8px 0 0; line-height:1.5; }
+.mn-caption { display:block; font-size:.84rem; color:var(--mn-ink2); margin-top:10px; line-height:1.55; }
+@media (max-width:560px) {
+  .mn-formula { white-space:normal; font-size:1.05em; }
+  .mn-formula-table th, .mn-formula-table td { display:block; width:100%; }
+  .mn-formula-table th { border-bottom:none; width:auto; }
+  .mn-formula-table td { border-top:none; }
+}
+
+/* ===== Figures (diagrams) ===== */
+.mn-diagram { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:14px 12px 8px; margin:18px 0; }
+.mn-diagram svg { width:100%; height:auto; display:block; }
+.mn-figcap { font-size:.87rem; color:var(--mn-ink2); padding:8px 6px 6px; line-height:1.5; }
+.mn-figcap strong { color:var(--mn-ink); }
+
+/* ===== Slider boxes + readouts ===== */
+.mn-sliderbox { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:20px 22px; margin:18px 0; }
+.mn-sliderbox h3 { margin-top:0; margin-bottom:4px; }
+.mn-sliderrow { display:block; margin:16px 0 4px; }
+.mn-sliderrow label { display:block; font-weight:600; font-size:.94rem; margin-bottom:6px; }
+.mn-sliderrow label span { display:block; font-weight:400; color:var(--mn-ink2); font-size:.82rem; }
+.mn-sliderrow input[type=range] { width:100%; accent-color:var(--mn-teal); height:32px; }
+.mn-readout { font-family:var(--font-mono); font-size:1rem; font-weight:600; color:var(--mn-teal); margin-top:4px; }
+.mn-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:16px; }
+.mn-stat { background:var(--color-code-bg); border-radius:10px; padding:12px 14px; }
+.mn-stat .v { font-family:var(--font-mono); font-size:1.15rem; font-weight:600; line-height:1.25; }
+.mn-stat .k { font-size:.78rem; color:var(--mn-ink2); line-height:1.4; margin-top:2px; }
+
+/* ===== Step-9 cards ===== */
+.mn-cards { display:grid; grid-template-columns:1fr; gap:14px; margin:16px 0; }
+.mn-card { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:18px 20px; }
+.mn-card h3 { margin-top:0; margin-bottom:6px; }
+.mn-card p { font-size:.96rem; color:var(--mn-ink2); margin:0; }
+.mn-card p strong { color:var(--mn-ink); }
+
+/* ===== SVG shared styles (mn- namespaced) ===== */
+.mn-diagram svg text { font-family:var(--font-body); }
+.mn-t-lab { font-size:12.5px; fill:var(--mn-ink2); }
+.mn-t-lab-b { font-size:12.5px; font-weight:600; fill:var(--mn-ink); }
+.mn-t-small { font-size:11px; fill:var(--mn-ink3); }
+.mn-t-teal { font-size:12.5px; font-weight:600; fill:var(--mn-teal); }
+.mn-t-orange { font-size:12.5px; font-weight:600; fill:var(--mn-orange); }
+.mn-t-blue { font-size:12.5px; font-weight:600; fill:var(--mn-blue); }
+.mn-axis { stroke:var(--mn-ink3); stroke-width:1.4; }
+.mn-gridl { stroke:var(--mn-line); stroke-width:1; }
+.mn-cone { stroke:var(--mn-gold); stroke-width:1.6; stroke-dasharray:6 4; fill:none; }
+.mn-wl-stay { stroke:var(--mn-teal); stroke-width:3.2; fill:none; stroke-linecap:round; }
+.mn-wl-move { stroke:var(--mn-orange); stroke-width:3.2; fill:none; stroke-linecap:round; }
+.mn-hyper { stroke:var(--mn-blue); stroke-width:2; fill:none; opacity:.75; }
+.mn-t-halo { paint-order:stroke; stroke:var(--mn-surface); stroke-width:3.5px; stroke-linejoin:round; }
+`}</style>
+
+<p class="mn-eyebrow">Special relativity · Minkowski geometry</p>
+<p class="mn-lede">A moving clock ticks slowly — that part depends only on its *speed*. So where does acceleration come in? It comes in by **bending the clock's path through spacetime**. Once you draw motion the way Minkowski taught us to draw it, acceleration stops being a footnote to time dilation and becomes the thing that decides *which* history a clock lives through — and therefore how much time it actually experiences.</p>
+
+<div class="mn-keybox">
+<p><strong>The one-sentence version:</strong> time dilation at any instant is set by velocity alone, <em>γ</em> = 1/√(1 − <em>v</em>²/<em>c</em>²). Acceleration never appears in that formula — but acceleration is what <em>changes</em> <em>v</em>, curves the worldline, and makes the total elapsed proper time depend on the whole journey. That is why the accelerating twin comes home younger.</p>
+</div>
+
+<div class="mn-formula-table-wrap" style="background:var(--color-code-bg);border:1px solid var(--color-border);border-radius:10px;padding:16px;margin:18px 0">
+<table class="mn-formula-table" aria-label="From the Minkowski interval to proper time, in three steps">
+<tbody><tr>
+<th scope="row">Step 1<span>The interval — all dimensions</span></th>
+<td><div class="mn-feq">Δ<em>s</em>² = −<em>c</em>²Δ<em>t</em>² + Δ<em>x</em>² + Δ<em>y</em>² + Δ<em>z</em>²</div><p class="mn-fnote">The Minkowski interval between two events. Time enters with a minus sign; all three space dimensions — <em>x</em>, <em>y</em> and <em>z</em> — enter with plus signs.</p></td>
+</tr>
+<tr>
+<th scope="row">Step 2<span>Rearrange for proper time — still all dimensions</span></th>
+<td><div class="mn-feq"><em>c</em>²Δ<em>τ</em>² = −Δ<em>s</em>² = <em>c</em>²Δ<em>t</em>² − Δ<em>x</em>² − Δ<em>y</em>² − Δ<em>z</em>²</div><p class="mn-fnote">Proper time τ is defined by <em>c</em>²Δ<em>τ</em>² = −Δ<em>s</em>² for a timelike interval. Negating the Step 1 expression flips every sign: the time term becomes positive and each space term — <em>x</em>, <em>y</em> and <em>z</em> alike — becomes negative. Nothing has been dropped yet.</p></td>
+</tr>
+<tr>
+<th scope="row">Step 3<span>Now specialise to motion along <em>x</em> only</span></th>
+<td><div class="mn-feq"><em>c</em>²Δ<em>τ</em>² = <em>c</em>²Δ<em>t</em>² − Δ<em>x</em>²</div><p class="mn-fnote">Only now do <em>y</em> and <em>z</em> leave the formula — and only because this page mostly studies motion along a single line, so Δ<em>y</em> = 0 and Δ<em>z</em> = 0. Their terms in Step 2 are then zero and drop out, leaving the one-dimensional form used in the diagrams below.</p></td>
+</tr></tbody>
+</table>
+<small class="mn-caption">The Minkowski interval and its rearrangement into proper time τ, broken into steps: first the full interval, then the full rearrangement keeping <em>y</em> and <em>z</em>, then the one-dimensional special case. Everything on this page is these lines, drawn as pictures. Units below: <em>c</em> = 1 light-year per year, so light travels at 45°.</small>
+</div>
+
+## 1 · The Minkowski map
+
+<p class="mn-stepnum">Step 1 of 9</p>
+A Minkowski diagram throws away two space dimensions and promotes time to an axis. Horizontal position is *x*; vertical position is *ct* — time multiplied by the speed of light, so time and space share the same units (here, light-years). Any object's history becomes a curve on this map: its **worldline**. A dot is an *event* — a place at a moment.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 430" role="img" aria-label="Minkowski diagram showing light cone at 45 degrees, a stationary vertical worldline, and a moving slanted worldline">
+        <line x1="45" y1="60" x2="595" y2="60" class="mn-gridl"/><line x1="45" y1="132" x2="595" y2="132" class="mn-gridl"/><line x1="45" y1="205" x2="595" y2="205" class="mn-gridl"/><line x1="45" y1="277" x2="595" y2="277" class="mn-gridl"/>
+        <line x1="110" y1="20" x2="110" y2="360" class="mn-gridl"/><line x1="183" y1="20" x2="183" y2="360" class="mn-gridl"/><line x1="402" y1="20" x2="402" y2="360" class="mn-gridl"/><line x1="475" y1="20" x2="475" y2="360" class="mn-gridl"/><line x1="548" y1="20" x2="548" y2="360" class="mn-gridl"/>
+        
+        <line x1="256" y1="350" x2="556" y2="50" class="mn-cone"/>
+        <line x1="256" y1="350" x2="-44" y2="50" class="mn-cone"/>
+        
+        <line x1="36" y1="350" x2="604" y2="350" class="mn-axis"/>
+        <line x1="256" y1="392" x2="256" y2="16" class="mn-axis"/>
+        <path d="M604 350 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        
+        <line x1="256" y1="350" x2="256" y2="62" class="mn-wl-stay"/>
+        
+        <line x1="256" y1="350" x2="400" y2="62" class="mn-wl-move"/>
+        
+        <circle cx="256" cy="350" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="256" cy="96" r="5" fill="var(--mn-teal)"/>
+        <circle cx="385" cy="96" r="5" fill="var(--mn-orange)"/>
+        <text x="612" y="354" class="mn-t-lab-b" text-anchor="end">x (light-years)</text>
+        <text x="266" y="26" class="mn-t-lab-b">ct (years × c)</text>
+        <text x="472" y="86" class="mn-t-lab">future light cone</text>
+        <text x="472" y="102" class="mn-t-small">light: 45°, slope c</text>
+        <text x="150" y="80" class="mn-t-teal">staying home:</text>
+        <text x="150" y="96" class="mn-t-small">straight up = not</text>
+        <text x="150" y="110" class="mn-t-small">moving through space</text>
+        <text x="408" y="150" class="mn-t-orange">cruising at 0.5c:</text>
+        <text x="408" y="166" class="mn-t-small">leans toward the cone,</text>
+        <text x="408" y="180" class="mn-t-small">never past it</text>
+        <text x="238" y="376" class="mn-t-lab-b">event A · departure</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 1 — The Minkowski map.</strong> Because one year of <em>ct</em> and one light-year of <em>x</em> are drawn the same length, anything moving at light speed travels at exactly 45°. Nothing massive can tilt further than that.</div>
+</div>
+
+Three reading rules make every later diagram fall into place:
+
+<div class="mn-readbox">
+<h3>How to read it</h3>
+<ul>
+<li><strong>Slope is speed.</strong> A vertical worldline is an object sitting still. The more a worldline leans away from vertical, the faster the object moves — lean is literally <em>v</em>/<em>c</em>.</li>
+<li><strong>The cone is a speed limit drawn as geometry.</strong> A worldline must always stay <em>inside</em> the future light cone of every event it passes through. Leaning to 45° would mean moving at <em>c</em>.</li>
+<li><strong>Clocks measure their own worldline.</strong> The time a traveller experiences — their <em>proper time</em> τ — is a property of the curve they trace, not of the map's vertical axis. The next step makes that precise.</li>
+</ul>
+</div>
+
+<p>Keep one contrast in mind: on an ordinary road map, the straight line between two towns is the <em>shortest</em> route. In Minkowski's geometry the sign in front of the time term flips that intuition — and the flip is the whole story of time dilation.</p>
+
+## 2 · Proper time is length
+
+<p class="mn-stepnum">Step 2 of 9</p>
+For a short segment of worldline, the interval formula gives the proper time ticked by a clock riding that segment: *c*²d<em>τ</em>² = *c*²d<em>t</em>² − d<em>x</em>². Time contributes positively, space *subtracts*. So a clock that also moves through space accumulates *less* proper time than one that goes straight up in time. The calibration curves below — hyperbolas of constant τ — are the Minkowski equivalent of the circles a compass draws on an ordinary map: every point on one curve is the same proper time from the origin event.
+
+<div class="mn-readbox" style="margin-top:0">
+<h3>How to read it</h3>
+<ul>
+<li>Each hyperbola marks events reachable with the <strong>same proper time</strong> τ from departure — τ = 1, 2, 3 years.</li>
+<li>Moving sideways pushes you <em>along</em> the hyperbola, not outward: at 0.6<em>c</em>, reaching the τ = 2 curve takes 2.5 years of Earth time but still only 2 years on your clock.</li>
+<li>These hyperbolas, not circles, are spacetime's "distance contours" — a direct picture of the minus sign in the interval.</li>
+</ul>
+</div>
+
+<div class="mn-callout"><p><strong>The reversed triangle inequality.</strong> Between two events, the straight (unaccelerated) worldline has the <em>longest</em> proper time of any route. Any detour through space — any leaning, bending worldline — totals <em>less</em> τ. "The shortest-looking path on paper is the longest in time." Steps 4–6 are all consequences of this one fact.</p></div>
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 430" role="img" aria-label="Calibration hyperbolas of constant proper time one, two and three years on a Minkowski diagram">
+        <line x1="40" y1="70" x2="600" y2="70" class="mn-gridl"/><line x1="40" y1="142" x2="600" y2="142" class="mn-gridl"/><line x1="40" y1="215" x2="600" y2="215" class="mn-gridl"/><line x1="40" y1="287" x2="600" y2="287" class="mn-gridl"/>
+        <line x1="110" y1="30" x2="110" y2="365" class="mn-gridl"/><line x1="183" y1="30" x2="183" y2="365" class="mn-gridl"/><line x1="402" y1="30" x2="402" y2="365" class="mn-gridl"/><line x1="475" y1="30" x2="475" y2="365" class="mn-gridl"/><line x1="548" y1="30" x2="548" y2="365" class="mn-gridl"/>
+        <line x1="256" y1="360" x2="556" y2="60" class="mn-cone"/><line x1="256" y1="360" x2="-44" y2="60" class="mn-cone"/>
+        
+        <path d="M110 197 L147 228 L183 257 L220 278 L256 287 L293 278 L329 257 L366 228 L402 197" class="mn-hyper"/>
+        <path d="M110 154 L147 178 L183 197 L220 210 L256 214 L293 210 L329 197 L366 178 L402 154" class="mn-hyper"/>
+        <path d="M110 97 L147 115 L183 129 L220 138 L256 141 L293 138 L329 129 L366 115 L402 97" class="mn-hyper"/>
+        <line x1="36" y1="360" x2="604" y2="360" class="mn-axis"/><line x1="256" y1="398" x2="256" y2="16" class="mn-axis"/>
+        <path d="M604 360 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        
+        <line x1="256" y1="360" x2="366" y2="178" class="mn-wl-move"/>
+        <circle cx="256" cy="360" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="256" cy="214" r="5" fill="var(--mn-teal)"/>
+        <circle cx="366" cy="178" r="5.5" fill="var(--mn-orange)"/>
+        <text x="470" y="100" class="mn-t-lab">τ = 3 yr</text>
+        <text x="470" y="150" class="mn-t-lab">τ = 2 yr</text>
+        <text x="470" y="200" class="mn-t-lab">τ = 1 yr</text>
+        <text x="612" y="364" class="mn-t-lab-b" text-anchor="end">x</text>
+        <text x="266" y="26" class="mn-t-lab-b">ct</text>
+        <text x="52" y="200" class="mn-t-teal">home clock reaches</text>
+        <text x="52" y="216" class="mn-t-teal">τ = 2 at ct = 2 yr</text>
+        <text x="376" y="160" class="mn-t-orange">traveller at 0.6c reaches</text>
+        <text x="376" y="176" class="mn-t-orange">the same τ = 2 curve</text>
+        <text x="376" y="192" class="mn-t-orange">at ct = 2.5 yr</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 2 — Calibration hyperbolas</strong> <em>(ct)</em>² − <em>x</em>² = <em>(cτ)</em>². Same τ, different Earth time: the moving clock's event sits further up the page yet on the same hyperbola. That gap <em>is</em> time dilation, before any mention of acceleration.</div>
+</div>
+
+## 3 · Velocity dilates
+
+<p class="mn-stepnum">Step 3 of 9</p>
+Differentiate the interval and the proper-time rate falls out immediately: d<em>τ</em> = d<em>t</em> √(1 − *v*²/*c*²) = d<em>t</em>/*γ*. A clock moving at speed *v* through your frame ticks γ times slower — not because anything is wrong with it, but because part of its motion through spacetime is spent going sideways. On the diagram, the moving observer's axes themselves tilt: their time axis leans by the angle whose tangent is *v*/*c*, and their space axis leans by the *same* angle — so their "now" slices the diagram diagonally. That symmetric tilt is the Lorentz transformation, as a picture.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 430" role="img" aria-label="Minkowski diagram with a moving observer frame axes tilted symmetrically toward the light cone">
+        <line x1="256" y1="360" x2="556" y2="60" class="mn-cone"/><line x1="256" y1="360" x2="-44" y2="60" class="mn-cone"/>
+        <line x1="36" y1="360" x2="604" y2="360" class="mn-axis"/><line x1="256" y1="398" x2="256" y2="16" class="mn-axis"/>
+        <path d="M604 360 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        
+        <line id="fig3CtPrime" x1="256" y1="360" x2="436" y2="60" stroke="var(--mn-orange)" stroke-width="2.6"/>
+        <line id="fig3XPrime" x1="256" y1="360" x2="540" y2="190" stroke="var(--mn-orange)" stroke-width="2.6"/>
+        <circle cx="256" cy="360" r="5.5" fill="var(--mn-ink)"/>
+        <text x="612" y="364" class="mn-t-lab-b" text-anchor="end">x — home frame</text>
+        <text x="266" y="26" class="mn-t-lab-b">ct</text>
+        <text id="fig3CtLab" x="444" y="66" class="mn-t-orange mn-t-halo">ct′ — traveller's time axis</text>
+        <text id="fig3XLab" x="420" y="172" class="mn-t-orange mn-t-halo">x′ — traveller's "now" line</text>
+        <text id="fig3XSub1" x="420" y="188" class="mn-t-small mn-t-halo">events on this line are simultaneous</text>
+        <text id="fig3XSub2" x="420" y="202" class="mn-t-small mn-t-halo">for the traveller, not for home</text>
+        <text x="60" y="80" class="mn-t-lab">both axes tilt by</text>
+        <text id="fig3Angle" x="60" y="96" class="mn-t-lab">α = arctan(v/c) ≈ 31.0°</text>
+        <text x="60" y="112" class="mn-t-small">toward the light cone, squeezing</text>
+        <text x="60" y="126" class="mn-t-small">symmetrically around the 45° ray</text>
+      </svg>
+<div class="mn-figcap"><strong id="fig3Title">Figure 3 — A moving frame at 0.60c</strong> <span id="fig3Gamma">(γ = 1.25)</span>. The traveller's clock axis and simultaneity line tilt together — and both are drawn live from the Cruising speed slider below, the same slider that drives Figure 4. Disagreements about "now" — and about whose clock is slow — come straight from this tilt. No acceleration anywhere yet.</div>
+</div>
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 430" role="img" aria-label="Graph of Lorentz factor gamma against speed beta, rising gently then steeply to infinity at the speed of light">
+        
+        <line x1="70" y1="186" x2="600" y2="186" class="mn-gridl"/><line x1="70" y1="228" x2="600" y2="228" class="mn-gridl"/><line x1="70" y1="270" x2="600" y2="270" class="mn-gridl"/><line x1="70" y1="312" x2="600" y2="312" class="mn-gridl"/>
+        <line x1="176" y1="40" x2="176" y2="360" class="mn-gridl"/><line x1="282" y1="40" x2="282" y2="360" class="mn-gridl"/><line x1="388" y1="40" x2="388" y2="360" class="mn-gridl"/><line x1="494" y1="40" x2="494" y2="360" class="mn-gridl"/>
+        <line x1="600" y1="40" x2="600" y2="360" stroke="var(--mn-red)" stroke-width="1.6" stroke-dasharray="6 4"/>
+        
+        <path id="gammaCurve" d="M70 354 L123 354 L176 353 L229 352 L282 350 L335 348 L388 344 L441 337 L494 326 L520 316 L547 300 L573 262 L595 98" fill="none" stroke="var(--mn-teal)" stroke-width="3"/>
+        <line x1="70" y1="360" x2="600" y2="360" class="mn-axis"/><line x1="70" y1="385" x2="70" y2="40" class="mn-axis"/>
+        <circle id="gammaDot" cx="388" cy="344" r="7" fill="var(--mn-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
+        <text x="606" y="66" class="mn-t-lab" fill="var(--mn-red)">c — unreachable</text>
+        <text x="60" y="30" class="mn-t-lab-b">γ = 1/√(1 − v²/c²)</text>
+        <text x="52" y="358" class="mn-t-small">1</text>
+        <text x="52" y="316" class="mn-t-small">2</text>
+        <text x="52" y="274" class="mn-t-small">3</text>
+        <text x="52" y="232" class="mn-t-small">4</text>
+        <text x="52" y="190" class="mn-t-small">5</text>
+        <text x="70" y="382" class="mn-t-small">0</text><text x="282" y="382" class="mn-t-small">0.4c</text><text x="388" y="382" class="mn-t-small">0.6c</text><text x="494" y="382" class="mn-t-small">0.8c</text>
+        <text x="330" y="412" class="mn-t-lab-b">speed v →</text>
+        <text id="gammaDotLab" x="400" y="332" class="mn-t-orange">β = 0.60 · γ = 1.25</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 4 — The Lorentz factor γ(β).</strong> Practically 1 in everyday life (at highway speed γ − 1 ≈ 10<sup>−14</sup>), then exploding near <em>c</em>. The orange marker is live — drive it with the slider below.</div>
+</div>
+
+<div class="mn-sliderbox">
+<h3>Try it — the velocity explorer</h3>
+<p class="mn-hint">Drag the cruising speed. Watch γ, the ticking rate, and how far the traveller's frame in Figure 3 would tilt (α). Notice: nothing here asks how the clock <em>got</em> to this speed. Hold that thought.</p>
+<div class="mn-sliderrow">
+<label for="betaSlider">Cruising speed β = v/c <span>fraction of light speed</span></label>
+<input type="range" id="betaSlider" min="0" max="0.99" step="0.01" value="0.60" />
+<div class="mn-readout" id="betaVal">0.60 c</div>
+</div>
+<div class="mn-stats">
+<div class="mn-stat"><div class="v" id="gammaVal">1.250</div><div class="k">Lorentz factor γ</div></div>
+<div class="mn-stat"><div class="v" id="rateVal">0.800</div><div class="k">proper seconds per Earth second (1/γ)</div></div>
+<div class="mn-stat"><div class="v" id="tiltVal">31.0°</div><div class="k">worldline tilt from vertical, arctan β</div></div>
+<div class="mn-stat"><div class="v" id="earthVal">8.0 yr → 6.4 yr</div><div class="k">8 Earth years become this much traveller time</div></div>
+</div>
+</div>
+
+## 4 · Acceleration bends
+
+<p class="mn-stepnum">Step 4 of 9</p>
+Velocity is the *slope* of a worldline. Acceleration is its *rate of change of slope* — the worldline **bends**. An unaccelerated clock draws a straight line and (Step 2) collects the maximum possible proper time between two events. An accelerated clock curves away and collects less. At each instant, the curved worldline is tangent to some straight worldline: the traveller momentarily *is* an inertial observer with that velocity, and that instant's tilted frame from Figure 3. Acceleration is the continuous hand-off from one tilted frame to the next.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 440" role="img" aria-label="Two worldlines between the same events: a straight vertical one with many proper time ticks, and a curved accelerated one with fewer ticks">
+        <line x1="36" y1="370" x2="604" y2="370" class="mn-axis"/><line x1="200" y1="408" x2="200" y2="16" class="mn-axis"/>
+        <path d="M604 370 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M200 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <line x1="200" y1="370" x2="476" y2="94" class="mn-cone"/><line x1="200" y1="370" x2="-76" y2="94" class="mn-cone"/>
+        
+        <line x1="200" y1="370" x2="200" y2="80" class="mn-wl-stay"/>
+        
+        <path id="curvePath" d="M200.0,370.0 L200.3,364.2 L201.2,358.4 L202.7,352.6 L204.8,346.8 L207.4,341.0 L210.6,335.2 L214.1,329.4 L218.1,323.6 L222.4,317.8 L226.9,312.0 L231.7,306.2 L236.6,300.4 L241.4,294.6 L246.3,288.8 L251.1,283.0 L255.6,277.2 L259.9,271.4 L263.9,265.6 L267.4,259.8 L270.6,254.0 L273.2,248.2 L275.3,242.4 L276.8,236.6 L277.7,230.8 L278.0,225.0 L277.7,219.2 L276.8,213.4 L275.3,207.6 L273.2,201.8 L270.6,196.0 L267.4,190.2 L263.9,184.4 L259.9,178.6 L255.6,172.8 L251.1,167.0 L246.3,161.2 L241.4,155.4 L236.6,149.6 L231.7,143.8 L226.9,138.0 L222.4,132.2 L218.1,126.4 L214.1,120.6 L210.6,114.8 L207.4,109.0 L204.8,103.2 L202.7,97.4 L201.2,91.6 L200.3,85.8 L200.0,80.0" class="mn-wl-move" style="stroke-linejoin:round"/>
+        
+        <g stroke="var(--mn-ink)" stroke-width="5.5" stroke-linecap="round">
+          <line x1="191" y1="336" x2="209" y2="336"/><line x1="191" y1="302" x2="209" y2="302"/><line x1="191" y1="268" x2="209" y2="268"/><line x1="191" y1="234" x2="209" y2="234"/><line x1="191" y1="200" x2="209" y2="200"/><line x1="191" y1="166" x2="209" y2="166"/><line x1="191" y1="132" x2="209" y2="132"/><line x1="191" y1="98" x2="209" y2="98"/>
+          <line x1="203.9" y1="328.8" x2="219.3" y2="338.1"/><line x1="247.8" y1="272.6" x2="262.1" y2="283.6"/><line x1="267.9" y1="235.0" x2="285.5" y2="238.8"/><line x1="265.0" y1="205.5" x2="281.7" y2="198.8"/><line x1="233.3" y1="159.7" x2="247.1" y2="148.1"/><line x1="197.1" y1="108.0" x2="213.6" y2="100.9"/>
+        </g>
+        <g stroke="#ffffff" stroke-width="2.4" stroke-linecap="round">
+          <line x1="191" y1="336" x2="209" y2="336"/><line x1="191" y1="302" x2="209" y2="302"/><line x1="191" y1="268" x2="209" y2="268"/><line x1="191" y1="234" x2="209" y2="234"/><line x1="191" y1="200" x2="209" y2="200"/><line x1="191" y1="166" x2="209" y2="166"/><line x1="191" y1="132" x2="209" y2="132"/><line x1="191" y1="98" x2="209" y2="98"/>
+          <line x1="203.9" y1="328.8" x2="219.3" y2="338.1"/><line x1="247.8" y1="272.6" x2="262.1" y2="283.6"/><line x1="267.9" y1="235.0" x2="285.5" y2="238.8"/><line x1="265.0" y1="205.5" x2="281.7" y2="198.8"/><line x1="233.3" y1="159.7" x2="247.1" y2="148.1"/><line x1="197.1" y1="108.0" x2="213.6" y2="100.9"/>
+        </g>
+        <circle cx="200" cy="370" r="5.5" fill="var(--mn-ink)"/><circle cx="200" cy="80" r="5.5" fill="var(--mn-ink)"/>
+        <text x="612" y="374" class="mn-t-lab-b" text-anchor="end">x</text>
+        <text x="210" y="26" class="mn-t-lab-b">ct</text>
+        <text x="52" y="70" class="mn-t-teal">straight: no acceleration</text>
+        <text x="52" y="86" class="mn-t-small">8 ticks of proper time</text>
+        <text x="306" y="70" class="mn-t-orange">curved: accelerated</text>
+        <text x="306" y="86" class="mn-t-small">same two events, only 6 ticks —</text>
+        <text x="306" y="100" class="mn-t-small">the detour through space is paid</text>
+        <text x="306" y="114" class="mn-t-small">for out of the time budget</text>
+        <text x="292" y="148" class="mn-t-small">tangent = instantaneous</text>
+        <text x="292" y="162" class="mn-t-small">velocity at this moment</text>
+        <line x1="217.1" y1="126.5" x2="260.9" y2="178.5" stroke="var(--mn-blue)" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="292" y="186" class="mn-t-blue">slope keeps changing:</text>
+        <text x="292" y="200" class="mn-t-blue">that change is acceleration</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 5 — Acceleration is bending.</strong> White ticks mark equal proper-time intervals along each worldline — 8 fit along the straight one, only 6 along the curved one. The curved worldline leans hard but stays inside the light cone everywhere: its steepest slope is 0.85<em>c</em>, never past the 45° cone. The curved traveller hasn't been "slowed by a force" — they have simply taken a shorter route <em>through time</em>.</div>
+</div>
+
+<div class="mn-readbox" style="margin-top:0">
+<h3>The precise statement</h3>
+<ul>
+<li>A clock's instantaneous rate depends only on its instantaneous <em>v</em> — this is the <strong>clock hypothesis</strong>, tested to accelerations of ~10<sup>18</sup> m/s² (Step 9).</li>
+<li>But its <em>total</em> elapsed time is the accumulation along the whole curve — and acceleration is the only way to change the curve.</li>
+<li>In the traveller's own terms, what they feel is <strong>proper acceleration</strong> α = γ³<em>a</em> (for motion along the velocity): the reading on an accelerometer they carry. It is absolute — no frame choice makes a bent worldline straight.</li>
+</ul>
+</div>
+
+<div class="mn-myth"><p><strong>Common misconception, corrected:</strong> "Acceleration causes time dilation, the way gravity does." In special relativity there is no extra acceleration term to add. Two clocks with the same <em>v</em>(<em>t</em>) history tick identically even if one reached that history gently and the other violently. Acceleration matters <em>indirectly but decisively</em>: it authors the velocity history — and at a turnaround, it breaks the symmetry between two observers, as Step 6 shows.</p></div>
+
+## 5 · Adding up a journey
+
+<p class="mn-stepnum">Step 5 of 9</p>
+Chop any worldline — however bent — into tiny straight pieces. Each piece is short enough that the velocity barely changes across it, so Step 3's formula applies piece by piece: Δ<em>τ</em> ≈ Δ<em>t</em> √(1 − *v*²/*c*²). Add the pieces and let them shrink, and you get the master formula of this page. Acceleration is inside it implicitly: *v*(*t*) is whatever function the accelerations produced.
+
+<div class="mn-formula">
+<em>τ</em> = ∫ √(1 − <em>v</em>(<em>t</em>)²/<em>c</em>²) d<em>t</em> &nbsp;=&nbsp; ∫ d<em>t</em> / <em>γ</em>(<em>t</em>)
+<small>Proper time along any worldline. This single integral is the "Minkowski spacetime formula" for time dilation with acceleration included: feed it a velocity history — any history, however it was accelerated into being — and it returns exactly what the travelling clock reads.</small>
+</div>
+
+Worked miniature — a clock whose speed profile over 4 Earth seconds is: accelerate 0 → 0.6<em>c</em> in the first second, cruise 2 seconds, decelerate back to rest in the last second. Applying the integral in three chunks:
+
+<table>
+<thead><tr><th>Phase</th><th class="num">Earth Δt</th><th class="num">avg 1/γ</th><th class="num">Δτ</th></tr></thead>
+<tbody><tr><td>Speeding up (0 → 0.6c)</td><td class="num">1.00 s</td><td class="num">≈ 0.94</td><td class="num">0.94 s</td></tr>
+<tr><td>Cruise at 0.6c (γ = 1.25)</td><td class="num">2.00 s</td><td class="num">0.80</td><td class="num">1.60 s</td></tr>
+<tr><td>Slowing down (0.6c → 0)</td><td class="num">1.00 s</td><td class="num">≈ 0.94</td><td class="num">0.94 s</td></tr>
+<tr><td><strong>Total</strong></td><td class="num"><strong>4.00 s</strong></td><td class="num">—</td><td class="num"><strong>3.48 s</strong></td></tr></tbody>
+</table>
+
+<p style="font-size:.93rem;color:var(--mn-ink2)">The accelerating phases contribute <em>more</em> proper time per second than cruising — because during them the speed (and hence γ) is lower on average. Acceleration itself added no penalty and no bonus; it simply moved the clock through a range of γ values.</p>
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 400" role="img" aria-label="A curved worldline approximated by straight segments, each labelled with its local gamma">
+        <line x1="36" y1="340" x2="604" y2="340" class="mn-axis"/><line x1="150" y1="372" x2="150" y2="16" class="mn-axis"/>
+        <path d="M604 340 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M150 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <line x1="150" y1="340" x2="420" y2="70" class="mn-cone"/>
+        
+        <path d="M150.0,340.0 L151.8,313.0 L156.0,286.0 L162.7,259.0 L171.8,232.0 L183.4,205.0 L197.5,178.0 L214.0,151.0 L232.9,124.0 L254.4,97.0 L278.3,70.0" class="mn-wl-move"/>
+        
+        <polyline points="150,340 152.0,272.5 173.6,205.0 215.5,137.5 278.3,70.0" fill="none" stroke="var(--mn-blue)" stroke-width="2.6" stroke-linejoin="miter" stroke-linecap="round"/>
+        <g fill="var(--mn-blue)" stroke="var(--mn-surface)" stroke-width="1.6"><circle cx="152.0" cy="272.5" r="5.5"/><circle cx="173.6" cy="205.0" r="5.5"/><circle cx="215.5" cy="137.5" r="5.5"/></g>
+        <circle cx="150" cy="340" r="5.5" fill="var(--mn-ink)"/><circle cx="278.3" cy="70" r="5.5" fill="var(--mn-ink)"/>
+        <text x="612" y="344" class="mn-t-lab-b" text-anchor="end">x</text><text x="160" y="26" class="mn-t-lab-b">ct</text>
+        <text x="30" y="300" class="mn-t-small">segment 1: v₁ small,</text><text x="30" y="314" class="mn-t-small">Δτ₁ ≈ Δt₁/γ₁</text>
+        <text x="230" y="160" class="mn-t-small">segment 3: v₃ larger,</text><text x="230" y="174" class="mn-t-small">Δτ₃ ≈ Δt₃/γ₃ — thinner</text><text x="230" y="188" class="mn-t-small">slice of time</text>
+        <text x="345" y="56" class="mn-t-orange" text-anchor="middle">smooth worldline</text>
+        <text x="196" y="30" class="mn-t-blue">straight-segment approximation —</text>
+        <text x="196" y="44" class="mn-t-blue">exact as segments → 0: the integral</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 6 — The integral, geometrically.</strong> Each straight segment contributes Δ<em>t</em>/γ. Where the worldline leans more (higher <em>v</em>), equal vertical rises buy less proper time — the segments are "worth" less τ. The four straight segments meet at sharp corners — each corner a sudden jump in speed — and run at 0.03<em>c</em>, 0.32<em>c</em>, 0.62<em>c</em> and 0.93<em>c</em>; the smooth worldline's steepest slope is likewise 0.93<em>c</em>. Everything stays well left of the 45° cone line, so nothing here reaches light speed.</div>
+</div>
+
+## 6 · The twin paradox
+
+<p class="mn-stepnum">Step 6 of 9</p>
+Each twin, coasting, sees the other's clock run slow — so who is younger at reunion? The standoff is resolved by the worldlines. The stay-at-home twin follows *one* straight worldline: a single inertial frame the whole time. The traveller follows *two* different straight worldlines joined at the turnaround — and joining them requires acceleration. At the turnaround the traveller's "now" line (Figure 3) swings violently: in the traveller's accounting, a whole slab of Earth history jumps from "future" to "past" during that brief manoeuvre. That swing is where Earth's clock "gains" the years. No swing, no reunion discrepancy; acceleration is what makes the two histories genuinely different rather than two descriptions of one history.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 450" role="img" aria-label="Twin paradox Minkowski diagram: Earth twin vertical worldline, travelling twin goes out at 0.6c and returns, with simultaneity lines swinging at the turnaround">
+        <line x1="36" y1="380" x2="604" y2="380" class="mn-axis"/><line x1="170" y1="412" x2="170" y2="16" class="mn-axis"/>
+        <path d="M604 380 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M170 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <line x1="170" y1="380" x2="470" y2="80" class="mn-cone"/>
+        
+        <line x1="170" y1="278" x2="430" y2="122" stroke="var(--mn-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
+        <line x1="170" y1="164" x2="430" y2="320" stroke="var(--mn-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
+        
+        <line x1="170" y1="380" x2="170" y2="62" class="mn-wl-stay"/>
+        
+        <polyline points="170,380 265,221 170,62" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linejoin="round"/>
+        <circle cx="170" cy="380" r="5.5" fill="var(--mn-ink)"/><circle cx="265" cy="221" r="6" fill="var(--mn-orange)"/><circle cx="170" cy="62" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="170" cy="278" r="5" fill="var(--mn-blue)"/><circle cx="170" cy="164" r="5" fill="var(--mn-blue)"/>
+        <text x="612" y="384" class="mn-t-lab-b" text-anchor="end">x</text><text x="180" y="26" class="mn-t-lab-b">ct</text>
+        <text x="52" y="52" class="mn-t-teal">Earth twin: one straight</text>
+        <text x="52" y="66" class="mn-t-teal">worldline, τ = 10 yr</text>
+        <text x="330" y="140" class="mn-t-orange">out at 0.6c (γ = 1.25)</text>
+        <text x="330" y="300" class="mn-t-orange">back at 0.6c</text>
+        <text x="330" y="316" class="mn-t-small">traveller τ = 4 + 4 = 8 yr</text>
+        <text x="282" y="212" class="mn-t-lab-b">turnaround ★</text>
+        <text x="282" y="228" class="mn-t-small">acceleration lives here</text>
+        <text x="300" y="86" class="mn-t-blue">"now" just after the turn reaches Earth at yr 6.8</text>
+        <text x="300" y="366" class="mn-t-blue">"now" just before the turn reaches Earth at yr 3.2</text>
+        <text x="52" y="330" class="mn-t-small">the gap between the two blue</text>
+        <text x="52" y="344" class="mn-t-small">dots — 3.6 Earth years — is</text>
+        <text x="52" y="358" class="mn-t-small">swept over during the turn</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 7 — Twins at 0.6<em>c</em> to a star 3 ly away.</strong> Earth: 5 yr out + 5 yr back = 10 yr. Traveller: each leg 5/γ = 4 yr of proper time, total 8 yr. The dashed lines are the traveller's simultaneity slices just before and just after turning; Earth's clock reading "jumps" by 3.6 yr (= 2vL/c²) between them — not because Earth time misbehaves, but because the traveller changed frames, and changing frames takes acceleration.</div>
+</div>
+
+<div class="mn-readbox" style="margin-top:0">
+<h3>The same trip, three ways of seeing it</h3>
+<ul>
+<li><strong>Geometry:</strong> the bent worldline is shorter in proper time than the straight one (Step 2's reversed triangle inequality). Done — no paradox.</li>
+<li><strong>Frames:</strong> the traveller uses two inertial frames; the home twin uses one. The situations were never symmetric.</li>
+<li><strong>Feeling:</strong> the traveller <em>feels</em> the turnaround (accelerometer spikes); the home twin feels nothing. Proper acceleration is the physical marker of who took the detour.</li>
+</ul>
+</div>
+
+<p>Note what the integral (Step 5) says about the turnaround itself: making it gentler or sharper barely changes the total — the 2-year deficit is earned during the long fast legs. Acceleration's role is <em>qualitative</em> (it enables the asymmetric journey) more than <em>quantitative</em> (its duration contributes little τ either way). Step 7 looks at the one case where acceleration is sustained the whole trip.</p>
+
+## 7 · Constant acceleration
+
+<p class="mn-stepnum">Step 7 of 9</p>
+Hold the accelerometer pinned at a constant proper acceleration *g* forever. In Earth coordinates the velocity asymptotes to *c* — *v*/*c* = tanh(*gτ*/*c*) — and the worldline is not a parabola but a **hyperbola**: (*x* + *c*²/*g*)² − (*ct*)² = (*c*²/*g*)². Its asymptotes are light rays: behind the rocket there is a **Rindler horizon** at distance *c*²/*g* — about 0.97 light-years for 1<em>g</em> — beyond which light signals can never catch up, however long they chase.
+
+<p>Meanwhile γ = cosh(<em>gτ</em>/<em>c</em>) grows exponentially in the traveller's own time: after 1 year at 1<em>g</em> the rocket does 0.77<em>c</em> (γ ≈ 1.58); after 2 years, 0.97<em>c</em> (γ ≈ 3.99); after 5 years γ ≈ 86. Earth time <em>t</em> = (<em>c</em>/<em>g</em>) sinh(<em>gτ</em>/<em>c</em>) races ahead of ship time τ ever faster — sustained acceleration is the most powerful time-dilation machine special relativity allows, which is why the "1<em>g</em> rocket" is a staple of interstellar thought experiments.</p>
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 440" role="img" aria-label="Hyperbolic worldline of a constantly accelerating rocket approaching its light-ray asymptote, the Rindler horizon">
+        <line x1="36" y1="370" x2="604" y2="370" class="mn-axis"/><line x1="256" y1="408" x2="256" y2="16" class="mn-axis"/>
+        <path d="M604 370 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        
+        <line id="rindlerAsym" x1="185" y1="370" x2="518" y2="37" class="mn-cone"/>
+        <line id="rindlerHor" x1="185" y1="370" x2="556" y2="370" stroke="var(--mn-red)" stroke-width="1.6" stroke-dasharray="3 5"/>
+        
+        <g aria-hidden="true">
+          <line x1="329" y1="366" x2="329" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="402" y1="366" x2="402" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="475" y1="366" x2="475" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="548" y1="366" x2="548" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/>
+          <text x="329" y="358" class="mn-t-small" text-anchor="middle">1</text><text x="402" y="358" class="mn-t-small" text-anchor="middle">2</text><text x="475" y="358" class="mn-t-small" text-anchor="middle">3</text><text x="548" y="358" class="mn-t-small" text-anchor="middle">4</text>
+          <line x1="252" y1="297" x2="260" y2="297" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="224" x2="260" y2="224" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="151" x2="260" y2="151" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="78" x2="260" y2="78" stroke="var(--mn-ink3)" stroke-width="1.2"/>
+          <text x="244" y="301" class="mn-t-small" text-anchor="end">1</text><text x="244" y="228" class="mn-t-small" text-anchor="end">2</text><text x="244" y="155" class="mn-t-small" text-anchor="end">3</text><text x="244" y="82" class="mn-t-small" text-anchor="end">4</text>
+          <text x="244" y="358" class="mn-t-small" text-anchor="end">0</text>
+        </g>
+        
+        <path id="rindlerPath" d="M256 370 L272 333 L287 297 L318 261 L348 224 L385 188 L415 151 L452 115 L486 78" class="mn-wl-move"/>
+        
+        <g id="rindlerMarker">
+          <circle id="rindlerDot" cx="468" cy="97" r="7" fill="var(--mn-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
+          <text id="rindlerTauLab" x="456" y="82" class="mn-t-orange" text-anchor="end" style="paint-order:stroke;stroke:var(--mn-surface);stroke-width:4px">τ = 2.0 yr — this event on the ship clock</text>
+        </g>
+        <circle cx="256" cy="370" r="5.5" fill="var(--mn-ink)"/>
+        <text x="612" y="374" class="mn-t-lab-b" text-anchor="end">x (ly)</text><text x="266" y="26" class="mn-t-lab-b">ct (yr)</text>
+        <text x="492" y="66" class="mn-t-orange" id="rindlerLab">1g hyperbola</text>
+        <text x="430" y="96" class="mn-t-lab">asymptote: a light ray</text>
+        <text x="430" y="110" class="mn-t-small">the worldline leans ever closer,</text>
+        <text x="430" y="124" class="mn-t-small">never crosses — v &lt; c forever</text>
+        <text x="52" y="392" class="mn-t-lab" fill="var(--mn-red)">Rindler horizon, c²/g ≈ 0.97 ly behind the start:</text>
+        <text x="52" y="408" class="mn-t-small">signals from left of the dashed ray never reach the rocket</text>
+        <text x="52" y="120" class="mn-t-small">slope at any point = v/c = tanh(gτ/c):</text>
+        <text x="52" y="136" class="mn-t-small">starts vertical (v = 0),</text>
+        <text x="52" y="152" class="mn-t-small">ends hugging 45° (v → c)</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 8 — Hyperbolic motion.</strong> Constant <em>proper</em> acceleration looks like a hyperbola, because γ must keep growing to keep the felt acceleration constant while coordinate acceleration γ<sup>−3</sup><em>a</em> shrinks toward zero. Drive <em>g</em> and ship time τ with the sliders: the orange dot is the event the rocket has reached at that τ — its height on the <em>ct</em> axis is the (larger) Earth time, its distance along the <em>x</em> axis the distance covered. Higher <em>g</em> hugs the asymptote sooner and drags the horizon closer.</div>
+</div>
+
+<div class="mn-sliderbox">
+<h3>Try it — the 1g rocket</h3>
+<div class="mn-sliderrow">
+<label for="gSlider">Proper acceleration g <span>what the crew feels, constantly</span></label>
+<input type="range" id="gSlider" min="0.3" max="3" step="0.1" value="1" />
+<div class="mn-readout" id="gVal">1.0 g</div>
+</div>
+<div class="mn-sliderrow">
+<label for="tauSlider">Ship time τ <span>years on the rocket's clock</span></label>
+<input type="range" id="tauSlider" min="0.2" max="5" step="0.1" value="2" />
+<div class="mn-readout" id="tauVal">2.0 yr</div>
+</div>
+<div class="mn-stats">
+<div class="mn-stat"><div class="v" id="rBeta">0.968</div><div class="k">speed reached, v/c = tanh(gτ/c)</div></div>
+<div class="mn-stat"><div class="v" id="rGamma">3.99</div><div class="k">γ = cosh(gτ/c) — Earth clocks now run this × faster than ship clocks</div></div>
+<div class="mn-stat"><div class="v" id="rEarth">3.75 yr</div><div class="k">Earth time elapsed, (c/g)·sinh(gτ/c)</div></div>
+<div class="mn-stat"><div class="v" id="rDist">2.90 ly</div><div class="k">distance covered, (c²/g)·(cosh(gτ/c) − 1)</div></div>
+<div class="mn-stat"><div class="v" id="rHorizon">0.97 ly</div><div class="k">Rindler horizon distance c²/g behind</div></div>
+</div>
+<p class="mn-hint" style="font-size:.9rem;margin:14px 0 0">Sanity anchor: at exactly 1<em>g</em> and τ = 1 yr — v = 0.77<em>c</em>, Earth has aged ≈ 1.19 yr while the ship aged 1.00 yr. The gap compounds because γ itself grows exponentially with τ.</p>
+</div>
+
+## 8 · Quasi-3D: cones &amp; spirals
+
+<p class="mn-stepnum">Step 8 of 9</p>
+Everything so far flattened space to one dimension. Restore *y* and the light "cone" earns its name: at each instant, light spreads over a circle in the *x*–*y* plane whose radius grows at *c*, stacking into a genuine cone in (*x*, *y*, *ct*). Worldlines are now curves threading the cone's interior. This view pays off immediately for *circular* motion: a particle in a steady orbit has constant speed — γ never changes — yet it accelerates continuously (centripetal acceleration), and its worldline is a **helix** winding around the time axis.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 440" role="img" aria-label="Quasi three dimensional light cone with a stationary central worldline and a curved accelerating worldline inside it">
+        <ellipse cx="320" cy="100" rx="190" ry="54" fill="none" stroke="var(--mn-gold)" stroke-width="1.8"/>
+        <ellipse cx="320" cy="100" rx="190" ry="54" fill="var(--mn-gold-soft)" opacity=".45"/>
+        
+        <g id="fig9Cross">
+          <line id="fig9DiamX" x1="162.5" y1="69.8" x2="477.5" y2="130.2" stroke="var(--mn-blue)" stroke-width="1.7"/>
+          <line id="fig9DiamY" x1="426.2" y1="55.2" x2="213.8" y2="144.8" stroke="var(--mn-teal)" stroke-width="1.7"/>
+          <circle cx="320" cy="100" r="4" fill="var(--mn-ink)"/>
+          <text id="fig9DiamXLab" x="486" y="135" class="mn-t-blue">x</text>
+          <text id="fig9DiamYLab" x="204" y="158" class="mn-t-teal mn-t-halo">y</text>
+        </g>
+        <line x1="320" y1="380" x2="130" y2="100" class="mn-cone"/><line x1="320" y1="380" x2="510" y2="100" class="mn-cone"/>
+        <ellipse cx="320" cy="240" rx="95" ry="27" fill="none" stroke="var(--mn-gold)" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <line x1="320" y1="380" x2="320" y2="30" class="mn-axis"/>
+        <path d="M320 30 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <line x1="320" y1="380" x2="320" y2="100" class="mn-wl-stay"/>
+        <path id="fig9Worldline" d="M320 380 C 378 302, 402 205, 386 112" class="mn-wl-move"/>
+        <circle cx="320" cy="380" r="5.5" fill="var(--mn-ink)"/>
+        <text x="330" y="34" class="mn-t-lab-b">ct</text>
+        <text x="470" y="70" class="mn-t-lab mn-t-halo">circle of light at this instant:</text>
+        <text x="470" y="86" class="mn-t-small mn-t-halo">radius = c × elapsed time</text>
+        <text x="52" y="230" class="mn-t-small mn-t-halo">dashed ellipse: the light</text>
+        <text x="52" y="246" class="mn-t-small mn-t-halo">front halfway up the cone</text>
+        <text x="52" y="120" class="mn-t-teal mn-t-halo">central worldline: an observer</text>
+        <text x="52" y="136" class="mn-t-teal mn-t-halo">at rest at the origin</text>
+        <text x="398" y="300" class="mn-t-orange mn-t-halo">curved worldline: accelerating</text>
+        <text x="398" y="316" class="mn-t-orange mn-t-halo">away — always inside the cone</text>
+        <text x="52" y="404" class="mn-t-lab-b">apex: the here-and-now event</text>
+        <text x="470" y="404" class="mn-t-lab mn-t-halo">x →</text>
+        <text x="540" y="360" class="mn-t-lab mn-t-halo">↗ y</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 9 — The light cone in 2+1 dimensions.</strong> "Quasi-3D": two space axes drawn in perspective, time vertical. The blue and teal lines across the top ellipse are the two diameters of the cone's base circle — the <em>x</em> and <em>y</em> diameters, at right angles in the 3D space, each endpoint lying on the projected ellipse. The cone itself is rotationally symmetric, so it is this cross (and the curved worldline) that shows the rotation when you drag the viewing-angle slider in Step 8 — the same slider that rotates Figure 10. Every worldline you have seen is a slice of a picture like this.</div>
+</div>
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 460" role="img" aria-label="Interactive quasi three dimensional view of a helical worldline for circular motion inside a light cone">
+        <g id="coneRings">
+          <line x1="320" y1="400" x2="164" y2="160" class="mn-cone"/><line x1="320" y1="400" x2="476" y2="160" class="mn-cone"/>
+          <ellipse cx="320" cy="320" rx="52" ry="22" fill="none" stroke="var(--mn-gold)" stroke-width="1.2"/>
+          <ellipse cx="320" cy="240" rx="104" ry="44" fill="none" stroke="var(--mn-gold)" stroke-width="1.2"/>
+          <ellipse cx="320" cy="160" rx="156" ry="66" fill="none" stroke="var(--mn-gold)" stroke-width="1.6"/>
+        </g>
+        <line x1="320" y1="400" x2="320" y2="86" class="mn-axis"/>
+        <path d="M320 86 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        
+        <g id="spokes">
+          <line id="fig10DiamX" x1="190.7" y1="123.1" x2="449.3" y2="196.9" stroke="var(--mn-blue)" stroke-width="1.9"/>
+          <line id="fig10DiamY" x1="407.2" y1="105.3" x2="232.8" y2="214.7" stroke="var(--mn-teal)" stroke-width="1.9"/>
+        </g>
+        <circle cx="320" cy="160" r="4" fill="var(--mn-ink)"/>
+        <line id="helixEntry" x1="320" y1="400" x2="316" y2="348" stroke="var(--mn-orange)" stroke-width="3" stroke-linecap="round"/>
+        <polyline id="helixPath" points="316,348 308,331 300,309 294,285 292,261 292,237 297,213 304,190 312,168 323,148" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="320" cy="400" r="5.5" fill="var(--mn-ink)"/>
+        <text x="330" y="90" class="mn-t-lab-b">ct</text>
+        <text x="452" y="212" class="mn-t-small">x axis</text>
+        <text x="196" y="108" class="mn-t-small">y axis</text>
+        <text x="52" y="60" class="mn-t-orange">helix: orbiting particle, v = 0.77c</text>
+        <text x="52" y="76" class="mn-t-small">constant speed, constant γ ≈ 1.57 —</text>
+        <text x="52" y="90" class="mn-t-small">but constant centripetal acceleration</text>
+        <text x="380" y="420" class="mn-t-lab">rings: light fronts at ct = 1, 2, 3</text>
+      </svg>
+<div class="mn-figcap"><strong>Figure 10 — A helix worldline (interactive).</strong> The particle enters from the centre event, settles into a circular orbit of radius 0.55 ly, and winds upward. The blue and teal lines across the top ring are the base circle's two diameters — at right angles in the 3D space, projected onto the ellipse exactly as in Figure 9. Rotate the view with the slider below: Figures 9 and 10 turn together — the cones are rotationally symmetric, but the diameter crosses and the helix are not, so rotation reveals the winding.</div>
+</div>
+
+<div class="mn-sliderbox">
+<h3>Try it — rotate the 3D view (Figures 9 and 10 together)</h3>
+<div class="mn-sliderrow">
+<label for="phiSlider">Viewing angle φ <span>azimuth around the time axis — rotates both quasi-3D figures</span></label>
+<input type="range" id="phiSlider" min="0" max="360" step="1" value="34" />
+<div class="mn-readout" id="phiVal">34°</div>
+</div>
+<p class="mn-hint" style="font-size:.93rem;margin:8px 0 0">The orbiting clock's rate never varies: d<em>τ</em>/d<em>t</em> = 1/γ ≈ 0.64 the whole way round, even though its acceleration vector rotates continuously. Direction of acceleration is irrelevant to the rate — only the speed history enters the integral. Storage-ring muons live exactly this life (Step 9).</p>
+</div>
+
+## 9 · What acceleration does not do
+
+<p class="mn-stepnum">Step 9 of 9</p>
+<div class="mn-cards">
+<div class="mn-card"><h3>Acceleration does…</h3><p><strong>Change the velocity, hence γ, moment by moment</strong> — it steers the worldline's slope. <strong>Break symmetries:</strong> whoever accelerates is unambiguously the one who changed frames. <strong>Decide the total:</strong> through <em>v</em>(<em>t</em>), it fixes the value of the proper-time integral, so different acceleration programmes between the same events yield different elapsed times.</p></div>
+<div class="mn-card"><h3>Acceleration does not…</h3><p><strong>Add its own term to the rate.</strong> There is no <em>a</em> in d<em>τ</em> = d<em>t</em>/γ. <strong>Need to be large to matter:</strong> a feather-touch turnaround still breaks the twin symmetry. <strong>Act like gravity in SR</strong> — the resemblance (the equivalence principle) is real but is general relativity's story; in flat Minkowski spacetime, acceleration alone produces no extra "gravitational" dilation beyond the velocity integral.</p></div>
+</div>
+
+<h3 id="evidence">The evidence</h3>
+<table>
+<thead><tr><th>Test</th><th>What was accelerated</th><th>Result</th></tr></thead>
+<tbody><tr><td><strong>Muon storage ring</strong> (CERN, Bailey et al., 1977)</td><td>Muons at γ ≈ 29.3 in a ring — centripetal proper acceleration ~10<sup>18</sup> m/s², some 10<sup>17</sup> times Earth's gravity</td><td>Lifetime extended by exactly γ, as the velocity-only formula predicts. The strongest direct test of the clock hypothesis.</td></tr>
+<tr><td><strong>Cosmic-ray &amp; accelerator muons</strong></td><td>Muons created in the upper atmosphere / in beams</td><td>Survival over distances only possible if their clocks run slow by γ — velocity effect, confirmed daily.</td></tr>
+<tr><td><strong>Hafele–Keating</strong> (1971)</td><td>Atomic clocks flown around the world (velocity + altitude effects combined)</td><td>Eastward clocks lost ≈ 59 ns, westward gained ≈ 273 ns relative to ground clocks — matching the SR velocity term combined with GR's altitude term.</td></tr>
+<tr><td><strong>GPS satellites</strong></td><td>Clocks orbiting at ~3.9 km/s</td><td>Special relativity alone would make them lose ≈ 7 μs/day; the system corrects for it continuously. (Gravity adds +45 μs/day — net +38 μs/day, a GR effect beyond this page's flat spacetime.)</td></tr></tbody>
+</table>
+
+<div class="mn-callout"><p><strong>The bridge to gravity.</strong> Einstein's equivalence principle says a uniformly accelerating rocket's cabin is locally indistinguishable from standing in gravity — and in the rocket, the velocity-integral already makes the nose clock and tail clock tick at different steady rates (they have different velocity histories in any single inertial frame… and the cabin's own Rindler coordinates make the rate difference look exactly like gravitational redshift, Δ<em>τ</em>/<em>τ</em> ≈ <em>gh</em>/<em>c</em>²). Acceleration in flat spacetime is thus the training ground where gravitational time dilation is first visible — but the Minkowski formula above remains the complete SR account.</p></div>
+
+## Lab · Design a twin trip
+
+<p class="mn-stepnum">The Lab</p>
+No instantaneous turnarounds here. Your traveller accelerates at a steady, felt *g* up to cruising speed, coasts, decelerates to a stop at the star, then repeats the whole pattern home. All four burn phases are hyperbolic-motion segments from Step 7; the coasts are Step 3. The totals come from the Step 5 integral, evaluated exactly for this profile. If the star is too close for the chosen *g* and cruise speed, the ship never reaches cruise — it peaks mid-way and starts braking immediately.
+
+<div class="mn-diagram">
+<svg viewBox="0 0 640 440" role="img" aria-label="Worldline diagram for a twin trip with acceleration, cruise and deceleration phases, generated from the lab parameters">
+      <line x1="40" y1="395" x2="610" y2="395" class="mn-axis"/><line x1="90" y1="420" x2="90" y2="30" class="mn-axis"/>
+      <path d="M610 395 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M90 30 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+      <line id="labStar" x1="470" y1="60" x2="470" y2="395" stroke="var(--mn-blue)" stroke-width="1.6" stroke-dasharray="6 4"/>
+      
+      <g id="labProxima">
+        <line id="labProximaLine" x1="536" y1="78" x2="536" y2="156" stroke="var(--mn-gold)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>
+        <circle id="labProximaDot" cx="536" cy="88" r="5.5" fill="var(--mn-gold)" stroke="var(--mn-surface)" stroke-width="2"/>
+        <text id="labProximaLab" x="525" y="106" class="mn-t-lab-b mn-t-halo" text-anchor="end" style="fill:var(--mn-gold)">Proxima Centauri</text>
+        <text id="labProximaSub" x="525" y="122" class="mn-t-small mn-t-halo" text-anchor="end">nearest star · 4.25 ly</text>
+      </g>
+      <line x1="90" y1="395" x2="90" y2="60" class="mn-wl-stay"/>
+      <path id="labPath" d="M90 395 Q 122 374 151 361 L408 273 Q 442 259 470 240 Q 442 226 408 207 L151 119 Q 122 106 90 85" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linejoin="round"/>
+      <circle cx="90" cy="395" r="5.5" fill="var(--mn-ink)"/><circle cx="90" cy="85" r="5.5" fill="var(--mn-ink)"/>
+      <text x="612" y="399" class="mn-t-lab-b" text-anchor="end">x</text><text x="100" y="40" class="mn-t-lab-b">ct</text>
+      <text x="52" y="70" class="mn-t-teal">Earth</text>
+      <text id="labStarLab" x="478" y="70" class="mn-t-blue">star · 4 ly</text>
+      <text x="200" y="330" class="mn-t-small">curved ends = accelerating at g</text>
+      <text x="200" y="346" class="mn-t-small">straight middle = cruising</text>
+    </svg>
+<div class="mn-figcap"><strong>Figure 11 — Your trip, live.</strong> Curvature at the four ends is acceleration made visible; the straighter the middle, the more of the journey is spent at peak γ. The gold dotted marker in the upper part of the plot is Proxima Centauri, the nearest star at 4.25 ly — a fixed real-world distance reference that moves with the plot's rescaling whenever a longer destination distance shrinks the scale.</div>
+</div>
+
+<div class="mn-sliderbox">
+<div class="mn-sliderrow">
+<label for="labDist">Distance to star <span>one way, light-years</span></label>
+<input type="range" id="labDist" min="1" max="12" step="0.5" value="4" />
+<div class="mn-readout" id="labDistVal">4.0 ly</div>
+</div>
+<div class="mn-sliderrow">
+<label for="labBeta">Cruising speed <span>target β = v/c for the coast phase</span></label>
+<input type="range" id="labBeta" min="0.3" max="0.99" step="0.01" value="0.8" />
+<div class="mn-readout" id="labBetaVal">0.80 c</div>
+</div>
+<div class="mn-sliderrow">
+<label for="labG">Acceleration g <span>felt constantly during each burn</span></label>
+<input type="range" id="labG" min="0.5" max="5" step="0.25" value="1" />
+<div class="mn-readout" id="labGVal">1.00 g</div>
+</div>
+<div class="mn-stats">
+<div class="mn-stat"><div class="v" id="labEarth">11.9 yr</div><div class="k">Earth time for the round trip</div></div>
+<div class="mn-stat"><div class="v" id="labShip">8.3 yr</div><div class="k">traveller's proper time — what they age</div></div>
+<div class="mn-stat"><div class="v" id="labDiff">3.6 yr</div><div class="k">younger than the home twin at reunion</div></div>
+<div class="mn-stat"><div class="v" id="labPeak">0.80 c</div><div class="k">peak speed actually reached</div></div>
+<div class="mn-stat"><div class="v" id="labBurn">32%</div><div class="k">share of Earth-frame distance spent under power (not coasting)</div></div>
+</div>
+<p id="labNote" class="mn-hint" style="font-size:.92rem;margin:14px 0 0">At 1g the burns are long — over a year of ship time each — yet most of the age gap is still earned coasting at γ = 1.67. Try 5g: the totals barely move. That is the clock hypothesis in your hands: the path through velocity space matters, the violence of the steering hardly does.</p>
+</div>
+
+<h3 id="four-lines">The whole story in four lines</h3>
+<div class="mn-formula" style="text-align:left;white-space:normal;line-height:1.9">
+1 · Interval: *c*²d<em>τ</em>² = *c*²d<em>t</em>² − d<em>x</em>² — space motion is subtracted from time.<br />
+2 · Rate: d<em>τ</em> = d<em>t</em>/γ(*v*) — velocity alone sets the instantaneous tick rate.<br />
+3 · Total: *τ* = ∫ d<em>t</em>/γ(*v*(*t*)) — and acceleration writes the *v*(*t*) inside.<br />
+4 · Constant *g*: *v*/*c* = tanh(*gτ*/*c*), worldline a hyperbola, horizon at *c*²/*g*.
+</div>
+
+<p>So: does acceleration cause time dilation? Not directly — no term, no extra effect, at any instant. But remove acceleration from the universe and no clock could ever change its velocity, turn around, orbit, or come home — every worldline would be straight, every twin the same age, and the integral would have nothing interesting to integrate. Acceleration is the author of every time-dilation story; velocity is just its handwriting.</p>
+
+---
+
+<p style="font-size:.88rem;color:var(--mn-ink3);margin-top:2em">Conventions: signature (−,+,+,+); <em>c</em> = 299,792,458 m/s = 1 ly/yr in diagram units; 1<em>g</em> = 9.81 m/s² = 1.03 ly/yr². All readouts are computed live from the formulas shown. Flat spacetime throughout — curved-spacetime (gravitational) time dilation is general relativity's extension of Step 9's bridge. Key sources for the experimental record: Bailey et al., <em>Nature</em> 268 (1977) for the muon ring; Hafele &amp; Keating, <em>Science</em> 177 (1972).</p>
+
+<script set:html={`
+
+(function(){
+"use strict";
+function $(id){return document.getElementById(id);}
+function fmt(n,d){return n.toFixed(d===undefined?2:d);}
+
+/* --- Step 3: gamma explorer --- */
+var betaS=$("betaSlider");
+function gammaOf(b){return 1/Math.sqrt(1-b*b);}
+function updateGamma(){
+  var b=parseFloat(betaS.value), g=gammaOf(b);
+  $("betaVal").textContent=fmt(b)+" c";
+  $("gammaVal").textContent=fmt(g,3);
+  $("rateVal").textContent=fmt(1/g,3);
+  $("tiltVal").textContent=fmt(Math.atan(b)*180/Math.PI,1)+"°";
+  $("earthVal").textContent="8.0 yr → "+fmt(8/g,1)+" yr";
+  var dot=$("gammaDot"), lab=$("gammaDotLab");
+  if(dot){
+    var cx=70+530*b, cy=Math.max(46, 354-42*(g-1));
+    dot.setAttribute("cx",cx); dot.setAttribute("cy",cy);
+    lab.setAttribute("x",Math.min(cx+12,470)); lab.setAttribute("y",cy-12);
+    lab.textContent="β = "+fmt(b)+" · γ = "+fmt(g);
+  }
+  /* Figure 3 shares this slider: ct' axis obeys x = beta*ct, x' (simultaneity) axis obeys ct = beta*x */
+  var ctP=$("fig3CtPrime"), xP=$("fig3XPrime");
+  if(ctP){ ctP.setAttribute("x2",fmt(256+300*b,1)); ctP.setAttribute("y2",60); }
+  if(xP){ xP.setAttribute("x2",540); xP.setAttribute("y2",fmt(360-284*b,1)); }
+  var f3t=$("fig3Title"); if(f3t){ f3t.textContent="Figure 3 — A moving frame at "+fmt(b)+"c"; }
+  var f3g=$("fig3Gamma"); if(f3g){ f3g.textContent="(γ = "+fmt(g)+")"; }
+  var f3a=$("fig3Angle"); if(f3a){ f3a.textContent="α = arctan(v/c) ≈ "+fmt(Math.atan(b)*180/Math.PI,1)+"°"; }
+  /* Figure 3 axis labels move with their lines.
+     ct' label: follows the ct' endpoint horizontally (endpoint y is fixed), but its
+     start is capped at x=452 so the text never runs off the right edge as beta -> 0.99.
+     x' label group: sits a fixed 90px above the x' line at x=420. The line's height
+     there is 360-164*beta, so the group baseline is 270-164*beta: it rises exactly
+     as much as the line does. At beta=0.60 both labels land on their original
+     positions (444,66) and (420,172); at beta=0.99 they sit at y=66 and y=108 —
+     a 42px vertical gap, so the converging lines' labels never overlap. */
+  var ctLab=$("fig3CtLab");
+  if(ctLab){ ctLab.setAttribute("x",fmt(Math.min(264+300*b,452),1)); ctLab.setAttribute("y","66"); }
+  var xLab=$("fig3XLab"), xS1=$("fig3XSub1"), xS2=$("fig3XSub2");
+  if(xLab){
+    var xy=270-164*b;
+    xLab.setAttribute("x","420"); xLab.setAttribute("y",fmt(xy,1));
+    if(xS1){ xS1.setAttribute("x","420"); xS1.setAttribute("y",fmt(xy+16,1)); }
+    if(xS2){ xS2.setAttribute("x","420"); xS2.setAttribute("y",fmt(xy+30,1)); }
+  }
+}
+betaS.addEventListener("input",updateGamma); updateGamma();
+
+/* --- Step 7: Rindler rocket --- */
+var gS=$("gSlider"), tauS=$("tauSlider");
+function updateRindler(){
+  var g=parseFloat(gS.value), tau=parseFloat(tauS.value), a=1.03*g;
+  var u=a*tau, beta=Math.tanh(u), gam=Math.cosh(u);
+  $("gVal").textContent=fmt(g,1)+" g";
+  $("tauVal").textContent=fmt(tau,1)+" yr";
+  $("rBeta").textContent=fmt(beta,3);
+  $("rGamma").textContent=fmt(gam,2);
+  $("rEarth").textContent=fmt(Math.sinh(u)/a,2)+" yr";
+  $("rDist").textContent=fmt((gam-1)/a,2)+" ly";
+  $("rHorizon").textContent=fmt(1/a,2)+" ly";
+  $("rindlerLab").textContent=fmt(g,1)+"g hyperbola";
+  var path=$("rindlerPath");
+  if(path){
+    var pts=[], t, x, px, py;
+    for(t=0;t<=4.25;t+=0.25){
+      x=(Math.sqrt(1+(a*t)*(a*t))-1)/a;
+      px=256+73*x; py=370-73*t;
+      if(py<34) break;
+      pts.push((t===0?"M":"L")+fmt(px,1)+" "+fmt(py,1));
+    }
+    path.setAttribute("d",pts.join(" "));
+  }
+  var asym=$("rindlerAsym"), hor=$("rindlerHor");
+  if(asym){
+    var x0=256-73/a;
+    asym.setAttribute("x1",fmt(x0,1)); asym.setAttribute("y1",370);
+    asym.setAttribute("x2",fmt(256+73*(4.6-1/a),1)); asym.setAttribute("y2",34);
+  }
+  if(hor){ hor.setAttribute("x1",fmt(256-73/a,1)); }
+  /* Ship-time tau marker on the hyperbola. For large g*tau the true event lies
+     beyond the plotted window, so clamp the visible dot to where the curve
+     exits the frame and say so in its label. */
+  var dotR=$("rindlerDot"), tauLab=$("rindlerTauLab");
+  if(dotR){
+    var tauTop=Math.asinh(4.55*a)/a;              /* Earth time 4.55 yr = top edge */
+    var tauRight=Math.acosh(1+4.65*a)/a;          /* distance 4.65 ly = right edge */
+    var tauVis=Math.min(tau, tauTop, tauRight), offScale=tauVis<tau-1e-9;
+    var uV=a*tauVis, pxR=256+73*(Math.cosh(uV)-1)/a, pyR=370-73*Math.sinh(uV)/a;
+    dotR.setAttribute("cx",fmt(pxR,1)); dotR.setAttribute("cy",fmt(pyR,1));
+    if(tauLab){
+      var anchorEnd=pxR>400;
+      tauLab.setAttribute("x",fmt(anchorEnd?pxR-13:pxR+13,1));
+      tauLab.setAttribute("y",fmt(Math.max(26,pyR-14),1));
+      tauLab.setAttribute("text-anchor",anchorEnd?"end":"start");
+      tauLab.textContent="τ = "+fmt(tau,1)+" yr — ship clock"+(offScale?" (event beyond edge; dot at exit)":"");
+    }
+  }
+}
+gS.addEventListener("input",updateRindler);
+tauS.addEventListener("input",updateRindler);
+updateRindler();
+
+/* --- Step 8: rotate quasi-3D helix --- */
+var phiS=$("phiSlider");
+function updatePhi(){
+  var deg=parseFloat(phiS.value), phi=deg*Math.PI/180;
+  $("phiVal").textContent=deg+"°";
+  var hp=$("helixPath"), en=$("helixEntry"), sp=$("spokes");
+  if(hp){
+    var R=0.55, om=1.4, pts=[], ct, th, sx, sy;
+    for(ct=0.8; ct<=3.001; ct+=0.1){
+      th=om*ct;
+      sx=320+52*R*Math.cos(th+phi);
+      sy=400-80*ct+22*R*Math.sin(th+phi);
+      pts.push(fmt(sx,1)+","+fmt(sy,1));
+    }
+    hp.setAttribute("points",pts.join(" "));
+    var th0=om*0.8;
+    en.setAttribute("x2",fmt(320+52*R*Math.cos(th0+phi),1));
+    en.setAttribute("y2",fmt(400-64+22*R*Math.sin(th0+phi),1));
+  }
+  /* Figure 10 diameter cross: update the two static diameter lines in place via
+     setAttribute — the same technique Figure 9 uses. (Rebuilding them through
+     innerHTML on the SVG group proved unreliable in some webviews, which made
+     Figure 10's cross disappear while Figure 9's survived.) Full diameters of
+     the base circle: centre +/- each projected axis vector, endpoints on the
+     projected ellipse, at right angles in the 3D x-y plane. */
+  var d10x=$("fig10DiamX"), d10y=$("fig10DiamY");
+  if(d10x && d10y){
+    var exO=156*Math.cos(phi), eyO=66*Math.sin(phi);
+    var wxO=-156*Math.sin(phi), wyO=66*Math.cos(phi);
+    d10x.setAttribute("x1",fmt(320-exO,1)); d10x.setAttribute("y1",fmt(160-eyO,1));
+    d10x.setAttribute("x2",fmt(320+exO,1)); d10x.setAttribute("y2",fmt(160+eyO,1));
+    d10y.setAttribute("x1",fmt(320-wxO,1)); d10y.setAttribute("y1",fmt(160-wyO,1));
+    d10y.setAttribute("x2",fmt(320+wxO,1)); d10y.setAttribute("y2",fmt(160+wyO,1));
+  }
+  /* Figure 9 rotates with the same slider: diameter cross on its base ellipse (Rx 190, Ry 54, centre 320,100) */
+  var dX=$("fig9DiamX"), dY=$("fig9DiamY");
+  if(dX && dY){
+    var fx=190*Math.cos(phi), fy=54*Math.sin(phi);
+    var gx=-190*Math.sin(phi), gy=54*Math.cos(phi);
+    dX.setAttribute("x1",fmt(320-fx,1)); dX.setAttribute("y1",fmt(100-fy,1));
+    dX.setAttribute("x2",fmt(320+fx,1)); dX.setAttribute("y2",fmt(100+fy,1));
+    dY.setAttribute("x1",fmt(320-gx,1)); dY.setAttribute("y1",fmt(100-gy,1));
+    dY.setAttribute("x2",fmt(320+gx,1)); dY.setAttribute("y2",fmt(100+gy,1));
+    var lx=$("fig9DiamXLab"), ly=$("fig9DiamYLab");
+    if(lx){ lx.setAttribute("x",fmt(320+fx+(fx>=0?9:-17),1)); lx.setAttribute("y",fmt(100+fy+4,1)); }
+    if(ly){ ly.setAttribute("x",fmt(320+gx+(gx>=0?9:-17),1)); ly.setAttribute("y",fmt(100+gy+4,1)); }
+  }
+  /* Figure 9 curved worldline: a displacement D along the 3D x direction, projected
+     (sx = D*cos(phi), sy offset = D*(54/190)*sin(phi)). D(s) is shaped to match the
+     original drawing at phi = 34 degrees. */
+  var w9=$("fig9Worldline");
+  if(w9){
+    var pts9=[], s9, D9, sc9;
+    for(s9=0;s9<1;s9+=0.05){
+      sc9=Math.min(s9,1);
+      D9=82*(1-Math.pow(1-sc9,3.2));
+      pts9.push((s9===0?"M":"L")+fmt(320+D9*Math.cos(phi),1)+" "+fmt(380-280*sc9+D9*(54/190)*Math.sin(phi),1));
+    }
+    D9=82; pts9.push("L"+fmt(320+D9*Math.cos(phi),1)+" "+fmt(380-280+D9*(54/190)*Math.sin(phi),1));
+    w9.setAttribute("d",pts9.join(" "));
+  }
+}
+phiS.addEventListener("input",updatePhi); updatePhi();
+
+/* --- Lab: twin trip with finite burns --- */
+var dS=$("labDist"), bS=$("labBeta"), lgS=$("labG");
+function artanh(x){return 0.5*Math.log((1+x)/(1-x));}
+function updateLab(){
+  var L=parseFloat(dS.value), beta=parseFloat(bS.value), g=parseFloat(lgS.value);
+  var a=1.03*g; /* per year, c=1 */
+  var gam=gammaOf(beta);
+  var xa=(gam-1)/a;            /* distance of one burn, ly */
+  var peakBeta=beta, cruiseD, tauA, tA;
+  if(2*xa>=L){
+    /* never reaches cruise: accelerate half, brake half */
+    var gamP=1+a*L/2;
+    peakBeta=Math.sqrt(1-1/(gamP*gamP));
+    tauA=artanh(peakBeta)/a; tA=gamP*peakBeta/a;
+    cruiseD=0;
+    var tauOne=2*tauA, tOne=2*tA;
+    var burnShare=100;
+    var tauTrip=2*tauOne, tTrip=2*tOne;
+    var peakUsed=peakBeta, gamUsed=gamP;
+    drawLab(L,tTrip,peakUsed,gamUsed,a,true);
+    finishLab(tTrip,tauTrip,peakUsed,burnShare,true);
+    return;
+  }
+  tauA=artanh(beta)/a; tA=gam*beta/a;
+  cruiseD=L-2*xa;
+  var tauCruise=cruiseD/(gam*beta), tCruise=cruiseD/beta;
+  var tauTrip=2*(2*tauA+tauCruise), tTrip=2*(2*tA+tCruise);
+  drawLab(L,tTrip,beta,gam,a,false);
+  finishLab(tTrip,tauTrip,beta, Math.round(100*(2*xa)/L), false);
+  function finishLab(tT,tauT,pk,burn,tri){
+    $("labDistVal").textContent=fmt(L,1)+" ly";
+    $("labBetaVal").textContent=fmt(beta)+" c";
+    $("labGVal").textContent=fmt(g)+" g";
+    $("labEarth").textContent=fmt(tT,1)+" yr";
+    $("labShip").textContent=fmt(tauT,1)+" yr";
+    $("labDiff").textContent=fmt(tT-tauT,1)+" yr";
+    $("labPeak").textContent=fmt(pk)+" c";
+    $("labBurn").textContent=burn+"%";
+    $("labStarLab").textContent="star · "+fmt(L,1)+" ly";
+    $("labNote").textContent = tri
+      ? "This trip is all burn: at "+fmt(g)+" g the ship needs the whole "+fmt(L,1)+" ly just to speed up and slow down, peaking at "+fmt(pk)+" c mid-way. There is no coasting phase at all — and the age gap still comes only from the speed history, not from the acceleration itself."
+      : "Four burns at "+fmt(g)+" g, coasting at γ = "+fmt(gammaOf(beta))+" in between. Push g to 5: the burns shrink toward the instantaneous-turnaround ideal and the totals barely move — the age gap is earned by the velocity history, not by how hard the ship steers. That is the clock hypothesis, in your hands.";
+  }
+}
+function drawLab(L,tTrip,peakBeta,gamPeak,a,triangular){
+  var path=$("labPath"), star=$("labStar");
+  if(!path) return;
+  var xs=Math.min(105,470/L), ys=310/tTrip;
+  var ox=90, oy=395;
+  function X(x){return ox+xs*x;} function Y(t){return oy-ys*t;}
+  star.setAttribute("x1",X(L)); star.setAttribute("x2",X(L));
+  /* Proxima Centauri reference at 4.2465 ly: positioned through the same X() scale
+     as everything else, so when a larger destination distance rescales the plot
+     (xs drops below its 105 cap), the marker slides inward with the scale. Its
+     label flips side near the right edge so it never runs off the plot. */
+  var proxLine=$("labProximaLine"), proxDot=$("labProximaDot"), proxLab=$("labProximaLab"), proxSub=$("labProximaSub");
+  if(proxLine){
+    var pxP=X(4.2465);
+    proxLine.setAttribute("x1",fmt(pxP,1)); proxLine.setAttribute("x2",fmt(pxP,1));
+    if(proxDot){ proxDot.setAttribute("cx",fmt(pxP,1)); }
+    if(proxLab){
+      var labelRight=pxP<=400, lxP=labelRight?pxP+11:pxP-11, anchorP=labelRight?"start":"end";
+      proxLab.setAttribute("x",fmt(lxP,1)); proxLab.setAttribute("text-anchor",anchorP);
+      if(proxSub){ proxSub.setAttribute("x",fmt(lxP,1)); proxSub.setAttribute("text-anchor",anchorP); }
+    }
+  }
+  var tauA=artanh(peakBeta)/a, tA=gamPeak*peakBeta/a, xa=(gamPeak-1)/a;
+  var cruiseD=triangular?0:(L-2*xa), tCruise=triangular?0:cruiseD/peakBeta;
+  var tArr=2*tA+tCruise;
+  var pts=[[0,0]], i, tau, tp;
+  /* Acceleration burn: hyperbolic motion sampled by proper time. Many fine samples
+     (not 8): at high cruise speed / low g the cosh/sinh terms change fastest near
+     the end of the burn, and coarse chords cut the corner and distort the shape. */
+  var NSEG=40;
+  for(i=1;i<=NSEG;i++){ tau=tauA*i/NSEG; pts.push([(Math.cosh(a*tau)-1)/a, Math.sinh(a*tau)/a]); }
+  /* cruise */
+  if(!triangular){ pts.push([xa+cruiseD, tA+tCruise]); }
+  /* deceleration burn: acceleration profile mirrored about the arrival event */
+  for(i=1;i<=NSEG;i++){ tp=tauA*(1-i/NSEG); pts.push([L-(Math.cosh(a*tp)-1)/a, tArr-Math.sinh(a*tp)/a]); }
+  pts.push([L,tArr]);
+  /* return leg: one-way worldline mirrored in time */
+  var all=pts.slice();
+  for(i=pts.length-2;i>=0;i--){ all.push([pts[i][0], 2*tArr - pts[i][1]]); }
+  var d=all.map(function(p,j){ return (j===0?"M":"L")+fmt(X(p[0]),1)+" "+fmt(Y(p[1]),1); }).join(" ");
+  path.setAttribute("d",d);
+}
+dS.addEventListener("input",updateLab);
+bS.addEventListener("input",updateLab);
+lgS.addEventListener("input",updateLab);
+updateLab();
+})();
+
+`} />
