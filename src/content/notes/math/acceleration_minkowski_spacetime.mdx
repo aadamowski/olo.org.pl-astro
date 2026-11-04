@@ -56,7 +56,7 @@ tocDepth: 2
 .mn-formula-table th, .mn-formula-table td { border:1px solid var(--color-border); padding:13px 14px; vertical-align:top; text-align:left; }
 .mn-formula-table th { background:var(--color-code-bg); font-family:var(--font-body); font-size:.84rem; letter-spacing:.02em; color:var(--mn-ink); width:210px; font-weight:600; }
 .mn-formula-table th span { display:block; font-weight:400; color:var(--mn-ink2); font-size:.8rem; margin-top:3px; }
-.mn-feq { font-size:1.12em; line-height:1.5; }
+.mn-feq { font-size:1.12em; line-height:1.5; overflow-x:auto; }
 .mn-fnote { font-size:.9rem; color:var(--mn-ink2); margin:8px 0 0; line-height:1.5; }
 .mn-caption { display:block; font-size:.84rem; color:var(--mn-ink2); margin-top:10px; line-height:1.55; }
 @media (max-width:560px) {
@@ -107,28 +107,31 @@ tocDepth: 2
 .mn-wl-move { stroke:var(--mn-orange); stroke-width:3.2; fill:none; stroke-linecap:round; }
 .mn-hyper { stroke:var(--mn-blue); stroke-width:2; fill:none; opacity:.75; }
 .mn-t-halo { paint-order:stroke; stroke:var(--mn-surface); stroke-width:3.5px; stroke-linejoin:round; }
+/* MathML axis title: HTML overlay pinned to the Figure 4 SVG's own box */
+.mn-svgwrap { position:relative; line-height:0; }
+.mn-axmath { position:absolute; left:7.6%; top:0.6%; line-height:1.3; background:var(--mn-surface); border:1px solid var(--color-border); border-radius:6px; padding:5px 10px 6px; font-size:12.5px; color:var(--mn-ink); pointer-events:none; }
 `}</style>
 
 <p class="mn-eyebrow">Special relativity · Minkowski geometry</p>
 <p class="mn-lede">A moving clock ticks slowly — that part depends only on its *speed*. So where does acceleration come in? It comes in by **bending the clock's path through spacetime**. Once you draw motion the way Minkowski taught us to draw it, acceleration stops being a footnote to time dilation and becomes the thing that decides *which* history a clock lives through — and therefore how much time it actually experiences.</p>
 
 <div class="mn-keybox">
-<p><strong>The one-sentence version:</strong> time dilation at any instant is set by velocity alone, <em>γ</em> = 1/√(1 − <em>v</em>²/<em>c</em>²). Acceleration never appears in that formula — but acceleration is what <em>changes</em> <em>v</em>, curves the worldline, and makes the total elapsed proper time depend on the whole journey. That is why the accelerating twin comes home younger.</p>
+<p><strong>The one-sentence version:</strong> time dilation at any instant is set by velocity alone, <math><mrow><mi>γ</mi><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt></mfrac></mrow></math>. Acceleration never appears in that formula — but acceleration is what <em>changes</em> <em>v</em>, curves the worldline, and makes the total elapsed proper time depend on the whole journey. That is why the accelerating twin comes home younger.</p>
 </div>
 
 <div class="mn-formula-table-wrap" style="background:var(--color-code-bg);border:1px solid var(--color-border);border-radius:10px;padding:16px;margin:18px 0">
 <table class="mn-formula-table" aria-label="From the Minkowski interval to proper time, in three steps">
 <tbody><tr>
 <th scope="row">Step 1<span>The interval — all dimensions</span></th>
-<td><div class="mn-feq">Δ<em>s</em>² = −<em>c</em>²Δ<em>t</em>² + Δ<em>x</em>² + Δ<em>y</em>² + Δ<em>z</em>²</div><p class="mn-fnote">The Minkowski interval between two events. Time enters with a minus sign; all three space dimensions — <em>x</em>, <em>y</em> and <em>z</em> — enter with plus signs.</p></td>
+<td><div class="mn-feq"><math><mrow><msup><mi>Δs</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δt</mi><mn>2</mn></msup><mo>+</mo><msup><mi>Δx</mi><mn>2</mn></msup><mo>+</mo><msup><mi>Δy</mi><mn>2</mn></msup><mo>+</mo><msup><mi>Δz</mi><mn>2</mn></msup></mrow></math></div><p class="mn-fnote">The Minkowski interval between two events. Time enters with a minus sign; all three space dimensions — <em>x</em>, <em>y</em> and <em>z</em> — enter with plus signs.</p></td>
 </tr>
 <tr>
 <th scope="row">Step 2<span>Rearrange for proper time — still all dimensions</span></th>
-<td><div class="mn-feq"><em>c</em>²Δ<em>τ</em>² = −Δ<em>s</em>² = <em>c</em>²Δ<em>t</em>² − Δ<em>x</em>² − Δ<em>y</em>² − Δ<em>z</em>²</div><p class="mn-fnote">Proper time τ is defined by <em>c</em>²Δ<em>τ</em>² = −Δ<em>s</em>² for a timelike interval. Negating the Step 1 expression flips every sign: the time term becomes positive and each space term — <em>x</em>, <em>y</em> and <em>z</em> alike — becomes negative. Nothing has been dropped yet.</p></td>
+<td><div class="mn-feq"><math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δτ</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><msup><mi>Δs</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>Δx</mi><mn>2</mn></msup><mo>−</mo><msup><mi>Δy</mi><mn>2</mn></msup><mo>−</mo><msup><mi>Δz</mi><mn>2</mn></msup></mrow></math></div><p class="mn-fnote">Proper time τ is defined by <math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δτ</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><msup><mi>Δs</mi><mn>2</mn></msup></mrow></math> for a timelike interval. Negating the Step 1 expression flips every sign: the time term becomes positive and each space term — <em>x</em>, <em>y</em> and <em>z</em> alike — becomes negative. Nothing has been dropped yet.</p></td>
 </tr>
 <tr>
 <th scope="row">Step 3<span>Now specialise to motion along <em>x</em> only</span></th>
-<td><div class="mn-feq"><em>c</em>²Δ<em>τ</em>² = <em>c</em>²Δ<em>t</em>² − Δ<em>x</em>²</div><p class="mn-fnote">Only now do <em>y</em> and <em>z</em> leave the formula — and only because this page mostly studies motion along a single line, so Δ<em>y</em> = 0 and Δ<em>z</em> = 0. Their terms in Step 2 are then zero and drop out, leaving the one-dimensional form used in the diagrams below.</p></td>
+<td><div class="mn-feq"><math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δτ</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>Δt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>Δx</mi><mn>2</mn></msup></mrow></math></div><p class="mn-fnote">Only now do <em>y</em> and <em>z</em> leave the formula — and only because this page mostly studies motion along a single line, so Δ<em>y</em> = 0 and Δ<em>z</em> = 0. Their terms in Step 2 are then zero and drop out, leaving the one-dimensional form used in the diagrams below.</p></td>
 </tr></tbody>
 </table>
 <small class="mn-caption">The Minkowski interval and its rearrangement into proper time τ, broken into steps: first the full interval, then the full rearrangement keeping <em>y</em> and <em>z</em>, then the one-dimensional special case. Everything on this page is these lines, drawn as pictures. Units below: <em>c</em> = 1 light-year per year, so light travels at 45°.</small>
@@ -189,7 +192,7 @@ Three reading rules make every later diagram fall into place:
 ## 2 · Proper time is length
 
 <p class="mn-stepnum">Step 2 of 9</p>
-For a short segment of worldline, the interval formula gives the proper time ticked by a clock riding that segment: *c*²d<em>τ</em>² = *c*²d<em>t</em>² − d<em>x</em>². Time contributes positively, space *subtracts*. So a clock that also moves through space accumulates *less* proper time than one that goes straight up in time. The calibration curves below — hyperbolas of constant τ — are the Minkowski equivalent of the circles a compass draws on an ordinary map: every point on one curve is the same proper time from the origin event.
+For a short segment of worldline, the interval formula gives the proper time ticked by a clock riding that segment: <math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dτ</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>dx</mi><mn>2</mn></msup></mrow></math>. Time contributes positively, space *subtracts*. So a clock that also moves through space accumulates *less* proper time than one that goes straight up in time. The calibration curves below — hyperbolas of constant τ — are the Minkowski equivalent of the circles a compass draws on an ordinary map: every point on one curve is the same proper time from the origin event.
 
 <div class="mn-readbox" style="margin-top:0">
 <h3>How to read it</h3>
@@ -229,13 +232,13 @@ For a short segment of worldline, the interval formula gives the proper time tic
         <text x="376" y="176" class="mn-t-orange">the same τ = 2 curve</text>
         <text x="376" y="192" class="mn-t-orange">at ct = 2.5 yr</text>
       </svg>
-<div class="mn-figcap"><strong>Figure 2 — Calibration hyperbolas</strong> <em>(ct)</em>² − <em>x</em>² = <em>(cτ)</em>². Same τ, different Earth time: the moving clock's event sits further up the page yet on the same hyperbola. That gap <em>is</em> time dilation, before any mention of acceleration.</div>
+<div class="mn-figcap"><strong>Figure 2 — Calibration hyperbolas</strong> <math><mrow><msup><mrow><mo stretchy="false">(</mo><mi>ct</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mi>x</mi><mn>2</mn></msup><mo>=</mo><msup><mrow><mo stretchy="false">(</mo><mi>cτ</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></math>. Same τ, different Earth time: the moving clock's event sits further up the page yet on the same hyperbola. That gap <em>is</em> time dilation, before any mention of acceleration.</div>
 </div>
 
 ## 3 · Velocity dilates
 
 <p class="mn-stepnum">Step 3 of 9</p>
-Differentiate the interval and the proper-time rate falls out immediately: d<em>τ</em> = d<em>t</em> √(1 − *v*²/*c*²) = d<em>t</em>/*γ*. A clock moving at speed *v* through your frame ticks γ times slower — not because anything is wrong with it, but because part of its motion through spacetime is spent going sideways. On the diagram, the moving observer's axes themselves tilt: their time axis leans by the angle whose tangent is *v*/*c*, and their space axis leans by the *same* angle — so their "now" slices the diagram diagonally. That symmetric tilt is the Lorentz transformation, as a picture.
+Differentiate the interval and the proper-time rate falls out immediately: <math><mrow><mi>dτ</mi><mo>=</mo><mi>dt</mi><mo>&#x2062;</mo><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt><mo>=</mo><mfrac><mi>dt</mi><mi>γ</mi></mfrac></mrow></math>. A clock moving at speed *v* through your frame ticks γ times slower — not because anything is wrong with it, but because part of its motion through spacetime is spent going sideways. On the diagram, the moving observer's axes themselves tilt: their time axis leans by the angle whose tangent is <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac></mrow></math>, and their space axis leans by the *same* angle — so their "now" slices the diagram diagonally. That symmetric tilt is the Lorentz transformation, as a picture.
 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 430" role="img" aria-label="Minkowski diagram with a moving observer frame axes tilted symmetrically toward the light cone">
@@ -261,6 +264,7 @@ Differentiate the interval and the proper-time rate falls out immediately: d<em>
 </div>
 
 <div class="mn-diagram">
+<div class="mn-svgwrap">
 <svg viewBox="0 0 640 430" role="img" aria-label="Graph of Lorentz factor gamma against speed beta, rising gently then steeply to infinity at the speed of light">
         
         <line x1="70" y1="186" x2="600" y2="186" class="mn-gridl"/><line x1="70" y1="228" x2="600" y2="228" class="mn-gridl"/><line x1="70" y1="270" x2="600" y2="270" class="mn-gridl"/><line x1="70" y1="312" x2="600" y2="312" class="mn-gridl"/>
@@ -271,7 +275,6 @@ Differentiate the interval and the proper-time rate falls out immediately: d<em>
         <line x1="70" y1="360" x2="600" y2="360" class="mn-axis"/><line x1="70" y1="385" x2="70" y2="40" class="mn-axis"/>
         <circle id="gammaDot" cx="388" cy="344" r="7" fill="var(--mn-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
         <text x="606" y="66" class="mn-t-lab" fill="var(--mn-red)">c — unreachable</text>
-        <text x="60" y="30" class="mn-t-lab-b">γ = 1/√(1 − v²/c²)</text>
         <text x="52" y="358" class="mn-t-small">1</text>
         <text x="52" y="316" class="mn-t-small">2</text>
         <text x="52" y="274" class="mn-t-small">3</text>
@@ -281,6 +284,8 @@ Differentiate the interval and the proper-time rate falls out immediately: d<em>
         <text x="330" y="412" class="mn-t-lab-b">speed v →</text>
         <text id="gammaDotLab" x="400" y="332" class="mn-t-orange">β = 0.60 · γ = 1.25</text>
       </svg>
+<div class="mn-axmath"><math><mrow><mi>γ</mi><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt></mfrac></mrow></math></div>
+</div>
 <div class="mn-figcap"><strong>Figure 4 — The Lorentz factor γ(β).</strong> Practically 1 in everyday life (at highway speed γ − 1 ≈ 10<sup>−14</sup>), then exploding near <em>c</em>. The orange marker is live — drive it with the slider below.</div>
 </div>
 
@@ -346,7 +351,7 @@ Velocity is the *slope* of a worldline. Acceleration is its *rate of change of s
 <ul>
 <li>A clock's instantaneous rate depends only on its instantaneous <em>v</em> — this is the <strong>clock hypothesis</strong>, tested to accelerations of ~10<sup>18</sup> m/s² (Step 9).</li>
 <li>But its <em>total</em> elapsed time is the accumulation along the whole curve — and acceleration is the only way to change the curve.</li>
-<li>In the traveller's own terms, what they feel is <strong>proper acceleration</strong> α = γ³<em>a</em> (for motion along the velocity): the reading on an accelerometer they carry. It is absolute — no frame choice makes a bent worldline straight.</li>
+<li>In the traveller's own terms, what they feel is <strong>proper acceleration</strong> <math><mrow><mi>α</mi><mo>=</mo><msup><mi>γ</mi><mn>3</mn></msup><mo>&#x2062;</mo><mi>a</mi></mrow></math> (for motion along the velocity): the reading on an accelerometer they carry. It is absolute — no frame choice makes a bent worldline straight.</li>
 </ul>
 </div>
 
@@ -355,17 +360,17 @@ Velocity is the *slope* of a worldline. Acceleration is its *rate of change of s
 ## 5 · Adding up a journey
 
 <p class="mn-stepnum">Step 5 of 9</p>
-Chop any worldline — however bent — into tiny straight pieces. Each piece is short enough that the velocity barely changes across it, so Step 3's formula applies piece by piece: Δ<em>τ</em> ≈ Δ<em>t</em> √(1 − *v*²/*c*²). Add the pieces and let them shrink, and you get the master formula of this page. Acceleration is inside it implicitly: *v*(*t*) is whatever function the accelerations produced.
+Chop any worldline — however bent — into tiny straight pieces. Each piece is short enough that the velocity barely changes across it, so Step 3's formula applies piece by piece: <math><mrow><mi>Δτ</mi><mo>≈</mo><mi>Δt</mi><mo>&#x2062;</mo><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt></mrow></math>. Add the pieces and let them shrink, and you get the master formula of this page. Acceleration is inside it implicitly: *v*(*t*) is whatever function the accelerations produced.
 
 <div class="mn-formula">
-<em>τ</em> = ∫ √(1 − <em>v</em>(<em>t</em>)²/<em>c</em>²) d<em>t</em> &nbsp;=&nbsp; ∫ d<em>t</em> / <em>γ</em>(<em>t</em>)
+<math><mrow><mi>τ</mi><mo>=</mo><mo>∫</mo><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt><mo>&#x2062;</mo><mi>d</mi><mi>t</mi><mo>=</mo><mo>∫</mo><mfrac><mrow><mi>d</mi><mi>t</mi></mrow><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math>
 <small>Proper time along any worldline. This single integral is the "Minkowski spacetime formula" for time dilation with acceleration included: feed it a velocity history — any history, however it was accelerated into being — and it returns exactly what the travelling clock reads.</small>
 </div>
 
 Worked miniature — a clock whose speed profile over 4 Earth seconds is: accelerate 0 → 0.6<em>c</em> in the first second, cruise 2 seconds, decelerate back to rest in the last second. Applying the integral in three chunks:
 
 <table>
-<thead><tr><th>Phase</th><th class="num">Earth Δt</th><th class="num">avg 1/γ</th><th class="num">Δτ</th></tr></thead>
+<thead><tr><th>Phase</th><th class="num">Earth Δt</th><th class="num"><math><mrow><mtext>avg&#x2009;</mtext><mfrac><mn>1</mn><mi>γ</mi></mfrac></mrow></math></th><th class="num">Δτ</th></tr></thead>
 <tbody><tr><td>Speeding up (0 → 0.6c)</td><td class="num">1.00 s</td><td class="num">≈ 0.94</td><td class="num">0.94 s</td></tr>
 <tr><td>Cruise at 0.6c (γ = 1.25)</td><td class="num">2.00 s</td><td class="num">0.80</td><td class="num">1.60 s</td></tr>
 <tr><td>Slowing down (0.6c → 0)</td><td class="num">1.00 s</td><td class="num">≈ 0.94</td><td class="num">0.94 s</td></tr>
@@ -392,7 +397,7 @@ Worked miniature — a clock whose speed profile over 4 Earth seconds is: accele
         <text x="196" y="30" class="mn-t-blue">straight-segment approximation —</text>
         <text x="196" y="44" class="mn-t-blue">exact as segments → 0: the integral</text>
       </svg>
-<div class="mn-figcap"><strong>Figure 6 — The integral, geometrically.</strong> Each straight segment contributes Δ<em>t</em>/γ. Where the worldline leans more (higher <em>v</em>), equal vertical rises buy less proper time — the segments are "worth" less τ. The four straight segments meet at sharp corners — each corner a sudden jump in speed — and run at 0.03<em>c</em>, 0.32<em>c</em>, 0.62<em>c</em> and 0.93<em>c</em>; the smooth worldline's steepest slope is likewise 0.93<em>c</em>. Everything stays well left of the 45° cone line, so nothing here reaches light speed.</div>
+<div class="mn-figcap"><strong>Figure 6 — The integral, geometrically.</strong> Each straight segment contributes <math><mrow><mfrac><mi>Δt</mi><mi>γ</mi></mfrac></mrow></math>. Where the worldline leans more (higher <em>v</em>), equal vertical rises buy less proper time — the segments are "worth" less τ. The four straight segments meet at sharp corners — each corner a sudden jump in speed — and run at 0.03<em>c</em>, 0.32<em>c</em>, 0.62<em>c</em> and 0.93<em>c</em>; the smooth worldline's steepest slope is likewise 0.93<em>c</em>. Everything stays well left of the 45° cone line, so nothing here reaches light speed.</div>
 </div>
 
 ## 6 · The twin paradox
@@ -428,7 +433,7 @@ Each twin, coasting, sees the other's clock run slow — so who is younger at re
         <text x="52" y="344" class="mn-t-small">dots — 3.6 Earth years — is</text>
         <text x="52" y="358" class="mn-t-small">swept over during the turn</text>
       </svg>
-<div class="mn-figcap"><strong>Figure 7 — Twins at 0.6<em>c</em> to a star 3 ly away.</strong> Earth: 5 yr out + 5 yr back = 10 yr. Traveller: each leg 5/γ = 4 yr of proper time, total 8 yr. The dashed lines are the traveller's simultaneity slices just before and just after turning; Earth's clock reading "jumps" by 3.6 yr (= 2vL/c²) between them — not because Earth time misbehaves, but because the traveller changed frames, and changing frames takes acceleration.</div>
+<div class="mn-figcap"><strong>Figure 7 — Twins at 0.6<em>c</em> to a star 3 ly away.</strong> Earth: 5 yr out + 5 yr back = 10 yr. Traveller: each leg <math><mrow><mfrac><mn>5</mn><mi>γ</mi></mfrac><mo>=</mo><mn>4</mn></mrow></math> yr of proper time, total 8 yr. The dashed lines are the traveller's simultaneity slices just before and just after turning; Earth's clock reading "jumps" by 3.6 yr <math><mrow><mo stretchy="false">(</mo><mo>=</mo><mfrac><mrow><mn>2</mn><mo>&#x2062;</mo><mi>v</mi><mo>&#x2062;</mo><mi>L</mi></mrow><msup><mi>c</mi><mn>2</mn></msup></mfrac><mo stretchy="false">)</mo></mrow></math> between them — not because Earth time misbehaves, but because the traveller changed frames, and changing frames takes acceleration.</div>
 </div>
 
 <div class="mn-readbox" style="margin-top:0">
@@ -445,9 +450,9 @@ Each twin, coasting, sees the other's clock run slow — so who is younger at re
 ## 7 · Constant acceleration
 
 <p class="mn-stepnum">Step 7 of 9</p>
-Hold the accelerometer pinned at a constant proper acceleration *g* forever. In Earth coordinates the velocity asymptotes to *c* — *v*/*c* = tanh(*gτ*/*c*) — and the worldline is not a parabola but a **hyperbola**: (*x* + *c*²/*g*)² − (*ct*)² = (*c*²/*g*)². Its asymptotes are light rays: behind the rocket there is a **Rindler horizon** at distance *c*²/*g* — about 0.97 light-years for 1<em>g</em> — beyond which light signals can never catch up, however long they chase.
+Hold the accelerometer pinned at a constant proper acceleration *g* forever. In Earth coordinates the velocity asymptotes to *c* — <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math> — and the worldline is not a parabola but a **hyperbola**: <math><mrow><msup><mrow><mo>(</mo><mi>x</mi><mo>+</mo><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup><mo>−</mo><msup><mrow><mo>(</mo><mi>ct</mi><mo>)</mo></mrow><mn>2</mn></msup><mo>=</mo><msup><mrow><mo>(</mo><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></math>. Its asymptotes are light rays: behind the rocket there is a **Rindler horizon** at distance <math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math> — about 0.97 light-years for 1<em>g</em> — beyond which light signals can never catch up, however long they chase.
 
-<p>Meanwhile γ = cosh(<em>gτ</em>/<em>c</em>) grows exponentially in the traveller's own time: after 1 year at 1<em>g</em> the rocket does 0.77<em>c</em> (γ ≈ 1.58); after 2 years, 0.97<em>c</em> (γ ≈ 3.99); after 5 years γ ≈ 86. Earth time <em>t</em> = (<em>c</em>/<em>g</em>) sinh(<em>gτ</em>/<em>c</em>) races ahead of ship time τ ever faster — sustained acceleration is the most powerful time-dilation machine special relativity allows, which is why the "1<em>g</em> rocket" is a staple of interstellar thought experiments.</p>
+<p>Meanwhile <math><mrow><mi>γ</mi><mo>=</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math> grows exponentially in the traveller's own time: after 1 year at 1<em>g</em> the rocket does 0.77<em>c</em> (γ ≈ 1.58); after 2 years, 0.97<em>c</em> (γ ≈ 3.99); after 5 years γ ≈ 86. Earth time <math><mrow><mi>t</mi><mo>=</mo><mo stretchy="false">(</mo><mfrac><mi>c</mi><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>&#x2062;</mo><mi mathvariant="normal">sinh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math> races ahead of ship time τ ever faster — sustained acceleration is the most powerful time-dilation machine special relativity allows, which is why the "1<em>g</em> rocket" is a staple of interstellar thought experiments.</p>
 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 440" role="img" aria-label="Hyperbolic worldline of a constantly accelerating rocket approaching its light-ray asymptote, the Rindler horizon">
@@ -483,7 +488,7 @@ Hold the accelerometer pinned at a constant proper acceleration *g* forever. In 
         <text x="52" y="136" class="mn-t-small">starts vertical (v = 0),</text>
         <text x="52" y="152" class="mn-t-small">ends hugging 45° (v → c)</text>
       </svg>
-<div class="mn-figcap"><strong>Figure 8 — Hyperbolic motion.</strong> Constant <em>proper</em> acceleration looks like a hyperbola, because γ must keep growing to keep the felt acceleration constant while coordinate acceleration γ<sup>−3</sup><em>a</em> shrinks toward zero. Drive <em>g</em> and ship time τ with the sliders: the orange dot is the event the rocket has reached at that τ — its height on the <em>ct</em> axis is the (larger) Earth time, its distance along the <em>x</em> axis the distance covered. Higher <em>g</em> hugs the asymptote sooner and drags the horizon closer.</div>
+<div class="mn-figcap"><strong>Figure 8 — Hyperbolic motion.</strong> Constant <em>proper</em> acceleration looks like a hyperbola, because γ must keep growing to keep the felt acceleration constant while coordinate acceleration <math><mrow><msup><mi>γ</mi><mrow><mo>−</mo><mn>3</mn></mrow></msup><mo>&#x2062;</mo><mi>a</mi></mrow></math>… shrinks toward zero. Drive <em>g</em> and ship time τ with the sliders: the orange dot is the event the rocket has reached at that τ — its height on the <em>ct</em> axis is the (larger) Earth time, its distance along the <em>x</em> axis the distance covered. Higher <em>g</em> hugs the asymptote sooner and drags the horizon closer.</div>
 </div>
 
 <div class="mn-sliderbox">
@@ -499,11 +504,11 @@ Hold the accelerometer pinned at a constant proper acceleration *g* forever. In 
 <div class="mn-readout" id="tauVal">2.0 yr</div>
 </div>
 <div class="mn-stats">
-<div class="mn-stat"><div class="v" id="rBeta">0.968</div><div class="k">speed reached, v/c = tanh(gτ/c)</div></div>
-<div class="mn-stat"><div class="v" id="rGamma">3.99</div><div class="k">γ = cosh(gτ/c) — Earth clocks now run this × faster than ship clocks</div></div>
-<div class="mn-stat"><div class="v" id="rEarth">3.75 yr</div><div class="k">Earth time elapsed, (c/g)·sinh(gτ/c)</div></div>
-<div class="mn-stat"><div class="v" id="rDist">2.90 ly</div><div class="k">distance covered, (c²/g)·(cosh(gτ/c) − 1)</div></div>
-<div class="mn-stat"><div class="v" id="rHorizon">0.97 ly</div><div class="k">Rindler horizon distance c²/g behind</div></div>
+<div class="mn-stat"><div class="v" id="rBeta">0.968</div><div class="k">speed reached, <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div></div>
+<div class="mn-stat"><div class="v" id="rGamma">3.99</div><div class="k"><math><mrow><mi>γ</mi><mo>=</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math> — Earth clocks now run this × faster than ship clocks</div></div>
+<div class="mn-stat"><div class="v" id="rEarth">3.75 yr</div><div class="k">Earth time elapsed, <math><mrow><mo stretchy="false">(</mo><mfrac><mi>c</mi><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>&#x22c5;</mo><mi mathvariant="normal">sinh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div></div>
+<div class="mn-stat"><div class="v" id="rDist">2.90 ly</div><div class="k">distance covered, <math><mrow><mo stretchy="false">(</mo><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>&#x22c5;</mo><mo stretchy="false">(</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math></div></div>
+<div class="mn-stat"><div class="v" id="rHorizon">0.97 ly</div><div class="k">Rindler horizon distance <math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math> behind</div></div>
 </div>
 <p class="mn-hint" style="font-size:.9rem;margin:14px 0 0">Sanity anchor: at exactly 1<em>g</em> and τ = 1 yr — v = 0.77<em>c</em>, Earth has aged ≈ 1.19 yr while the ship aged 1.00 yr. The gap compounds because γ itself grows exponentially with τ.</p>
 </div>
@@ -585,7 +590,7 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 <input type="range" id="phiSlider" min="0" max="360" step="1" value="34" />
 <div class="mn-readout" id="phiVal">34°</div>
 </div>
-<p class="mn-hint" style="font-size:.93rem;margin:8px 0 0">The orbiting clock's rate never varies: d<em>τ</em>/d<em>t</em> = 1/γ ≈ 0.64 the whole way round, even though its acceleration vector rotates continuously. Direction of acceleration is irrelevant to the rate — only the speed history enters the integral. Storage-ring muons live exactly this life (Step 9).</p>
+<p class="mn-hint" style="font-size:.93rem;margin:8px 0 0">The orbiting clock's rate never varies: <math><mrow><mfrac><mi>dτ</mi><mi>dt</mi></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>γ</mi></mfrac><mo>≈</mo><mn>0.64</mn></mrow></math> the whole way round, even though its acceleration vector rotates continuously. Direction of acceleration is irrelevant to the rate — only the speed history enters the integral. Storage-ring muons live exactly this life (Step 9).</p>
 </div>
 
 ## 9 · What acceleration does not do
@@ -593,7 +598,7 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 <p class="mn-stepnum">Step 9 of 9</p>
 <div class="mn-cards">
 <div class="mn-card"><h3>Acceleration does…</h3><p><strong>Change the velocity, hence γ, moment by moment</strong> — it steers the worldline's slope. <strong>Break symmetries:</strong> whoever accelerates is unambiguously the one who changed frames. <strong>Decide the total:</strong> through <em>v</em>(<em>t</em>), it fixes the value of the proper-time integral, so different acceleration programmes between the same events yield different elapsed times.</p></div>
-<div class="mn-card"><h3>Acceleration does not…</h3><p><strong>Add its own term to the rate.</strong> There is no <em>a</em> in d<em>τ</em> = d<em>t</em>/γ. <strong>Need to be large to matter:</strong> a feather-touch turnaround still breaks the twin symmetry. <strong>Act like gravity in SR</strong> — the resemblance (the equivalence principle) is real but is general relativity's story; in flat Minkowski spacetime, acceleration alone produces no extra "gravitational" dilation beyond the velocity integral.</p></div>
+<div class="mn-card"><h3>Acceleration does not…</h3><p><strong>Add its own term to the rate.</strong> There is no <em>a</em> in <math><mrow><mi>dτ</mi><mo>=</mo><mfrac><mi>dt</mi><mi>γ</mi></mfrac></mrow></math>. <strong>Need to be large to matter:</strong> a feather-touch turnaround still breaks the twin symmetry. <strong>Act like gravity in SR</strong> — the resemblance (the equivalence principle) is real but is general relativity's story; in flat Minkowski spacetime, acceleration alone produces no extra "gravitational" dilation beyond the velocity integral.</p></div>
 </div>
 
 <h3 id="evidence">The evidence</h3>
@@ -605,7 +610,7 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 <tr><td><strong>GPS satellites</strong></td><td>Clocks orbiting at ~3.9 km/s</td><td>Special relativity alone would make them lose ≈ 7 μs/day; the system corrects for it continuously. (Gravity adds +45 μs/day — net +38 μs/day, a GR effect beyond this page's flat spacetime.)</td></tr></tbody>
 </table>
 
-<div class="mn-callout"><p><strong>The bridge to gravity.</strong> Einstein's equivalence principle says a uniformly accelerating rocket's cabin is locally indistinguishable from standing in gravity — and in the rocket, the velocity-integral already makes the nose clock and tail clock tick at different steady rates (they have different velocity histories in any single inertial frame… and the cabin's own Rindler coordinates make the rate difference look exactly like gravitational redshift, Δ<em>τ</em>/<em>τ</em> ≈ <em>gh</em>/<em>c</em>²). Acceleration in flat spacetime is thus the training ground where gravitational time dilation is first visible — but the Minkowski formula above remains the complete SR account.</p></div>
+<div class="mn-callout"><p><strong>The bridge to gravity.</strong> Einstein's equivalence principle says a uniformly accelerating rocket's cabin is locally indistinguishable from standing in gravity — and in the rocket, the velocity-integral already makes the nose clock and tail clock tick at different steady rates (they have different velocity histories in any single inertial frame… and the cabin's own Rindler coordinates make the rate difference look exactly like gravitational redshift, <math><mrow><mfrac><mi>Δτ</mi><mi>τ</mi></mfrac><mo>≈</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>h</mi></mrow><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></math>). Acceleration in flat spacetime is thus the training ground where gravitational time dilation is first visible — but the Minkowski formula above remains the complete SR account.</p></div>
 
 ## Lab · Design a twin trip
 
@@ -664,10 +669,10 @@ No instantaneous turnarounds here. Your traveller accelerates at a steady, felt 
 
 <h3 id="four-lines">The whole story in four lines</h3>
 <div class="mn-formula" style="text-align:left;white-space:normal;line-height:1.9">
-1 · Interval: *c*²d<em>τ</em>² = *c*²d<em>t</em>² − d<em>x</em>² — space motion is subtracted from time.<br />
-2 · Rate: d<em>τ</em> = d<em>t</em>/γ(*v*) — velocity alone sets the instantaneous tick rate.<br />
-3 · Total: *τ* = ∫ d<em>t</em>/γ(*v*(*t*)) — and acceleration writes the *v*(*t*) inside.<br />
-4 · Constant *g*: *v*/*c* = tanh(*gτ*/*c*), worldline a hyperbola, horizon at *c*²/*g*.
+1 · Interval: <math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dτ</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>dx</mi><mn>2</mn></msup></mrow></math> — space motion is subtracted from time.<br />
+2 · Rate: <math><mrow><mi>dτ</mi><mo>=</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math> — velocity alone sets the instantaneous tick rate.<br />
+3 · Total: <math><mrow><mi>τ</mi><mo>=</mo><mo>∫</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></mfrac></mrow></math> — and acceleration writes the <math><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></math> inside.<br />
+4 · Constant *g*: <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math>, worldline a hyperbola, horizon at <math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math>.
 </div>
 
 <p>So: does acceleration cause time dilation? Not directly — no term, no extra effect, at any instant. But remove acceleration from the universe and no clock could ever change its velocity, turn around, orbit, or come home — every worldline would be straight, every twin the same age, and the integral would have nothing interesting to integrate. Acceleration is the author of every time-dilation story; velocity is just its handwriting.</p>
