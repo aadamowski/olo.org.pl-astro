@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { TitleCaser } from '@danielhaim/titlecaser';
 
 const notes = await getCollection('notes');
+const titleCaser = new TitleCaser({ style: 'apa' });
 
 // Group notes by the directory one level below src/content/notes/, sorted
 // lexicographically by section name, with the notes inside each section also
@@ -13,8 +15,8 @@ for (const note of notes) {
   (sections[dir] ??= []).push(note);
 }
 const sectionNames = Object.keys(sections).sort();
-const sectionTitle = (s) =>
-  s.split(/[_-]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+// Section headings use APA-style title case (via @danielhaim/titlecaser).
+const sectionTitle = (s) => titleCaser.toTitleCase(s.split(/[_-]/).join(' '));
 for (const name of sectionNames) sections[name].sort((a, b) => a.id.localeCompare(b.id));
 ---
 <BaseLayout title="Notes">

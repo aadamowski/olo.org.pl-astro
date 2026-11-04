@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/mdx": "^8.0.2",
     "@astrojs/react": "^7.1.2",
+    "@danielhaim/titlecaser": "^1.8.25",
     "astro": "^7.4.4",
     "moment": "^2.30.1",
     "react": "^18.3.0",
