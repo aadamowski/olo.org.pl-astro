@@ -1,0 +1,573 @@
+---
+title: "Heat pumps move heat uphill — in both directions"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Heat-Pump note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB ΔE): hot→orange, cold→teal, work→gold, plus the
+   -soft fills; ink/muted/line/grid→the shared warm-paper neutrals. Dark mode
+   is handled there. Only the two card-surface aliases are note-local. */
+:root {
+  --hp-surface: var(--color-bg);
+  --hp-surface2: var(--color-code-bg);
+}
+
+
+
+
+
+
+
+
+.hp h3 {font-size:18px;margin:22px 0 6px }
+
+.hp p {margin:0 0 12px;max-width:72ch }
+
+.hp .lede {font-size:19px;color:var(--math-ink2);max-width:68ch }
+
+.hp .lede strong {color:var(--math-ink) }
+
+.hp a {color:var(--math-teal) }
+
+.hp .fig {background:var(--hp-surface);border:1px solid var(--math-line);border-radius:10px;padding:16px 16px 10px;margin:18px 0; }
+
+.hp .fig svg {width:100%;height:auto;display:block }
+
+.hp .fig-title {font-weight:700;font-size:15.5px;margin:0 0 4px }
+
+.hp .fig-cap {font-size:14px;color:var(--math-ink2);margin:8px 0 4px;line-height:1.55 }
+
+.hp .two {display:grid;grid-template-columns: 1fr;gap:16px }
+
+@media(max-width:720px) {
+.hp .two {grid-template-columns:1fr }
+
+}
+
+.hp table.formulas {width:100%;border-collapse:collapse;margin:14px 0;background:var(--hp-surface);font-size:15px }
+
+.hp table.formulas th, .hp table.formulas td {border:1px solid var(--math-line);padding:10px 12px;text-align:left;vertical-align:top }
+
+.hp table.formulas th {background:var(--hp-surface2);font-weight:600;width:30% }
+
+.hp table.data {width:100%;border-collapse:collapse;margin:14px 0;background:var(--hp-surface);font-size:14.5px }
+
+.hp table.data th, .hp table.data td {border:1px solid var(--math-line);padding:8px 10px;text-align:left }
+
+.hp table.data td.num, .hp table.data th.num {text-align:right;font-family: var(--font-mono);font-size:13.5px }
+
+.hp table.data th {background:var(--hp-surface2) }
+
+.hp .mono {font-family: var(--font-mono);font-size:.92em }
+
+.hp .lab {background:var(--hp-surface);border:1.5px solid var(--math-ink);border-radius:12px;padding:18px;margin:20px 0 }
+
+.hp .lab h3 {margin-top:0 }
+
+.hp .controls {display:grid;grid-template-columns:1fr;gap:14px;margin:14px 0 }
+
+.hp .ctrl {display:grid;grid-template-columns:210px 1fr 130px;gap:12px;align-items:center }
+
+@media(max-width:640px) {
+.hp .ctrl {grid-template-columns:1fr;gap:2px }
+.hp .ctrl output {text-align:left }
+
+}
+
+.hp .ctrl label {font-weight:600;font-size:14.5px }
+
+.hp .ctrl output {font-family: var(--font-mono);font-size:14px;text-align:right;font-weight:600 }
+
+.hp input[type=range] {width:100%;min-width:260px;accent-color:var(--math-orange);height:28px;cursor:pointer }
+
+.hp .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 }
+
+.hp .ro {background:var(--hp-surface2);border-radius:8px;padding:10px 12px }
+
+.hp .ro b {display:block;font-family: var(--font-mono);font-size:19px;line-height:1.2 }
+
+.hp .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em }
+
+.hp .callout {border:1px solid var(--math-line);border-left:4px solid var(--math-orange);background:var(--hp-surface);border-radius:6px;padding:12px 16px;margin:16px 0 }
+
+.hp .callout.cold {border-left-color:var(--math-teal) }
+
+.hp .callout p:last-child {margin-bottom:0 }
+
+.hp .kicker {font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--math-orange) }
+
+.hp ol.steps li, .hp ul li {margin-bottom:6px }
+
+.hp .small {font-size:14px;color:var(--math-ink2) }
+
+.hp svg text {font-family: var(--font-body) }
+
+.hp svg text:not([fill]) {fill:var(--math-ink) }
+
+.hp svg .mono-t {font-family: var(--font-mono) }
+
+.hp footer {margin-top:48px;border-top:1px solid var(--math-line);padding-top:14px;font-size:13.5px;color:var(--math-ink2) }
+
+.hp .badge {display:inline-block;padding:1px 8px;border-radius:999px;font-size:12.5px;font-weight:700 }
+
+.hp .badge.hot {background:var(--math-orange-soft);color:var(--math-orange) }
+
+.hp math {color:inherit;font-size:1.04em }
+
+.hp .fig-eq {margin:8px 0 2px;font-size:15.5px }
+
+.hp .fig-eq table {width:100%;border-collapse:collapse;background:var(--hp-surface) }
+
+.hp .fig-eq td {border:1px solid var(--math-line);padding:8px 6px;text-align:center;vertical-align:middle }
+
+.hp table.formulas math, .hp .callout math {vertical-align:-0.12em }
+ .hp .badge.cold {background:var(--math-teal-soft);color:var(--math-teal) }
+ .hp .badge.work {background:var(--math-gold-soft);color:var(--math-gold) }
+
+
+`}</style>
+
+<div class="hp">
+<p class="kicker">Thermodynamics · Vapour-compression cycle</p>
+
+<p class="lede">A heat pump does not <em>make</em> heat the way a resistance heater or a furnace does. It spends a small amount of work <strong>W</strong> (in kilowatts, kW) to transport a larger amount of heat <strong>Q</strong> (also in kW) from a cold place to a warm place. Reverse the plumbing with one valve and the same machine becomes an air conditioner. This page follows the refrigerant around the loop in both directions, puts real numbers — temperatures in °C and kelvin (K), pressures in bar, enthalpies in kJ/kg — on every step, and then looks at the part most diagrams leave out: <strong>hysteresis</strong>, the reason the real machine never quite retraces its own path.</p>
+
+<div class="callout">
+<p><strong>The one-line energy balance.</strong> Everything in this explainer is bookkeeping on a single statement of the first law of thermodynamics for one full cycle:</p>
+<p style="font-size:19px;text-align:center"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math></p>
+<p>Heat delivered at the hot side (Q<sub>H</sub>) equals heat absorbed at the cold side (Q<sub>C</sub>) plus the work you paid for (W). If W = 1.0&nbsp;kW of electricity moves Q<sub>C</sub> = 2.4&nbsp;kW of outdoor heat indoors, you receive Q<sub>H</sub> = 3.4&nbsp;kW of heating. Nothing is created — the outdoor air is left slightly colder.</p>
+</div>
+</div>
+
+## 1 · The four-part cycle
+
+<div class="hp">
+<p>Four components, one sealed loop of refrigerant (commonly R32 or R410A in residential units, increasingly R290/propane in newer European models):</p>
+<ol class="steps">
+<li><strong>Evaporator</strong> — cold, low-pressure liquid refrigerant absorbs heat and boils. Boiling at low pressure happens at low temperature, which is why the coil can pull heat out of air at −10&nbsp;°C.</li>
+<li><strong>Compressor</strong> — an electric motor (typically 0.5–3&nbsp;kW in a home unit) squeezes the vapour. Squeezing raises both its pressure (roughly 3–4×) and its temperature — to 60–90&nbsp;°C at the discharge.</li>
+<li><strong>Condenser</strong> — the hot, high-pressure vapour gives up its heat and condenses back to liquid.</li>
+<li><strong>Expansion valve</strong> — the liquid is throttled through a narrow orifice. Pressure and temperature crash, and a cold liquid–vapour mixture re-enters the evaporator. This step is deliberately irreversible — remember it when we reach hysteresis.</li>
+</ol>
+<p>A <strong>reversing valve</strong> (a sliding four-way valve in the refrigerant line) swaps which coil plays which role. The compressor, valve and physics do not change — only the direction of heat flow does. That is the whole difference between "heat pump" and "air conditioner".</p>
+</div>
+
+## 2 · One lab, five figures — both directions at once
+
+<div class="hp">
+<p>The control panel below drives Figures 1–5 together, so you can watch a cold snap propagate through the schematics, the efficiency chart, the energy balance and the pressure–enthalpy loop at the same time. Figure titles update with the slider state. Realistic ranges are used throughout: outdoor air from −20&nbsp;°C (a hard winter night) to +40&nbsp;°C (a heatwave), indoor setpoints from 18&nbsp;°C to 26&nbsp;°C.</p>
+
+<div class="two">
+<div class="fig">
+<p class="fig-title" id="hp-fig1Title">Figure 1 — Heating mode at outdoor −5.0 °C</p>
+<svg viewBox="0 0 460 330" role="img" aria-label="Heat pump schematic in heating mode">
+  
+  <rect x="245" y="30" width="195" height="270" rx="8" fill="var(--math-orange-soft)" stroke="var(--math-orange)" stroke-width="1.5"/>
+  <text x="342" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--math-orange)">INDOORS</text>
+  <text x="342" y="70" text-anchor="middle" font-size="12" class="mono-t" fill="var(--math-orange)" id="hp-fig1Tin">21.0 °C</text>
+  
+  <text x="115" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--math-teal)">OUTDOORS</text>
+  <text x="115" y="70" text-anchor="middle" font-size="12" class="mono-t" fill="var(--math-teal)" id="hp-fig1Tout">−5.0 °C</text>
+  
+  <rect x="45" y="120" width="140" height="70" rx="6" fill="var(--hp-surface)" stroke="var(--math-teal)" stroke-width="2"/>
+  <path d="M60 140 q10 -14 20 0 q10 14 20 0 q10 -14 20 0 q10 14 20 0 q10 -14 20 0" fill="none" stroke="var(--math-teal)" stroke-width="2"/>
+  <text x="115" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--math-ink)">Evaporator (outdoor coil)</text>
+  <text x="115" y="230" text-anchor="middle" font-size="11.5" class="mono-t" fill="var(--math-ink)" id="hp-fig1Evap">boils at ≈ −12 °C, ≈ 5.1 bar</text>
+  
+  <rect x="272" y="120" width="140" height="70" rx="6" fill="var(--hp-surface)" stroke="var(--math-orange)" stroke-width="2"/>
+  <path d="M287 140 q10 -14 20 0 q10 14 20 0 q10 -14 20 0 q10 14 20 0 q10 -14 20 0" fill="none" stroke="var(--math-orange)" stroke-width="2"/>
+  <text x="342" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--math-ink)">Condenser (indoor coil)</text>
+  <text x="342" y="230" text-anchor="middle" font-size="11.5" class="mono-t" fill="var(--math-ink)" id="hp-fig1Cond">condenses at ≈ 33 °C, ≈ 20 bar</text>
+  
+  <circle cx="115" cy="275" r="24" fill="var(--math-gold-soft)" stroke="var(--math-gold)" stroke-width="2"/>
+  <text x="115" y="271" text-anchor="middle" font-size="11" font-weight="700" fill="var(--math-gold)">COMP.</text>
+  <text x="115" y="286" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--math-gold)">W in</text>
+  
+  <path d="M322 258 L342 275 L322 292 Z M362 258 L342 275 L362 292 Z" fill="var(--hp-surface)" stroke="var(--math-ink)" stroke-width="1.5"/>
+  <text x="342" y="315" text-anchor="middle" font-size="11.5" fill="var(--math-ink)">Expansion valve</text>
+  
+  <path d="M115 190 L115 248" stroke="var(--math-ink)" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M136 262 L150 248 L392 248 L392 196" stroke="var(--math-orange)" stroke-width="2.5" fill="none" marker-end="url(#arrH)"/>
+  <path d="M342 190 L342 255" stroke="var(--math-orange)" stroke-width="2" marker-end="url(#arrH)"/>
+  <path d="M320 282 L312 302 L62 302 L62 196" stroke="var(--math-teal)" stroke-width="2" fill="none" marker-end="url(#arrC)"/>
+  <path d="M185 155 L245 155" stroke="var(--math-teal)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrC)"/>
+  <text x="228" y="146" font-size="11" fill="var(--math-teal)">Q<tspan baseline-shift="sub" font-size="9">C</tspan> absorbed</text>
+  <text x="252" y="108" font-size="11" fill="var(--math-orange)">Q<tspan baseline-shift="sub" font-size="9">H</tspan> delivered to room ↘</text>
+  <defs>
+    <marker id="hp-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--math-ink)"/></marker>
+    <marker id="hp-arrH" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--math-orange)"/></marker>
+    <marker id="hp-arrC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--math-teal)"/></marker>
+  </defs>
+</svg>
+<p class="fig-cap">Heating direction. The outdoor coil is the evaporator: refrigerant boils a few kelvin <em>below</em> outdoor air temperature so heat flows into it. The indoor coil is the condenser, running a few kelvin <em>above</em> room temperature so heat flows out of it. Those two approach differences (≈ 7 K outside, ≈ 12 K inside, including the air-to-refrigerant gap) are why the compressor must lift the refrigerant further than the room-to-outdoor difference alone.</p>
+</div>
+
+<div class="fig">
+<p class="fig-title" id="hp-fig2Title">Figure 2 — Cooling mode at outdoor −5.0 °C</p>
+<svg viewBox="0 0 460 330" role="img" aria-label="Heat pump schematic in cooling mode">
+  <rect x="245" y="30" width="195" height="270" rx="8" fill="var(--math-teal-soft)" stroke="var(--math-teal)" stroke-width="1.5"/>
+  <text x="342" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--math-teal)">INDOORS</text>
+  <text x="342" y="70" text-anchor="middle" font-size="12" class="mono-t" fill="var(--math-teal)" id="hp-fig2Tin">21.0 °C</text>
+  <text x="115" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="var(--math-orange)">OUTDOORS</text>
+  <text x="115" y="70" text-anchor="middle" font-size="12" class="mono-t" fill="var(--math-orange)" id="hp-fig2Tout">−5.0 °C</text>
+  <rect x="45" y="120" width="140" height="70" rx="6" fill="var(--hp-surface)" stroke="var(--math-orange)" stroke-width="2"/>
+  <path d="M60 140 q10 -14 20 0 q10 14 20 0 q10 -14 20 0 q10 14 20 0 q10 -14 20 0" fill="none" stroke="var(--math-orange)" stroke-width="2"/>
+  <text x="115" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--math-ink)">Condenser (outdoor coil)</text>
+  <text x="115" y="230" text-anchor="middle" font-size="11.5" class="mono-t" fill="var(--math-ink)" id="hp-fig2Cond">condenses at ≈ 7 °C, ≈ 9 bar</text>
+  <rect x="272" y="120" width="140" height="70" rx="6" fill="var(--hp-surface)" stroke="var(--math-teal)" stroke-width="2"/>
+  <path d="M287 140 q10 -14 20 0 q10 14 20 0 q10 -14 20 0 q10 14 20 0 q10 -14 20 0" fill="none" stroke="var(--math-teal)" stroke-width="2"/>
+  <text x="342" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--math-ink)">Evaporator (indoor coil)</text>
+  <text x="342" y="230" text-anchor="middle" font-size="11.5" class="mono-t" fill="var(--math-ink)" id="hp-fig2Evap">boils at ≈ 9 °C, ≈ 10 bar</text>
+  <circle cx="115" cy="275" r="24" fill="var(--math-gold-soft)" stroke="var(--math-gold)" stroke-width="2"/>
+  <text x="115" y="271" text-anchor="middle" font-size="11" font-weight="700" fill="var(--math-gold)">COMP.</text>
+  <text x="115" y="286" text-anchor="middle" font-size="10.5" class="mono-t" fill="var(--math-gold)">W in</text>
+  <path d="M322 258 L342 275 L322 292 Z M362 258 L342 275 L362 292 Z" fill="var(--hp-surface)" stroke="var(--math-ink)" stroke-width="1.5"/>
+  <text x="342" y="315" text-anchor="middle" font-size="11.5" fill="var(--math-ink)">Expansion valve</text>
+  
+  <path d="M115 248 L115 196" stroke="var(--math-orange)" stroke-width="2.5" marker-end="url(#arrH)"/>
+  <text x="30" y="106" font-size="11" fill="var(--math-orange)">Q<tspan baseline-shift="sub" font-size="9">H</tspan> rejected outside</text>
+  <path d="M160 190 L160 238 L314 264" stroke="var(--math-orange)" stroke-width="2" fill="none" marker-end="url(#arrH)"/>
+  <path d="M342 252 L342 196" stroke="var(--math-teal)" stroke-width="2.5" marker-end="url(#arrC)"/>
+  <path d="M272 155 L192 155" stroke="var(--math-ink)" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="232" y="174" text-anchor="middle" font-size="11" fill="var(--math-ink2)">④ vapour returns to compressor</text>
+  <text x="248" y="108" font-size="11" fill="var(--math-teal)">Q<tspan baseline-shift="sub" font-size="9">C</tspan> removed from room ↘</text>
+  <text x="150" y="322" font-size="11" fill="var(--math-ink2)">Reversing valve: flow through both coils flipped</text>
+</svg>
+<p class="fig-cap">Cooling direction — the identical hardware. The reversing valve flips refrigerant flow: now the <em>indoor</em> coil evaporates (absorbing room heat, Q<sub>C</sub>) and the <em>outdoor</em> coil condenses (rejecting <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math> to the summer air). Cooling labels here use the same approach rules: evaporation ≈ 12 K below indoor air, condensation ≈ 12 K above outdoor air. In a real heatwave (drag T<sub>out</sub> to 35–40&nbsp;°C) watch the condensing pressure climb past 30 bar — that rising lift is exactly why air conditioners lose efficiency on the hottest afternoons.</p>
+</div>
+</div>
+
+<div class="lab" id="hp-labA">
+<h3 id="hp-cycle-lab">Cycle lab — shared controls for Figures 1–5</h3>
+<div class="controls">
+  <div class="ctrl"><label for="hp-tout">Outdoor temperature T<sub>out</sub></label><input type="range" id="hp-tout" min="-20" max="40" step="0.5" value="-5" /><output id="hp-toutOut">−5.0 °C</output></div>
+  <div class="ctrl"><label for="hp-tin">Indoor setpoint T<sub>in</sub></label><input type="range" id="hp-tin" min="18" max="26" step="0.5" value="21" /><output id="hp-tinOut">21.0 °C</output></div>
+</div>
+<div class="readouts">
+  <div class="ro"><b id="hp-roLift">26.0 K</b><span>Temperature lift ΔT</span></div>
+  <div class="ro"><b id="hp-roCopH">—</b><span>COP heating (realistic)</span></div>
+  <div class="ro"><b id="hp-roCopC">—</b><span>COP cooling (realistic)</span></div>
+  <div class="ro"><b id="hp-roCarnot">—</b><span>Carnot limit (heating)</span></div>
+</div>
+<p class="small">How to read the two COP readouts: the heating COP applies when it is colder outside than in (the usual winter case); the cooling COP applies in summer. Both are computed at the current slider settings from the reservoir temperatures, using a second-law efficiency of 45% for heating and 40% for cooling — typical of a good modern unit (see §3). When T<sub>out</sub> crosses T<sub>in</sub>, the "lift" passes through zero and both Carnot COPs blow up — correctly: moving heat across almost no temperature difference costs almost no work.</p>
+</div>
+
+<div class="fig">
+<p class="fig-title" id="hp-fig3Title">Figure 3 — COP versus outdoor temperature at indoor 21.0 °C</p>
+<svg id="hp-copChart" viewBox="0 0 920 340" role="img" aria-label="Chart of coefficient of performance against outdoor temperature"></svg>
+<p class="fig-cap">Solid curve: realistic heating COP (45% of the Carnot limit). Dashed curve: the Carnot ceiling itself, <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>Carnot,heat</mtext></msub><mo>=</mo><mfrac><msub><mi>T</mi><mi>H</mi></msub><mrow><msub><mi>T</mi><mi>H</mi></msub><mo>−</mo><msub><mi>T</mi><mi>C</mi></msub></mrow></mfrac></math> with temperatures in kelvin. The dot tracks the shared outdoor-temperature slider; the indoor setpoint sets T<sub>H</sub>. Two lessons are visible at a glance: COP collapses as the lift grows (at −20&nbsp;°C a real unit may only reach COP ≈ 2), and COP climbs steeply in mild weather (COP 4–6 near +10&nbsp;°C) — which is why seasonal averages (SCOP) look so much better than worst-case ratings.</p>
+</div>
+
+<div class="two">
+<div class="fig">
+<p class="fig-title" id="hp-fig4Title">Figure 4 — Energy balance at outdoor −5.0 °C</p>
+<svg id="hp-energyChart" viewBox="0 0 440 300" role="img" aria-label="Energy balance bar chart"></svg>
+<div class="fig-eq" id="hp-fig4Eq" aria-live="polite"></div>
+<p class="fig-cap" id="hp-fig4Cap">Heating at a fixed delivered load of 3.5 kW (a typical single-room / small-home demand on a cold day). The work slice W is what appears on the electricity bill; Q<sub>C</sub> is harvested free from outdoor air. Check the arithmetic on the bars: <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math> at every slider position.</p>
+</div>
+<div class="fig">
+<p class="fig-title" id="hp-fig5Title">Figure 5 — Pressure–enthalpy loop at outdoor −5.0 °C</p>
+<svg id="hp-phChart" viewBox="0 0 440 300" role="img" aria-label="Pressure enthalpy diagram"></svg>
+<div class="fig-eq" id="hp-fig5Eq" aria-live="polite"></div>
+<p class="fig-cap">The cycle as engineers draw it: specific enthalpy h (kJ/kg, R410A-like values) horizontally, pressure (bar, logarithmic axis) vertically. 1→2 compression (work in, h rises by W per kg), 2→3 condensation (Q<sub>H</sub> out at constant pressure), 3→4 throttling (vertical drop — pressure falls, h unchanged: no work recovered, pure irreversibility), 4→1 evaporation (Q<sub>C</sub> in). Point labels ride with the loop as the sliders move. The enclosed shape fattens as the lift grows — more work per kilogram circulated.</p>
+</div>
+</div>
+</div>
+
+## 3 · Efficiency done properly: COP and the Carnot limit
+
+<div class="hp">
+<p>"Efficiency" above 100% is not a violation of anything, because a heat pump is not converting work into heat — it is <em>moving</em> heat. The correct figure of merit is the <strong>coefficient of performance</strong>, and its theoretical ceiling comes from the reversible (Carnot) refrigerator run between the same two reservoirs. The derivation below keeps every step visible before any special case is taken.</p>
+
+<table class="formulas">
+<tr><th>Step 1 — First law, full cycle</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math> &nbsp; Energy in = energy out over one complete cycle (the refrigerant returns to its starting state, so its net energy change is zero). All quantities in kW (or kJ per cycle).</td></tr>
+<tr><th>Step 2 — Definitions, both directions</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>heating</mtext></msub><mo>=</mo><mfrac><msub><mi>Q</mi><mi>H</mi></msub><mi>W</mi></mfrac></math> &nbsp; (what you want ÷ what you pay, in heating) &nbsp;&nbsp; <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>cooling</mtext></msub><mo>=</mo><mfrac><msub><mi>Q</mi><mi>C</mi></msub><mi>W</mi></mfrac></math> &nbsp; (in cooling). Subtracting the two definitions using Step 1 gives <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>heating</mtext></msub><mo>=</mo><msub><mi>COP</mi><mtext>cooling</mtext></msub><mo>+</mo><mn>1</mn></math> for the same machine at the same conditions — heating always scores exactly 1 higher, because the compressor's work itself ends up as useful heat indoors.</td></tr>
+<tr><th>Step 3 — Carnot (reversible) limit, general</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>Carnot,heat</mtext></msub><mo>=</mo><mfrac><msub><mi>T</mi><mi>H</mi></msub><mrow><msub><mi>T</mi><mi>H</mi></msub><mo>−</mo><msub><mi>T</mi><mi>C</mi></msub></mrow></mfrac></math> &nbsp; and &nbsp; <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>Carnot,cool</mtext></msub><mo>=</mo><mfrac><msub><mi>T</mi><mi>C</mi></msub><mrow><msub><mi>T</mi><mi>H</mi></msub><mo>−</mo><msub><mi>T</mi><mi>C</mi></msub></mrow></mfrac></math>, where T<sub>H</sub> and T<sub>C</sub> are the hot- and cold-reservoir temperatures <em>in kelvin</em> (<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>K</mi><mo>=</mo><mtext>°C</mtext><mo>+</mo><mn>273.15</mn></math>). Using Celsius here is the single most common COP error — a 26 K lift is a small denominator either way, but T<sub>H</sub> = 294 K, not 21.</td></tr>
+<tr><th>Step 4 — Worked example (slider defaults)</th><td>T<sub>out</sub> = −5&nbsp;°C = 268.15&nbsp;K, T<sub>in</sub> = 21&nbsp;°C = 294.15&nbsp;K, lift = 26.0&nbsp;K. Carnot heating COP = <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>294.15</mn><mn>26.0</mn></mfrac><mo>=</mo><mn>11.3</mn></math>. A real unit at 45% of Carnot: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>COP</mi><mo>≈</mo><mn>5.1</mn></math> on reservoir temperatures — before the coil approach differences of Figure 1 are charged against it, which is why nameplate COP at −5&nbsp;°C is more often quoted near 3–3.5. Both numbers are honest; they answer different questions (reservoir limit vs. delivered rating).</td></tr>
+</table>
+
+<p><strong>Cooling ratings you will meet in the wild.</strong> In cooling mode the same COP is often repackaged: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>EER</mi><mo>=</mo><msub><mi>COP</mi><mtext>cooling</mtext></msub><mo>×</mo><mn>3.412</mn></math> in BTU/(h·W), and SEER/SEER2 average it over a season of outdoor temperatures. A 19&nbsp;SEER2 heat pump and a 19&nbsp;SEER2 air conditioner cool identically — they are the same cycle; the heat pump merely owns a reversing valve, which costs a few percent of pressure drop in cooling and buys the entire heating season.</p>
+
+<table class="data">
+<tr><th>Condition</th><th class="num">T<sub>out</sub></th><th class="num">Lift (to 21 °C)</th><th class="num">Typical real COP<sub>heat</sub></th><th>Note</th></tr>
+<tr><td>Mild autumn day</td><td class="num">+10 °C</td><td class="num">11 K</td><td class="num">4.5 – 6.0</td><td>Best-case operating point</td></tr>
+<tr><td>Freezing day</td><td class="num">0 °C</td><td class="num">21 K</td><td class="num">3.2 – 4.2</td><td>Common rating point (EN 14511 A2/W35 ≈ here)</td></tr>
+<tr><td>Cold snap</td><td class="num">−10 °C</td><td class="num">31 K</td><td class="num">2.2 – 3.0</td><td>Defrost losses begin to bite (see §4)</td></tr>
+<tr><td>Severe cold</td><td class="num">−20 °C</td><td class="num">41 K</td><td class="num">1.6 – 2.2</td><td>Still beats resistance heat (COP = 1.0) — but capacity also falls</td></tr>
+<tr><td>Summer cooling, 35 °C day</td><td class="num">+35 °C</td><td class="num">14 K (to 21 °C)</td><td class="num">3.0 – 4.0 (cooling)</td><td>Condensing pressure ≈ 31 bar for R410A</td></tr>
+</table>
+<p class="small">Ranges are representative of modern inverter air-source units delivering low-temperature heating water or warm air; ground-source units sit higher because their "outdoor" reservoir (soil at ≈ 8–12&nbsp;°C year-round) never sees the cold snap.</p>
+</div>
+
+## 4 · Hysteresis: why the machine never retraces its path
+
+<div class="hp">
+<p><em>Hysteresis</em> means the state of a system depends on its history, not just on its current inputs: the path out and the path back are different, and the loop between them encloses an area that measures energy dissipated or behaviour delayed. Heat pumps exhibit it in three distinct places — and confusing them is common, so they are separated here.</p>
+
+<h3 id="hp-hyst-a">(a) Control hysteresis — the thermostat deadband</h3>
+<p>If a thermostat switched the compressor on at 20.99&nbsp;°C and off at 21.01&nbsp;°C, the compressor would start and stop every few seconds ("short-cycling"), destroying efficiency and the compressor itself — most wear happens at start-up, and a cycle needs minutes to reach steady pressures. So controllers deliberately build in a <strong>deadband</strong>: switch <em>on</em> only when the room falls to (<math xmlns="http://www.w3.org/1998/Math/MathML"><mtext>setpoint</mtext><mo>−</mo><mfrac><mtext>deadband</mtext><mn>2</mn></mfrac></math>), switch <em>off</em> only when it rises to (<math xmlns="http://www.w3.org/1998/Math/MathML"><mtext>setpoint</mtext><mo>+</mo><mfrac><mtext>deadband</mtext><mn>2</mn></mfrac></math>). Between the thresholds, the machine keeps doing whatever it was already doing — that history-dependence <em>is</em> hysteresis. The price is a temperature swing; the reward is long, efficient cycles. Manufacturers typically use 0.5–1.0&nbsp;°C; inverter units soften the effect by modulating speed instead of switching fully off.</p>
+
+<h3 id="hp-hyst-b">(b) Cycle hysteresis — irreversibility fattens the loop</h3>
+<p>On the pressure–enthalpy diagram (Figure 5), a reversible Carnot machine would trace a rectangle and return along its own path. The real loop does not close on itself reversibly: throttling (3→4) throws away the work a turbine could have recovered, heat only crosses the coils because of finite temperature gaps (≈ 7–12 K), and the compressor's friction turns extra work into discharge heat. Each irreversibility widens the gap between the real loop and the reversible one — the thermodynamic sense in which the cycle has "memory" of having been driven. Defrost is the most visible episode: on humid days near 0&nbsp;°C, frost chokes the outdoor coil, so the machine briefly <em>reverses into cooling mode</em>, melting the frost with indoor heat, then flips back. Whether it is "in defrost" at, say, −1&nbsp;°C depends on how long it has been running and how much frost has accumulated — history again, not just temperature.</p>
+
+<h3 id="hp-hyst-c">(c) What hysteresis is not</h3>
+<p>The reversing valve's few-percent cooling penalty, and the capacity drop at low temperature, are ordinary losses, not hysteresis — they are the same on the way up and on the way down. Reserve the word for genuine path-dependence: deadbands, defrost state, and the irreversible widening of the cycle loop.</p>
+
+<div class="fig">
+<p class="fig-title" id="hp-fig6Title">Figure 6 — Room temperature over 3 hours (deadband 1.0 °C)</p>
+<svg id="hp-hystTime" viewBox="0 0 440 300" role="img" aria-label="Room temperature versus time showing hysteresis oscillation"></svg>
+<p class="fig-cap">Indoor temperature saw-toothing between the two switching thresholds (dashed lines at <math xmlns="http://www.w3.org/1998/Math/MathML"><mtext>setpoint</mtext><mo>±</mo><mfrac><mtext>deadband</mtext><mn>2</mn></mfrac></math>). The compressor state is shaded along the top: it turns on only at the <em>lower</em> threshold and off only at the <em>upper</em> one — between them, the recent past decides.</p>
+</div>
+
+<div class="lab" id="hp-labB">
+<h3 id="hp-labBTitle">Hysteresis lab — thermostat deadband 1.0 °C at outdoor −5 °C</h3>
+<div class="controls">
+  <div class="ctrl"><label for="hp-dead">Deadband width (°C)</label><input type="range" id="hp-dead" min="0.2" max="3" step="0.1" value="1" /><output id="hp-deadOut">1.0 °C</output></div>
+  <div class="ctrl"><label for="hp-tout2">Outdoor temperature (°C)</label><input type="range" id="hp-tout2" min="-15" max="10" step="0.5" value="-5" /><output id="hp-tout2Out">−5.0 °C</output></div>
+</div>
+<div class="readouts">
+  <div class="ro"><b id="hp-roCycles">—</b><span>Compressor starts / hour</span></div>
+  <div class="ro"><b id="hp-roSwing">—</b><span>Room temperature swing</span></div>
+  <div class="ro"><b id="hp-roDuty">—</b><span>Compressor duty cycle</span></div>
+  <div class="ro"><b id="hp-roVerdict">—</b><span>Assessment</span></div>
+</div>
+<p class="small">Simulation model (stated so you can check it): setpoint 21.0&nbsp;°C; house loses heat at 0.055&nbsp;°C/min per 26 K of indoor–outdoor difference, scaled linearly; with the compressor ON the room gains a net +0.16&nbsp;°C/min before losses. One simulated run of 3 hours, 6-second steps. Drag the deadband down toward 0.2&nbsp;°C and watch starts/hour explode — that is short-cycling. Drag it up to 3&nbsp;°C and starts collapse, but the room now wanders through a 3-degree swing.</p>
+</div>
+
+<div class="fig">
+<p class="fig-title" id="hp-fig7Title">Figure 7 — The hysteresis loop itself (deadband 1.0 °C)</p>
+<svg id="hp-hystLoop" viewBox="0 0 440 300" role="img" aria-label="Hysteresis loop of compressor state against room temperature"></svg>
+<p class="fig-cap">The same behaviour drawn as a loop: room temperature (horizontal) against compressor state (vertical). Rising along the bottom, the machine stays OFF until the lower threshold; falling along the top, it stays ON until the upper threshold. The loop is traversed counter-clockwise forever, and its width <em>is</em> the deadband. A zero-deadband controller would collapse this loop to a single vertical line — and short-cycle itself to death on it.</p>
+</div>
+</div>
+
+## 5 · Putting it together — a worked winter evening
+
+<div class="hp">
+<table class="formulas">
+<tr><th>Given</th><td>Outside −5&nbsp;°C (268.15&nbsp;K), inside 21&nbsp;°C (294.15&nbsp;K), house needs 3.5&nbsp;kW to hold temperature.</td></tr>
+<tr><th>Step 1 — Carnot ceiling</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>COP</mi><mtext>Carnot</mtext></msub><mo>=</mo><mfrac><mn>294.15</mn><mrow><mn>294.15</mn><mo>−</mo><mn>268.15</mn></mrow></mfrac><mo>=</mo><mfrac><mn>294.15</mn><mn>26.0</mn></mfrac><mo>=</mo><mn>11.3</mn></math></td></tr>
+<tr><th>Step 2 — Realistic COP</th><td>At ≈ 45% of Carnot on reservoir temperatures, COP ≈ 5.1; charging the coil approach gaps (evaporating at −12&nbsp;°C, condensing at 33&nbsp;°C, a 45 K refrigerant lift) gives the nameplate-style figure: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>COP</mi><mo>≈</mo><mn>3.3</mn></math>. Use 3.3 for bill estimates.</td></tr>
+<tr><th>Step 3 — Electricity drawn</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>W</mi><mo>=</mo><mfrac><msub><mi>Q</mi><mi>H</mi></msub><mi>COP</mi></mfrac><mo>=</mo><mfrac><mrow><mn>3.5</mn><mtext>&nbsp;kW</mtext></mrow><mn>3.3</mn></mfrac><mo>≈</mo><mn>1.06</mn><mtext>&nbsp;kW</mtext></math></td></tr>
+<tr><th>Step 4 — Heat harvested</th><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>C</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>H</mi></msub><mo>−</mo><mi>W</mi><mo>=</mo><mn>3.5</mn><mo>−</mo><mn>1.06</mn><mo>=</mo><mn>2.44</mn><mtext>&nbsp;kW</mtext></math> pulled from the −5&nbsp;°C air — about 70% of the delivered heat was already outdoors, free.</td></tr>
+<tr><th>Step 5 — The comparison</th><td>A resistance heater delivering the same 3.5&nbsp;kW draws 3.5&nbsp;kW (<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>COP</mi><mo>=</mo><mn>1.0</mn></math> by definition). The heat pump draws ≈ 1.06&nbsp;kW — roughly a 70% saving on this evening, before defrost and deadband losses (a few percent) are counted.</td></tr>
+</table>
+<p>And in July the same box, valve flipped, removes 3.5&nbsp;kW from the room at a cooling COP near 3.5 on a 35&nbsp;°C day, drawing ≈ 1.0&nbsp;kW and rejecting ≈ 4.5&nbsp;kW outside — <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math>, again, with the labels rotated. One machine, one equation, two directions.</p>
+
+<footer>Units used throughout: temperature in °C and K (differences are identical in both), power and heat flow in kW, specific enthalpy in kJ/kg, pressure in bar absolute (1 bar = 100 kPa). Saturation pressures are R410A-like approximations for illustration; a specific unit's service manual is authoritative for its refrigerant. COP model: second-law efficiency 45% (heating) / 40% (cooling) applied to reservoir temperatures — a teaching model, not a rating.</footer>
+</div>
+
+<script set:html={`
+
+// ---------- helpers ----------
+function fmt(x,d){ if(d===undefined)d=1; return x.toFixed(d).replace('-','−'); }
+function satP(tc){ // R410A-like saturation pressure, bar abs, -30..55 C, exponential interp on table
+  var tbl=[[-30,2.7],[-20,4.0],[-10,5.7],[0,8.0],[10,10.9],[20,14.5],[30,18.9],[40,24.3],[50,30.7],[55,34.5]];
+  if(tc<=tbl[0][0]) return tbl[0][1];
+  for(var i=1;i<tbl.length;i++){ if(tc<=tbl[i][0]){ var t0=tbl[i-1],t1=tbl[i]; var f=(tc-t0[0])/(t1[0]-t0[0]); return Math.exp(Math.log(t0[1])+(Math.log(t1[1])-Math.log(t0[1]))*f); } }
+  return tbl[tbl.length-1][1];
+}
+var $=function(id){return document.getElementById(id);};
+
+// ---------- Lab A ----------
+var toutEl=$('hp-tout'), tinEl=$('hp-tin');
+function labA(){
+  var tout=parseFloat(toutEl.value), tin=parseFloat(tinEl.value);
+  $('hp-toutOut').textContent=fmt(tout)+' °C'; $('hp-tinOut').textContent=fmt(tin)+' °C';
+  var lift=Math.abs(tin-tout);
+  var THk=(Math.max(tin,tout)+273.15), TCk=(Math.min(tin,tout)+273.15);
+  var carnotH = lift<0.01? Infinity : THk/lift;
+  var carnotC = lift<0.01? Infinity : TCk/lift;
+  // heating COP uses TH=tin side when heating; define both directions properly:
+  var carnotHeat=(tin+273.15)/Math.max(lift,0.01), carnotCool=(tin+273.15)/Math.max(lift,0.01);
+  // For heating: hot reservoir = indoors. For cooling: cold reservoir = indoors.
+  carnotHeat=(tin+273.15)/Math.max(Math.abs(tin-tout),0.01);
+  carnotCool=(tin+273.15)/Math.max(Math.abs(tin-tout),0.01);
+  // Note when tout>tin, heating Carnot hot side is outdoors; keep symmetric reservoir form:
+  var copH=0.45*(Math.max(tin,tout)+273.15)/Math.max(lift,0.5);
+  var copC=0.40*(Math.min(tin,tout)+273.15)/Math.max(lift,0.5);
+  // Cooling COP cold reservoir is indoors in summer (tin<tout): cold = tin. In the symmetric display use min reservoir for Carnot cool numerator:
+  copC=0.40*((tin<tout?tin:tout)+273.15)/Math.max(lift,0.5); // cold reservoir temp
+  // Heating numerator is hot reservoir:
+  copH=0.45*((tin>tout?tin:tout)+273.15)/Math.max(lift,0.5);
+  var carnotDisp=(tin>tout? (tin+273.15)/Math.max(lift,0.01) : (tout+273.15)/Math.max(lift,0.01));
+  $('hp-roLift').textContent=fmt(lift)+' K';
+  $('hp-roCopH').textContent= lift<0.5?'very high':fmt(Math.min(copH,15),2);
+  $('hp-roCopC').textContent= lift<0.5?'very high':fmt(Math.min(copC,15),2);
+  $('hp-roCarnot').textContent= lift<0.5?'→ ∞':fmt(carnotDisp,1);
+  // schematics heating
+  var evapH=tout-7, condH=tin+12;
+  $('hp-fig1Tout').textContent=fmt(tout)+' °C'; $('hp-fig1Tin').textContent=fmt(tin)+' °C';
+  $('hp-fig1Evap').textContent='boils at ≈ '+fmt(evapH,0)+' °C, ≈ '+fmt(satP(evapH),1)+' bar';
+  $('hp-fig1Cond').textContent='condenses at ≈ '+fmt(condH,0)+' °C, ≈ '+fmt(satP(condH),0)+' bar';
+  $('hp-fig1Title').textContent='Figure 1 — Heating mode at outdoor '+fmt(tout)+' °C';
+  // cooling: evap = tin-12, cond = tout+12
+  var evapC=tin-12, condC=tout+12;
+  $('hp-fig2Tout').textContent=fmt(tout)+' °C'; $('hp-fig2Tin').textContent=fmt(tin)+' °C';
+  $('hp-fig2Evap').textContent='boils at ≈ '+fmt(evapC,0)+' °C, ≈ '+fmt(satP(evapC),0)+' bar';
+  $('hp-fig2Cond').textContent='condenses at ≈ '+fmt(condC,0)+' °C, ≈ '+fmt(satP(condC),0)+' bar';
+  $('hp-fig2Title').textContent='Figure 2 — Cooling mode at outdoor '+fmt(tout)+' °C (indoor '+fmt(tin)+' °C)';
+  $('hp-fig3Title').textContent='Figure 3 — COP versus outdoor temperature at indoor '+fmt(tin)+' °C';
+  $('hp-fig4Title').textContent='Figure 4 — Energy balance at outdoor '+fmt(tout)+' °C';
+  $('hp-fig5Title').textContent='Figure 5 — Pressure–enthalpy loop at outdoor '+fmt(tout)+' °C';
+  drawCOP(tout,tin,copH);
+  drawEnergy(tout,tin,copH,copC);
+  drawPH(tout,tin);
+}
+function drawCOP(tout,tin,copHcur){
+  var svg=$('hp-copChart'); var W=920,H=340, L=70,R=20,T=24,B=48, pw=W-L-R, ph=H-T-B;
+  var x0=-20,x1=40, y1=8;
+  function X(v){return L+(v-x0)/(x1-x0)*pw;} function Y(v){return T+ph-(Math.min(v,y1)/y1)*ph;}
+  var s='';
+  for(var g=0;g<=y1;g+=2){ s+='<line x1="'+L+'" y1="'+Y(g)+'" x2="'+(W-R)+'" y2="'+Y(g)+'" stroke="var(--math-line)"/><text x="'+(L-8)+'" y="'+(Y(g)+4)+'" text-anchor="end" font-size="12" fill="var(--math-ink2)">'+g+'</text>'; }
+  for(var tx=-20;tx<=40;tx+=10){ s+='<text x="'+X(tx)+'" y="'+(H-24)+'" text-anchor="middle" font-size="12" fill="var(--math-ink2)">'+String(tx).replace('-','−')+' °C</text><line x1="'+X(tx)+'" y1="'+T+'" x2="'+X(tx)+'" y2="'+(T+ph)+'" stroke="var(--math-line)"/>'; }
+  s+='<text x="'+(L+pw/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="12.5" fill="var(--math-ink2)">Outdoor temperature T_out (°C)</text>';
+  s+='<text x="18" y="'+(T+ph/2)+'" font-size="12.5" fill="var(--math-ink2)" transform="rotate(-90 18 '+(T+ph/2)+')" text-anchor="middle">COP_heating (dimensionless)</text>';
+  function curve(eta,style){ var d=''; for(var t=x0;t<=x1;t+=0.5){ var lift=Math.abs(tin-t); var cop=eta*(Math.max(tin,t)+273.15)/Math.max(lift,0.6); cop=Math.min(cop,y1); d+=(t===x0?'M':'L')+X(t).toFixed(1)+' '+Y(cop).toFixed(1)+' '; } return '<path d="'+d+'" fill="none" '+style+'/>'; }
+  s+=curve(1.0,'stroke="var(--math-ink2)" stroke-width="1.5" stroke-dasharray="6 4"');
+  s+=curve(0.45,'stroke="var(--math-orange)" stroke-width="3"');
+  s+='<text x="'+X(28)+'" y="'+(Y(2.2))+'" font-size="12.5" fill="var(--math-ink2)">Carnot ceiling</text>';
+  s+='<text x="'+X(24)+'" y="'+(Y(1.1))+'" font-size="12.5" font-weight="600" fill="var(--math-orange)">Realistic (45% of Carnot)</text>';
+  // indoor marker line
+  s+='<line x1="'+X(tin)+'" y1="'+T+'" x2="'+X(tin)+'" y2="'+(T+ph)+'" stroke="var(--math-teal)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+  s+='<text x="'+X(tin)+'" y="'+(T-8)+'" text-anchor="middle" font-size="12" fill="var(--math-teal)">indoor '+fmt(tin)+' °C</text>';
+  if(tout<tin){ s+='<circle cx="'+X(tout)+'" cy="'+Y(Math.min(copHcur,y1))+'" r="7" fill="var(--math-orange)" stroke="var(--hp-surface)" stroke-width="2"/><text x="'+(X(tout)+12)+'" y="'+(Y(Math.min(copHcur,y1))-10)+'" font-size="13" font-weight="700" fill="var(--math-orange)">COP ≈ '+fmt(Math.min(copHcur,y1),2)+'</text>'; }
+  else { s+='<text x="'+X(tout)+'" y="'+(T+30)+'" font-size="12.5" fill="var(--math-ink2)" text-anchor="middle">cooling territory →</text>'; }
+  svg.innerHTML=s;
+}
+function drawEnergy(tout,tin,copH,copC){
+  var svg=$('hp-energyChart'); var heating = tout<=tin;
+  var Qfix=3.5, Wv, Qc, Qh, cop;
+  if(heating){ cop=Math.max(copH,1.05); Qh=Qfix; Wv=Qh/cop; Qc=Qh-Wv; }
+  else { cop=Math.max(copC,1.05); Qc=Qfix; Wv=Qc/cop; Qh=Qc+Wv; }
+  var maxV=Math.max(Qh,4.2); var bw=function(v){return v/maxV*300;};
+  function bar(y,label,val,color,unit){ return '<text x="8" y="'+(y+16)+'" font-size="12.5" font-weight="600" fill="var(--math-ink)">'+label+'</text><rect x="8" y="'+(y+22)+'" width="'+bw(val)+'" height="26" rx="4" fill="'+color+'"/><text x="'+(14+bw(val))+'" y="'+(y+40)+'" font-size="13" class="mono-t" font-weight="700" fill="var(--math-ink)">'+fmt(val,2)+' kW</text>'; }
+  var s='';
+  s+='<text x="8" y="22" font-size="13.5" font-weight="700" fill="var(--math-ink)">'+(heating?'HEATING — delivering 3.50 kW indoors':'COOLING — removing 3.50 kW from indoors')+'</text>';
+  s+=bar(34, heating?'Q_H delivered indoors':'Q_H rejected outdoors', Qh, 'var(--math-orange)');
+  s+=bar(114,'W electricity in', Wv, 'var(--math-gold)');
+  s+=bar(194, heating?'Q_C harvested from outdoor air':'Q_C removed from room', Qc, 'var(--math-teal)');
+  s+='<text x="8" y="282" font-size="12.5" fill="var(--math-ink2)">check: '+fmt(Qc,2)+' + '+fmt(Wv,2)+' = '+fmt(Qc+Wv,2)+' kW</text>';
+  svg.innerHTML=s;
+  var copFracHtml= heating? '<math><mi>COP</mi><mo>=</mo><mfrac><msub><mi>Q</mi><mi>H</mi></msub><mi>W</mi></mfrac><mo>=</mo><mn>'+fmt(cop,2)+'</mn></math>' : '<math><mi>COP</mi><mo>=</mo><mfrac><msub><mi>Q</mi><mi>C</mi></msub><mi>W</mi></mfrac><mo>=</mo><mn>'+fmt(cop,2)+'</mn></math>';
+  $('hp-fig4Eq').innerHTML= '<table><tr><td>'+copFracHtml+'</td><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math></td></tr></table>';
+  $('hp-fig4Cap').innerHTML= heating? 'Heating at a fixed delivered load of 3.5 kW (a typical small-home demand on a cold day). The work slice W is what appears on the electricity bill; Q<sub>C</sub> is harvested free from outdoor air. Check the arithmetic: <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math> at every slider position.' : 'Cooling at a fixed removed load of 3.5 kW. Now W buys the removal of Q<sub>C</sub>, and the outdoor coil must reject <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>Q</mi><mi>H</mi></msub><mo>=</mo><msub><mi>Q</mi><mi>C</mi></msub><mo>+</mo><mi>W</mi></math> \\u2014 which is why the outdoor unit blows air hotter than the day itself.';
+}
+function drawPH(tout,tin){
+  var svg=$('hp-phChart'); var Wd=440,H=300,L=52,R=14,T=18,B=42,pw=Wd-L-R,ph=H-T-B;
+  // heating loop temps
+  var tEvap=tout-7, tCond=tin+12;
+  var pEvap=satP(tEvap), pCond=satP(tCond);
+  // enthalpy model kJ/kg (R410A-like): h liquid at cond ~ 100+1.4*(tCond); vapour etc.
+  var h4=105+1.35*tCond; // after valve (same h as point3)
+  var h3=h4;
+  var h1=425+0.9*tEvap; // superheated vapour leaving evaporator approx
+  var h2=h1+ (18+1.15*Math.max(tCond-tEvap,5)); // compression adds work per kg
+  var hs=[h4,h1,h2,h3];
+  var hmin=140,hmax=520;
+  function X(h){return L+(h-hmin)/(hmax-hmin)*pw;}
+  function Y(p){ var lp=Math.log10(Math.max(p,2)), lo=Math.log10(2), hi=Math.log10(40); return T+ph-(lp-lo)/(hi-lo)*ph; }
+  var s='';
+  [3,5,10,20,30].forEach(function(p){ s+='<line x1="'+L+'" y1="'+Y(p)+'" x2="'+(Wd-R)+'" y2="'+Y(p)+'" stroke="var(--math-line)"/><text x="'+(L-6)+'" y="'+(Y(p)+4)+'" text-anchor="end" font-size="11.5" fill="var(--math-ink2)">'+p+'</text>'; });
+  for(var h=200;h<=500;h+=100){ s+='<text x="'+X(h)+'" y="'+(H-22)+'" text-anchor="middle" font-size="11.5" fill="var(--math-ink2)">'+h+'</text>'; }
+  s+='<text x="'+(L+pw/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="12" fill="var(--math-ink2)">Specific enthalpy h (kJ/kg)</text>';
+  s+='<text x="14" y="'+(T+ph/2)+'" font-size="12" fill="var(--math-ink2)" transform="rotate(-90 14 '+(T+ph/2)+')" text-anchor="middle">Pressure (bar, log)</text>';
+  var pts=[[h1,pEvap],[h2,pCond],[h3,pCond],[h4,pEvap]];
+  var d='M'+pts.map(function(p){return X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join(' L')+' Z';
+  s+='<path d="'+d+'" fill="var(--math-orange-soft)" fill-opacity="0.55" stroke="var(--math-orange)" stroke-width="2.5" stroke-linejoin="round"/>';
+  var labels=['1: evap. out','2: comp. out','3: cond. out','4: valve out'];
+  var offs=[[8,-10],[-6,-10],[8,18],[8,18]];
+  var anch=['start','end','start','start'];
+  pts.forEach(function(p,i){ s+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="5" fill="var(--hp-surface)" stroke="var(--math-orange)" stroke-width="2.5"/><text x="'+(X(p[0])+offs[i][0])+'" y="'+(Y(p[1])+offs[i][1])+'" font-size="11.5" font-weight="600" fill="var(--math-ink)" text-anchor="'+anch[i]+'">'+labels[i]+'</text>'; });
+  svg.innerHTML=s;
+  $('hp-fig5Eq').innerHTML='<table><tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>p</mi><mtext>evap</mtext></msub><mo>\\u2248</mo><mn>'+fmt(pEvap,1)+'</mn><mtext>&nbsp;bar</mtext></math></td><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>p</mi><mtext>cond</mtext></msub><mo>\\u2248</mo><mn>'+fmt(pCond,0)+'</mn><mtext>&nbsp;bar</mtext></math></td><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mi>W</mi><mtext>kg</mtext></mfrac><mo>\\u2248</mo><mn>'+fmt(h2-h1,0)+'</mn><mtext>&nbsp;kJ/kg</mtext></math></td></tr></table>';
+}
+toutEl.addEventListener('input',labA); tinEl.addEventListener('input',labA);
+
+// ---------- Lab B: hysteresis ----------
+var deadEl=$('hp-dead'), tout2El=$('hp-tout2');
+function simulate(dead,tout2){
+  var set=21, T=set-dead/2-0.01, on=true, dt=0.1; // minutes per step (6 s)
+  var lossK=0.055/26; // per min per K
+  var pts=[], states=[];
+  var onTime=0, starts=0, total=180;
+  var prevOn=false;
+  for(var t=0;t<=total;t+=dt){
+    var loss=lossK*(T-tout2)*dt*10; // dt in min: loss rate per min = 0.055*(T-tout)/26
+    loss=0.055*(T-tout2)/26*dt;
+    var gain= on? 0.16*dt:0;
+    T+= gain - loss*1.0 - (on?0:0) ;
+    // net when on already includes? gain is gross heating 0.215, net ~0.16 at default; simpler: heating adds 0.215
+    // (kept transparent in text as net +0.16 before losses approx)
+    if(on && T>=set+dead/2){ on=false; }
+    if(!on && T<=set-dead/2){ on=true; }
+    if(on&&!prevOn) starts++;
+    prevOn=on;
+    if(on) onTime+=dt;
+    pts.push([t,T]); states.push(on?1:0);
+  }
+  return {pts:pts,states:states,starts:starts,onTime:onTime,total:total};
+}
+function labB(){
+  var dead=parseFloat(deadEl.value), tout2=parseFloat(tout2El.value);
+  $('hp-deadOut').textContent=fmt(dead)+' °C'; $('hp-tout2Out').textContent=fmt(tout2)+' °C';
+  $('hp-labBTitle').textContent='Hysteresis lab — thermostat deadband '+fmt(dead)+' °C at outdoor '+fmt(tout2,0)+' °C';
+  $('hp-fig6Title').textContent='Figure 6 — Room temperature over 3 hours (deadband '+fmt(dead)+' °C)';
+  $('hp-fig7Title').textContent='Figure 7 — The hysteresis loop itself (deadband '+fmt(dead)+' °C)';
+  var r=simulate(dead,tout2);
+  var perHour=r.starts/3;
+  $('hp-roCycles').textContent=fmt(perHour,1);
+  $('hp-roSwing').textContent=fmt(dead)+' °C';
+  $('hp-roDuty').textContent=fmt(r.onTime/r.total*100,0)+' %';
+  $('hp-roVerdict').textContent= perHour>10?'Short-cycling risk':(dead>=2?'Comfort swing too wide':'Healthy cycling');
+  drawHystTime(r,dead); drawHystLoop(r,dead);
+}
+function drawHystTime(r,dead){
+  var svg=$('hp-hystTime'); var W=440,H=300,L=46,R=12,T=26,B=40,pw=W-L-R,ph=H-T-B;
+  var set=21, lo=set-dead/2-1.2, hi=set+dead/2+1.2;
+  function X(t){return L+t/180*pw;} function Y(v){return T+ph-(v-lo)/(hi-lo)*ph;}
+  var s='';
+  s+='<rect x="'+L+'" y="'+T+'" width="'+pw+'" height="12" fill="var(--hp-surface2)"/>';
+  var seg=''; // on/off shading as small ticks at top
+  for(var i=0;i<r.states.length;i+=6){ if(r.states[i]){ var t=r.pts[i][0]; s+='<rect x="'+X(t)+'" y="'+T+'" width="'+Math.max(X(t+0.6)-X(t),1)+'" height="12" fill="var(--math-orange)"/>'; } }
+  s+='<text x="'+(L+4)+'" y="'+(T-6)+'" font-size="11" fill="var(--math-ink2)">compressor ON (top strip)</text>';
+  [lo,(lo+hi)/2,hi].forEach(function(v){ s+='<text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11.5" fill="var(--math-ink2)">'+fmt(v,1)+'</text><line x1="'+L+'" y1="'+Y(v)+'" x2="'+(W-R)+'" y2="'+Y(v)+'" stroke="var(--math-line)"/>'; });
+  s+='<line x1="'+L+'" y1="'+Y(set+dead/2)+'" x2="'+(W-R)+'" y2="'+Y(set+dead/2)+'" stroke="var(--math-orange)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+  s+='<line x1="'+L+'" y1="'+Y(set-dead/2)+'" x2="'+(W-R)+'" y2="'+Y(set-dead/2)+'" stroke="var(--math-teal)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+  s+='<text x="'+(W-R-4)+'" y="'+(Y(set+dead/2)-6)+'" text-anchor="end" font-size="11.5" fill="var(--math-orange)">OFF at '+fmt(set+dead/2)+' °C</text>';
+  s+='<text x="'+(W-R-4)+'" y="'+(Y(set-dead/2)+16)+'" text-anchor="end" font-size="11.5" fill="var(--math-teal)">ON at '+fmt(set-dead/2)+' °C</text>';
+  var d=r.pts.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join(' ');
+  s+='<path d="'+d+'" fill="none" stroke="var(--math-ink)" stroke-width="2"/>';
+  for(var tm=0;tm<=180;tm+=60){ s+='<text x="'+X(tm)+'" y="'+(H-20)+'" text-anchor="middle" font-size="11.5" fill="var(--math-ink2)">'+tm+' min</text>'; }
+  s+='<text x="'+(L+pw/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="12" fill="var(--math-ink2)">Time</text>';
+  s+='<text x="13" y="'+(T+ph/2)+'" font-size="12" fill="var(--math-ink2)" transform="rotate(-90 13 '+(T+ph/2)+')" text-anchor="middle">Room temp (°C)</text>';
+  svg.innerHTML=s;
+}
+function drawHystLoop(r,dead){
+  var svg=$('hp-hystLoop'); var W=440,H=300,L=52,R=16,T=22,B=42,pw=W-L-R,ph=H-T-B;
+  var set=21, lo=set-dead/2-1.0, hi=set+dead/2+1.0;
+  function X(v){return L+(v-lo)/(hi-lo)*pw;} function Y(sv){return T+ph-sv*ph;}
+  var s='';
+  s+='<line x1="'+L+'" y1="'+Y(0)+'" x2="'+(W-R)+'" y2="'+Y(0)+'" stroke="var(--math-line)"/><line x1="'+L+'" y1="'+Y(1)+'" x2="'+(W-R)+'" y2="'+Y(1)+'" stroke="var(--math-line)"/>';
+  s+='<text x="'+(L-8)+'" y="'+(Y(1)+4)+'" text-anchor="end" font-size="12" font-weight="700" fill="var(--math-orange)">ON</text>';
+  s+='<text x="'+(L-8)+'" y="'+(Y(0)+4)+'" text-anchor="end" font-size="12" font-weight="700" fill="var(--math-teal)">OFF</text>';
+  // loop rectangle with arrows
+  var xL=X(set-dead/2), xR=X(set+dead/2);
+  s+='<path d="M'+xL+' '+Y(0)+' L'+xR+' '+Y(0)+' L'+xR+' '+Y(1)+' L'+xL+' '+Y(1)+' Z" fill="var(--math-orange-soft)" fill-opacity="0.5" stroke="var(--math-ink)" stroke-width="2.5"/>';
+  s+='<path d="M'+((xL+xR)/2-14)+' '+Y(0)+' l18 0 m-6 -5 l6 5 l-6 5" stroke="var(--math-ink)" stroke-width="2" fill="none"/>';
+  s+='<path d="M'+((xL+xR)/2+14)+' '+Y(1)+' l-18 0 m6 -5 l-6 5 l6 5" stroke="var(--math-ink)" stroke-width="2" fill="none"/>';
+  s+='<text x="'+xL+'" y="'+(H-22)+'" text-anchor="middle" font-size="11.5" fill="var(--math-teal)">'+fmt(set-dead/2)+' °C\\nON threshold</text>';
+  s+='<text x="'+xR+'" y="'+(H-22)+'" text-anchor="middle" font-size="11.5" fill="var(--math-orange)">'+fmt(set+dead/2)+' °C</text>';
+  s+='<text x="'+((xL+xR)/2)+'" y="'+(T+ph/2-6)+'" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--math-ink)">width = deadband</text><text x="'+((xL+xR)/2)+'" y="'+(T+ph/2+14)+'" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--math-ink)">'+fmt(dead)+' °C</text>';
+  s+='<text x="'+(L+pw/2)+'" y="'+(H-4)+'" text-anchor="middle" font-size="12" fill="var(--math-ink2)">Room temperature (°C) →</text>';
+  // threshold labels above
+  s+='<text x="'+(xL-6)+'" y="'+(T-8)+'" text-anchor="end" font-size="11" fill="var(--math-teal)">turns ON ↓</text>';
+  s+='<text x="'+(xR+6)+'" y="'+(T-8)+'" text-anchor="start" font-size="11" fill="var(--math-orange)">turns OFF ↓</text>';
+  svg.innerHTML=s;
+}
+deadEl.addEventListener('input',labB); tout2El.addEventListener('input',labB);
+labA(); labB();
+
+`} />
