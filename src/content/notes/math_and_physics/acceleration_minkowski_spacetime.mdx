@@ -112,7 +112,7 @@ tocDepth: 2
 .mn-axmath { position:absolute; left:7.6%; top:0.6%; line-height:1.3; background:var(--mn-surface); border:1px solid var(--color-border); border-radius:6px; padding:5px 10px 6px; font-size:12.5px; color:var(--mn-ink); pointer-events:none; }
 `}</style>
 
-<p class="mn-eyebrow">Special relativity · Minkowski geometry</p>
+<p class="mn-eyebrow">Special relativity — Minkowski geometry</p>
 <p class="mn-lede">A moving clock ticks slowly — that part depends only on its *speed*. So where does acceleration come in? It comes in by **bending the clock's path through spacetime**. Once you draw motion the way Minkowski taught us to draw it, acceleration stops being a footnote to time dilation and becomes the thing that decides *which* history a clock lives through — and therefore how much time it actually experiences.</p>
 
 <div class="mn-keybox">
@@ -171,7 +171,7 @@ A Minkowski diagram throws away two space dimensions and promotes time to an axi
         <text x="408" y="150" class="mn-t-orange">cruising at 0.5c:</text>
         <text x="408" y="166" class="mn-t-small">leans toward the cone,</text>
         <text x="408" y="180" class="mn-t-small">never past it</text>
-        <text x="238" y="376" class="mn-t-lab-b">event A · departure</text>
+        <text x="238" y="376" class="mn-t-lab-b">event A — departure</text>
       </svg>
 <div class="mn-figcap"><strong>Figure 1 — The Minkowski map.</strong> Because one year of <em>ct</em> and one light-year of <em>x</em> are drawn the same length, anything moving at light speed travels at exactly 45°. Nothing massive can tilt further than that.</div>
 </div>
@@ -282,7 +282,8 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
         <text x="52" y="190" class="mn-t-small">5</text>
         <text x="70" y="382" class="mn-t-small">0</text><text x="282" y="382" class="mn-t-small">0.4c</text><text x="388" y="382" class="mn-t-small">0.6c</text><text x="494" y="382" class="mn-t-small">0.8c</text>
         <text x="330" y="412" class="mn-t-lab-b">speed v →</text>
-        <text id="gammaDotLab" x="400" y="332" class="mn-t-orange">β = 0.60 · γ = 1.25</text>
+        <text id="gammaDotLab" x="400" y="318" class="mn-t-orange">β = 0.60</text>
+        <text id="gammaDotLab2" x="400" y="334" class="mn-t-orange">γ = 1.25</text>
       </svg>
 <div class="mn-axmath"><math><mrow><mi>γ</mi><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt></mfrac></mrow></math></div>
 </div>
@@ -506,8 +507,8 @@ Hold the accelerometer pinned at a constant proper acceleration *g* forever. In 
 <div class="mn-stats">
 <div class="mn-stat"><div class="v" id="rBeta">0.968</div><div class="k">speed reached, <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div></div>
 <div class="mn-stat"><div class="v" id="rGamma">3.99</div><div class="k"><math><mrow><mi>γ</mi><mo>=</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math> — Earth clocks now run this × faster than ship clocks</div></div>
-<div class="mn-stat"><div class="v" id="rEarth">3.75 yr</div><div class="k">Earth time elapsed, <math><mrow><mo stretchy="false">(</mo><mfrac><mi>c</mi><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>&#x22c5;</mo><mi mathvariant="normal">sinh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div></div>
-<div class="mn-stat"><div class="v" id="rDist">2.90 ly</div><div class="k">distance covered, <math><mrow><mo stretchy="false">(</mo><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>&#x22c5;</mo><mo stretchy="false">(</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math></div></div>
+<div class="mn-stat"><div class="v" id="rEarth">3.75 yr</div><div class="k">Earth time elapsed, <math><mrow><mo stretchy="false">(</mo><mfrac><mi>c</mi><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>·</mo><mi mathvariant="normal">sinh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div></div>
+<div class="mn-stat"><div class="v" id="rDist">2.90 ly</div><div class="k">distance covered, <math><mrow><mo stretchy="false">(</mo><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac><mo stretchy="false">)</mo><mo>·</mo><mo stretchy="false">(</mo><mi mathvariant="normal">cosh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math></div></div>
 <div class="mn-stat"><div class="v" id="rHorizon">0.97 ly</div><div class="k">Rindler horizon distance <math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math> behind</div></div>
 </div>
 <p class="mn-hint" style="font-size:.9rem;margin:14px 0 0">Sanity anchor: at exactly 1<em>g</em> and τ = 1 yr — v = 0.77<em>c</em>, Earth has aged ≈ 1.19 yr while the ship aged 1.00 yr. The gap compounds because γ itself grows exponentially with τ.</p>
@@ -627,14 +628,14 @@ No instantaneous turnarounds here. Your traveller accelerates at a steady, felt 
         <line id="labProximaLine" x1="536" y1="78" x2="536" y2="156" stroke="var(--mn-gold)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>
         <circle id="labProximaDot" cx="536" cy="88" r="5.5" fill="var(--mn-gold)" stroke="var(--mn-surface)" stroke-width="2"/>
         <text id="labProximaLab" x="525" y="106" class="mn-t-lab-b mn-t-halo" text-anchor="end" style="fill:var(--mn-gold)">Proxima Centauri</text>
-        <text id="labProximaSub" x="525" y="122" class="mn-t-small mn-t-halo" text-anchor="end">nearest star · 4.25 ly</text>
+        <text id="labProximaSub" x="525" y="122" class="mn-t-small mn-t-halo" text-anchor="end">nearest star — 4.25 ly</text>
       </g>
       <line x1="90" y1="395" x2="90" y2="60" class="mn-wl-stay"/>
       <path id="labPath" d="M90 395 Q 122 374 151 361 L408 273 Q 442 259 470 240 Q 442 226 408 207 L151 119 Q 122 106 90 85" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linejoin="round"/>
       <circle cx="90" cy="395" r="5.5" fill="var(--mn-ink)"/><circle cx="90" cy="85" r="5.5" fill="var(--mn-ink)"/>
       <text x="612" y="399" class="mn-t-lab-b" text-anchor="end">x</text><text x="100" y="40" class="mn-t-lab-b">ct</text>
       <text x="52" y="70" class="mn-t-teal">Earth</text>
-      <text id="labStarLab" x="478" y="70" class="mn-t-blue">star · 4 ly</text>
+      <text id="labStarLab" x="478" y="70" class="mn-t-blue">star — 4 ly</text>
       <text x="200" y="330" class="mn-t-small">curved ends = accelerating at g</text>
       <text x="200" y="346" class="mn-t-small">straight middle = cruising</text>
     </svg>
@@ -668,11 +669,27 @@ No instantaneous turnarounds here. Your traveller accelerates at a steady, felt 
 </div>
 
 <h3 id="four-lines">The whole story in four lines</h3>
-<div class="mn-formula" style="text-align:left;white-space:normal;line-height:1.9">
-1 · Interval: <math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dτ</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>dx</mi><mn>2</mn></msup></mrow></math> — space motion is subtracted from time.<br />
-2 · Rate: <math><mrow><mi>dτ</mi><mo>=</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math> — velocity alone sets the instantaneous tick rate.<br />
-3 · Total: <math><mrow><mi>τ</mi><mo>=</mo><mo>∫</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></mfrac></mrow></math> — and acceleration writes the <math><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></math> inside.<br />
-4 · Constant *g*: <math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math>, worldline a hyperbola, horizon at <math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math>.
+<div class="mn-formula-table-wrap" style="background:var(--color-code-bg);border:1px solid var(--color-border);border-radius:10px;padding:16px;margin:18px 0">
+    <table class="mn-formula-table" aria-label="The whole story in four lines">
+      <tbody>
+        <tr>
+          <th scope="row">1 — Interval</th>
+          <td><div class="mn-feq"><math><mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dτ</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup><msup><mi>dt</mi><mn>2</mn></msup><mo>−</mo><msup><mi>dx</mi><mn>2</mn></msup></mrow></math></div><p class="mn-fnote">Space motion is subtracted from time.</p></td>
+        </tr>
+        <tr>
+          <th scope="row">2 — Rate</th>
+          <td><div class="mn-feq"><math><mrow><mi>dτ</mi><mo>=</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math></div><p class="mn-fnote">Velocity alone sets the instantaneous tick rate.</p></td>
+        </tr>
+        <tr>
+          <th scope="row">3 — Total</th>
+          <td><div class="mn-feq"><math><mrow><mi>τ</mi><mo>=</mo><mo>∫</mo><mfrac><mi>dt</mi><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></mfrac></mrow></math></div><p class="mn-fnote">And acceleration writes the <math><mrow><mi>v</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow></math> inside.</p></td>
+        </tr>
+        <tr>
+          <th scope="row">4 — Constant <em>g</em></th>
+          <td><div class="mn-feq"><math><mrow><mfrac><mi>v</mi><mi>c</mi></mfrac><mo>=</mo><mi mathvariant="normal">tanh</mi><mo stretchy="false">(</mo><mfrac><mrow><mi>g</mi><mo>&#x2062;</mo><mi>τ</mi></mrow><mi>c</mi></mfrac><mo stretchy="false">)</mo></mrow></math></div><p class="mn-fnote">For constant <em>g</em> the worldline is a hyperbola.</p><div class="mn-feq" style="margin-top:12px"><math><mrow><mfrac><msup><mi>c</mi><mn>2</mn></msup><mi>g</mi></mfrac></mrow></math></div><p class="mn-fnote">Distance to the Rindler horizon behind the rocket.</p></td>
+        </tr>
+      </tbody>
+    </table>
 </div>
 
 <p>So: does acceleration cause time dilation? Not directly — no term, no extra effect, at any instant. But remove acceleration from the universe and no clock could ever change its velocity, turn around, orbit, or come home — every worldline would be straight, every twin the same age, and the integral would have nothing interesting to integrate. Acceleration is the author of every time-dilation story; velocity is just its handwriting.</p>
@@ -698,12 +715,16 @@ function updateGamma(){
   $("rateVal").textContent=fmt(1/g,3);
   $("tiltVal").textContent=fmt(Math.atan(b)*180/Math.PI,1)+"°";
   $("earthVal").textContent="8.0 yr → "+fmt(8/g,1)+" yr";
-  var dot=$("gammaDot"), lab=$("gammaDotLab");
+  var dot=$("gammaDot"), lab=$("gammaDotLab"), lab2=$("gammaDotLab2");
   if(dot){
     var cx=70+530*b, cy=Math.max(46, 354-42*(g-1));
     dot.setAttribute("cx",cx); dot.setAttribute("cy",cy);
-    lab.setAttribute("x",Math.min(cx+12,470)); lab.setAttribute("y",cy-12);
-    lab.textContent="β = "+fmt(b)+" · γ = "+fmt(g);
+    /* The beta and gamma values are two separate equations, so they sit on
+       two separate lines — never joined by a dot, which would read as a
+       multiplication or dot product between them. */
+    lab.setAttribute("x",Math.min(cx+12,470)); lab.setAttribute("y",cy-26);
+    lab.textContent="β = "+fmt(b);
+    if(lab2){ lab2.setAttribute("x",Math.min(cx+12,470)); lab2.setAttribute("y",cy-10); lab2.textContent="γ = "+fmt(g); }
   }
   /* Figure 3 shares this slider: ct' axis obeys x = beta*ct, x' (simultaneity) axis obeys ct = beta*x */
   var ctP=$("fig3CtPrime"), xP=$("fig3XPrime");
@@ -888,7 +909,7 @@ function updateLab(){
     $("labDiff").textContent=fmt(tT-tauT,1)+" yr";
     $("labPeak").textContent=fmt(pk)+" c";
     $("labBurn").textContent=burn+"%";
-    $("labStarLab").textContent="star · "+fmt(L,1)+" ly";
+    $("labStarLab").textContent="star — "+fmt(L,1)+" ly";
     $("labNote").textContent = tri
       ? "This trip is all burn: at "+fmt(g)+" g the ship needs the whole "+fmt(L,1)+" ly just to speed up and slow down, peaking at "+fmt(pk)+" c mid-way. There is no coasting phase at all — and the age gap still comes only from the speed history, not from the acceleration itself."
       : "Four burns at "+fmt(g)+" g, coasting at γ = "+fmt(gammaOf(beta))+" in between. Push g to 5: the burns shrink toward the instantaneous-turnaround ideal and the totals barely move — the age gap is earned by the velocity history, not by how hard the ship steers. That is the clock hypothesis, in your hands.";
