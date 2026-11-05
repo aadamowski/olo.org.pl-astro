@@ -1,0 +1,59 @@
+/* ============================================================================
+   math.css — shared design tokens for the notes under
+   src/content/notes/math_and_physics/
+   ----------------------------------------------------------------------------
+   This file holds ONLY definitions that are genuinely shared between notes —
+   the same token, the same value, in more than one note. Note-specific tokens
+   (each note's own extra accent colors, surface aliases, shadows) stay in the
+   note's own <style> block, where they belong.
+
+   What is shared: the "warm-paper" neutrals and the full accent palette —
+   teal, orange, gold, red and blue plus their -soft fills. All three notes in
+   the section draw from the same tokens; each keeps only the few values that
+   are genuinely its own (e.g. Hilbert's warm-paper canvas and its
+   blue-soft / line-soft fills) in its own <style> block.
+   Note: the colors were harmonized so the three notes read as one family —
+   where two notes had near-duplicate accents they now share one value.
+
+   Naming: `--math-` prefix + a generic role or color name. No note-topic
+   terms — these names describe the role the token plays in any math note,
+   not the subject of a particular one.
+
+   Dark mode is keyed off :root[data-theme="dark"] (the site's theme model),
+   never @media (prefers-color-scheme). This file is :root-level declarations
+   only — no element selectors — and is loaded from BaseLayout after
+   global.css, so it has no effect on any element of a page that does not
+   use these tokens.
+   ========================================================================== */
+
+:root {
+  --math-ink: #1c1a17;           /* primary text / main strokes       */
+  --math-ink2: #5f5a52;          /* secondary text / captions         */
+  --math-ink3: #8a8378;          /* tertiary text / faint axis lines  */
+  --math-line: #ddd6c9;          /* hairline rules / grid lines       */
+  --math-teal: #0b7666;          /* teal accent                       */
+  --math-teal-soft: #e2f2ee;     /* teal fill background              */
+  --math-orange: #c94f16;        /* orange accent                     */
+  --math-orange-soft: #fdeee4;   /* orange fill background            */
+  --math-gold: #b8860b;          /* gold accent                       */
+  --math-gold-soft: #fdf3d7;     /* gold fill background              */
+  --math-red: #b4232a;           /* red accent (error / negative)     */
+  --math-red-soft: #fbe7e7;      /* red fill background               */
+  --math-blue: #1c5cc4;          /* blue accent (structure / cones)   */
+}
+
+:root[data-theme="dark"] {
+  --math-ink: #f0ebe1;
+  --math-ink2: #b3aa9b;
+  --math-ink3: #8a8378;
+  --math-line: #3a352d;
+  --math-teal: #3ec9b2;
+  --math-teal-soft: #12322c;
+  --math-orange: #ff8a4d;
+  --math-orange-soft: #3a2417;
+  --math-gold: #d6a419;
+  --math-gold-soft: #3a2f12;
+  --math-red: #ff7a72;
+  --math-red-soft: #3a1f1f;
+  --math-blue: #7aa8f5;
+}

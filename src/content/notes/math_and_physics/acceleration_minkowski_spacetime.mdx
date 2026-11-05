@@ -4,61 +4,48 @@ tocDepth: 2
 ---
 
 <style is:global>{`
-/* ===== Palette for the Minkowski note (theme-adaptive) =====
-   Aligned with the companion Euler note (i_complex_euler_formula.mdx): same
-   warm-paper neutrals and teal/orange/gold accents. The mn- namespace avoids
-   clashing with the Euler note's page-local vars and the global --color-* set.
-   --mn-blue / --mn-red are diagram-only extra colors this note needs;
-   --mn-surface aliases the page background (for text halos / dot strokes). */
+/* ===== Palette for the Minkowski note =====
+   Shared tokens (warm-paper neutrals + the teal/orange/gold/red/blue accent
+   palette) come from /styles/math.css (--math-*) and are referenced by name
+   in the rules below; dark mode is handled there. This note adds only the
+   note-local token --mn-surface, which aliases the page background (for text
+   halos / dot strokes). */
 :root {
-  --mn-ink:#1c1a17;   --mn-ink2:#5f5a52;  --mn-ink3:#8a8378;
-  --mn-teal:#0b7666;  --mn-teal-soft:#e2f2ee;
-  --mn-orange:#c94f16; --mn-blue:#1c5cc4;
-  --mn-gold:#b8860b;  --mn-gold-soft:#fdf3d7;
-  --mn-red:#b4232a;   --mn-red-soft:#fbe7e7;
-  --mn-line:#ddd6c9;  --mn-surface:var(--color-bg);
-}
-:root[data-theme="dark"] {
-  --mn-ink:#f0ebe1;   --mn-ink2:#b3aa9b;  --mn-ink3:#8a8378;
-  --mn-teal:#3ec9b2;  --mn-teal-soft:#12322c;
-  --mn-orange:#ff8a4d; --mn-blue:#7aa8f5;
-  --mn-gold:#d6a419;  --mn-gold-soft:#3a2f12;
-  --mn-red:#ff7a72;   --mn-red-soft:#3a1f1f;
-  --mn-line:#3a352d;
+  --mn-surface: var(--color-bg);
 }
 
 /* ===== Note typography ===== */
 .mn-var { font-style: italic; }
-.mn-eyebrow { font-family: var(--font-mono); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--mn-teal); font-weight:600; margin:0 0 14px; }
+.mn-eyebrow { font-family: var(--font-mono); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--math-teal); font-weight:600; margin:0 0 14px; }
 .mn-lede { font-size: 1.12em; }
-.mn-stepnum { font-family: var(--font-mono); font-size:.78rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--mn-orange); margin:34px 0 6px; }
+.mn-stepnum { font-family: var(--font-mono); font-size:.78rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--math-orange); margin:34px 0 6px; }
 
 /* ===== Key idea box ===== */
-.mn-keybox { border-left:5px solid var(--mn-teal); background:var(--mn-teal-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.98em; }
+.mn-keybox { border-left:5px solid var(--math-teal); background:var(--math-teal-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.98em; }
 .mn-keybox p { margin:0; }
-.mn-keybox strong { color:var(--mn-teal); }
+.mn-keybox strong { color:var(--math-teal); }
 
 /* ===== Callout / myth / readbox ===== */
-.mn-callout { border-left:5px solid var(--mn-gold); background:var(--mn-gold-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
+.mn-callout { border-left:5px solid var(--math-gold); background:var(--math-gold-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
 .mn-callout p { margin:0; }
-.mn-myth { border-left:5px solid var(--mn-red); background:var(--mn-red-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
+.mn-myth { border-left:5px solid var(--math-red); background:var(--math-red-soft); border-radius:0 12px 12px 0; padding:14px 18px; margin:20px 0; font-size:.97rem; }
 .mn-myth p { margin:0; }
 .mn-readbox { background:var(--color-code-bg); border:1px solid var(--color-border); border-radius:12px; padding:16px 18px; margin:16px 0; }
 .mn-readbox h3 { margin-top:0; margin-bottom:8px; font-size:.98rem; }
 .mn-readbox ul { margin:0; padding-left:20px; }
 .mn-readbox li { margin-bottom:6px; font-size:.96rem; }
-.mn-hint { color:var(--mn-ink2); font-size:.95rem; }
+.mn-hint { color:var(--math-ink2); font-size:.95rem; }
 
 /* ===== Formula display ===== */
 .mn-formula { font-family:var(--font-mono); font-size:1.05em; line-height:1.7; text-align:center; background:var(--color-code-bg); border:1px solid var(--color-border); border-radius:12px; padding:18px 20px; margin:18px 0; overflow-x:auto; white-space:nowrap; }
-.mn-formula small { display:block; font-size:.78em; color:var(--mn-ink2); margin-top:10px; white-space:normal; line-height:1.55; }
+.mn-formula small { display:block; font-size:.78em; color:var(--math-ink2); margin-top:10px; white-space:normal; line-height:1.55; }
 .mn-formula-table { width:100%; border-collapse:collapse; margin:18px 0; background:var(--color-bg); }
 .mn-formula-table th, .mn-formula-table td { border:1px solid var(--color-border); padding:13px 14px; vertical-align:top; text-align:left; }
-.mn-formula-table th { background:var(--color-code-bg); font-family:var(--font-body); font-size:.84rem; letter-spacing:.02em; color:var(--mn-ink); width:210px; font-weight:600; }
-.mn-formula-table th span { display:block; font-weight:400; color:var(--mn-ink2); font-size:.8rem; margin-top:3px; }
+.mn-formula-table th { background:var(--color-code-bg); font-family:var(--font-body); font-size:.84rem; letter-spacing:.02em; color:var(--math-ink); width:210px; font-weight:600; }
+.mn-formula-table th span { display:block; font-weight:400; color:var(--math-ink2); font-size:.8rem; margin-top:3px; }
 .mn-feq { font-size:1.12em; line-height:1.5; overflow-x:auto; }
-.mn-fnote { font-size:.9rem; color:var(--mn-ink2); margin:8px 0 0; line-height:1.5; }
-.mn-caption { display:block; font-size:.84rem; color:var(--mn-ink2); margin-top:10px; line-height:1.55; }
+.mn-fnote { font-size:.9rem; color:var(--math-ink2); margin:8px 0 0; line-height:1.5; }
+.mn-caption { display:block; font-size:.84rem; color:var(--math-ink2); margin-top:10px; line-height:1.55; }
 @media (max-width:560px) {
   .mn-formula { white-space:normal; font-size:1.05em; }
   .mn-formula-table th, .mn-formula-table td { display:block; width:100%; }
@@ -69,47 +56,47 @@ tocDepth: 2
 /* ===== Figures (diagrams) ===== */
 .mn-diagram { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:14px 12px 8px; margin:18px 0; }
 .mn-diagram svg { width:100%; height:auto; display:block; }
-.mn-figcap { font-size:.87rem; color:var(--mn-ink2); padding:8px 6px 6px; line-height:1.5; }
-.mn-figcap strong { color:var(--mn-ink); }
+.mn-figcap { font-size:.87rem; color:var(--math-ink2); padding:8px 6px 6px; line-height:1.5; }
+.mn-figcap strong { color:var(--math-ink); }
 
 /* ===== Slider boxes + readouts ===== */
 .mn-sliderbox { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:20px 22px; margin:18px 0; }
 .mn-sliderbox h3 { margin-top:0; margin-bottom:4px; }
 .mn-sliderrow { display:block; margin:16px 0 4px; }
 .mn-sliderrow label { display:block; font-weight:600; font-size:.94rem; margin-bottom:6px; }
-.mn-sliderrow label span { display:block; font-weight:400; color:var(--mn-ink2); font-size:.82rem; }
-.mn-sliderrow input[type=range] { width:100%; accent-color:var(--mn-teal); height:32px; }
-.mn-readout { font-family:var(--font-mono); font-size:1rem; font-weight:600; color:var(--mn-teal); margin-top:4px; }
+.mn-sliderrow label span { display:block; font-weight:400; color:var(--math-ink2); font-size:.82rem; }
+.mn-sliderrow input[type=range] { width:100%; accent-color:var(--math-teal); height:32px; }
+.mn-readout { font-family:var(--font-mono); font-size:1rem; font-weight:600; color:var(--math-teal); margin-top:4px; }
 .mn-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:16px; }
 .mn-stat { background:var(--color-code-bg); border-radius:10px; padding:12px 14px; }
 .mn-stat .v { font-family:var(--font-mono); font-size:1.15rem; font-weight:600; line-height:1.25; }
-.mn-stat .k { font-size:.78rem; color:var(--mn-ink2); line-height:1.4; margin-top:2px; }
+.mn-stat .k { font-size:.78rem; color:var(--math-ink2); line-height:1.4; margin-top:2px; }
 
 /* ===== Step-9 cards ===== */
 .mn-cards { display:grid; grid-template-columns:1fr; gap:14px; margin:16px 0; }
 .mn-card { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:18px 20px; }
 .mn-card h3 { margin-top:0; margin-bottom:6px; }
-.mn-card p { font-size:.96rem; color:var(--mn-ink2); margin:0; }
-.mn-card p strong { color:var(--mn-ink); }
+.mn-card p { font-size:.96rem; color:var(--math-ink2); margin:0; }
+.mn-card p strong { color:var(--math-ink); }
 
 /* ===== SVG shared styles (mn- namespaced) ===== */
 .mn-diagram svg text { font-family:var(--font-body); }
-.mn-t-lab { font-size:12.5px; fill:var(--mn-ink2); }
-.mn-t-lab-b { font-size:12.5px; font-weight:600; fill:var(--mn-ink); }
-.mn-t-small { font-size:11px; fill:var(--mn-ink3); }
-.mn-t-teal { font-size:12.5px; font-weight:600; fill:var(--mn-teal); }
-.mn-t-orange { font-size:12.5px; font-weight:600; fill:var(--mn-orange); }
-.mn-t-blue { font-size:12.5px; font-weight:600; fill:var(--mn-blue); }
-.mn-axis { stroke:var(--mn-ink3); stroke-width:1.4; }
-.mn-gridl { stroke:var(--mn-line); stroke-width:1; }
-.mn-cone { stroke:var(--mn-gold); stroke-width:1.6; stroke-dasharray:6 4; fill:none; }
-.mn-wl-stay { stroke:var(--mn-teal); stroke-width:3.2; fill:none; stroke-linecap:round; }
-.mn-wl-move { stroke:var(--mn-orange); stroke-width:3.2; fill:none; stroke-linecap:round; }
-.mn-hyper { stroke:var(--mn-blue); stroke-width:2; fill:none; opacity:.75; }
+.mn-t-lab { font-size:12.5px; fill:var(--math-ink2); }
+.mn-t-lab-b { font-size:12.5px; font-weight:600; fill:var(--math-ink); }
+.mn-t-small { font-size:11px; fill:var(--math-ink3); }
+.mn-t-teal { font-size:12.5px; font-weight:600; fill:var(--math-teal); }
+.mn-t-orange { font-size:12.5px; font-weight:600; fill:var(--math-orange); }
+.mn-t-blue { font-size:12.5px; font-weight:600; fill:var(--math-blue); }
+.mn-axis { stroke:var(--math-ink3); stroke-width:1.4; }
+.mn-gridl { stroke:var(--math-line); stroke-width:1; }
+.mn-cone { stroke:var(--math-gold); stroke-width:1.6; stroke-dasharray:6 4; fill:none; }
+.mn-wl-stay { stroke:var(--math-teal); stroke-width:3.2; fill:none; stroke-linecap:round; }
+.mn-wl-move { stroke:var(--math-orange); stroke-width:3.2; fill:none; stroke-linecap:round; }
+.mn-hyper { stroke:var(--math-blue); stroke-width:2; fill:none; opacity:.75; }
 .mn-t-halo { paint-order:stroke; stroke:var(--mn-surface); stroke-width:3.5px; stroke-linejoin:round; }
 /* MathML axis title: HTML overlay pinned to the Figure 4 SVG's own box */
 .mn-svgwrap { position:relative; line-height:0; }
-.mn-axmath { position:absolute; left:7.6%; top:0.6%; line-height:1.3; background:var(--mn-surface); border:1px solid var(--color-border); border-radius:6px; padding:5px 10px 6px; font-size:12.5px; color:var(--mn-ink); pointer-events:none; }
+.mn-axmath { position:absolute; left:7.6%; top:0.6%; line-height:1.3; background:var(--mn-surface); border:1px solid var(--color-border); border-radius:6px; padding:5px 10px 6px; font-size:12.5px; color:var(--math-ink); pointer-events:none; }
 `}</style>
 
 <p class="mn-eyebrow">Special relativity — Minkowski geometry</p>
@@ -152,15 +139,15 @@ A Minkowski diagram throws away two space dimensions and promotes time to an axi
         
         <line x1="36" y1="350" x2="604" y2="350" class="mn-axis"/>
         <line x1="256" y1="392" x2="256" y2="16" class="mn-axis"/>
-        <path d="M604 350 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 350 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         
         <line x1="256" y1="350" x2="256" y2="62" class="mn-wl-stay"/>
         
         <line x1="256" y1="350" x2="400" y2="62" class="mn-wl-move"/>
         
-        <circle cx="256" cy="350" r="5.5" fill="var(--mn-ink)"/>
-        <circle cx="256" cy="96" r="5" fill="var(--mn-teal)"/>
-        <circle cx="385" cy="96" r="5" fill="var(--mn-orange)"/>
+        <circle cx="256" cy="350" r="5.5" fill="var(--math-ink)"/>
+        <circle cx="256" cy="96" r="5" fill="var(--math-teal)"/>
+        <circle cx="385" cy="96" r="5" fill="var(--math-orange)"/>
         <text x="612" y="354" class="mn-t-lab-b" text-anchor="end">x (light-years)</text>
         <text x="266" y="26" class="mn-t-lab-b">ct (years × c)</text>
         <text x="472" y="86" class="mn-t-lab">future light cone</text>
@@ -215,12 +202,12 @@ For a short segment of worldline, the interval formula gives the proper time tic
         <path d="M110 154 L147 178 L183 197 L220 210 L256 214 L293 210 L329 197 L366 178 L402 154" class="mn-hyper"/>
         <path d="M110 97 L147 115 L183 129 L220 138 L256 141 L293 138 L329 129 L366 115 L402 97" class="mn-hyper"/>
         <line x1="36" y1="360" x2="604" y2="360" class="mn-axis"/><line x1="256" y1="398" x2="256" y2="16" class="mn-axis"/>
-        <path d="M604 360 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 360 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         
         <line x1="256" y1="360" x2="366" y2="178" class="mn-wl-move"/>
-        <circle cx="256" cy="360" r="5.5" fill="var(--mn-ink)"/>
-        <circle cx="256" cy="214" r="5" fill="var(--mn-teal)"/>
-        <circle cx="366" cy="178" r="5.5" fill="var(--mn-orange)"/>
+        <circle cx="256" cy="360" r="5.5" fill="var(--math-ink)"/>
+        <circle cx="256" cy="214" r="5" fill="var(--math-teal)"/>
+        <circle cx="366" cy="178" r="5.5" fill="var(--math-orange)"/>
         <text x="470" y="100" class="mn-t-lab">τ = 3 yr</text>
         <text x="470" y="150" class="mn-t-lab">τ = 2 yr</text>
         <text x="470" y="200" class="mn-t-lab">τ = 1 yr</text>
@@ -244,11 +231,11 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
 <svg viewBox="0 0 640 430" role="img" aria-label="Minkowski diagram with a moving observer frame axes tilted symmetrically toward the light cone">
         <line x1="256" y1="360" x2="556" y2="60" class="mn-cone"/><line x1="256" y1="360" x2="-44" y2="60" class="mn-cone"/>
         <line x1="36" y1="360" x2="604" y2="360" class="mn-axis"/><line x1="256" y1="398" x2="256" y2="16" class="mn-axis"/>
-        <path d="M604 360 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 360 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         
-        <line id="fig3CtPrime" x1="256" y1="360" x2="436" y2="60" stroke="var(--mn-orange)" stroke-width="2.6"/>
-        <line id="fig3XPrime" x1="256" y1="360" x2="540" y2="190" stroke="var(--mn-orange)" stroke-width="2.6"/>
-        <circle cx="256" cy="360" r="5.5" fill="var(--mn-ink)"/>
+        <line id="fig3CtPrime" x1="256" y1="360" x2="436" y2="60" stroke="var(--math-orange)" stroke-width="2.6"/>
+        <line id="fig3XPrime" x1="256" y1="360" x2="540" y2="190" stroke="var(--math-orange)" stroke-width="2.6"/>
+        <circle cx="256" cy="360" r="5.5" fill="var(--math-ink)"/>
         <text x="612" y="364" class="mn-t-lab-b" text-anchor="end">x — home frame</text>
         <text x="266" y="26" class="mn-t-lab-b">ct</text>
         <text id="fig3CtLab" x="444" y="66" class="mn-t-orange mn-t-halo">ct′ — traveller's time axis</text>
@@ -269,12 +256,12 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
         
         <line x1="70" y1="186" x2="600" y2="186" class="mn-gridl"/><line x1="70" y1="228" x2="600" y2="228" class="mn-gridl"/><line x1="70" y1="270" x2="600" y2="270" class="mn-gridl"/><line x1="70" y1="312" x2="600" y2="312" class="mn-gridl"/>
         <line x1="176" y1="40" x2="176" y2="360" class="mn-gridl"/><line x1="282" y1="40" x2="282" y2="360" class="mn-gridl"/><line x1="388" y1="40" x2="388" y2="360" class="mn-gridl"/><line x1="494" y1="40" x2="494" y2="360" class="mn-gridl"/>
-        <line x1="600" y1="40" x2="600" y2="360" stroke="var(--mn-red)" stroke-width="1.6" stroke-dasharray="6 4"/>
+        <line x1="600" y1="40" x2="600" y2="360" stroke="var(--math-red)" stroke-width="1.6" stroke-dasharray="6 4"/>
         
-        <path id="gammaCurve" d="M70 354 L123 354 L176 353 L229 352 L282 350 L335 348 L388 344 L441 337 L494 326 L520 316 L547 300 L573 262 L595 98" fill="none" stroke="var(--mn-teal)" stroke-width="3"/>
+        <path id="gammaCurve" d="M70 354 L123 354 L176 353 L229 352 L282 350 L335 348 L388 344 L441 337 L494 326 L520 316 L547 300 L573 262 L595 98" fill="none" stroke="var(--math-teal)" stroke-width="3"/>
         <line x1="70" y1="360" x2="600" y2="360" class="mn-axis"/><line x1="70" y1="385" x2="70" y2="40" class="mn-axis"/>
-        <circle id="gammaDot" cx="388" cy="344" r="7" fill="var(--mn-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
-        <text x="606" y="66" class="mn-t-lab" fill="var(--mn-red)">c — unreachable</text>
+        <circle id="gammaDot" cx="388" cy="344" r="7" fill="var(--math-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
+        <text x="606" y="66" class="mn-t-lab" fill="var(--math-red)">c — unreachable</text>
         <text x="52" y="358" class="mn-t-small">1</text>
         <text x="52" y="316" class="mn-t-small">2</text>
         <text x="52" y="274" class="mn-t-small">3</text>
@@ -314,14 +301,14 @@ Velocity is the *slope* of a worldline. Acceleration is its *rate of change of s
 <div class="mn-diagram">
 <svg viewBox="0 0 640 440" role="img" aria-label="Two worldlines between the same events: a straight vertical one with many proper time ticks, and a curved accelerated one with fewer ticks">
         <line x1="36" y1="370" x2="604" y2="370" class="mn-axis"/><line x1="200" y1="408" x2="200" y2="16" class="mn-axis"/>
-        <path d="M604 370 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M200 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 370 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M200 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         <line x1="200" y1="370" x2="476" y2="94" class="mn-cone"/><line x1="200" y1="370" x2="-76" y2="94" class="mn-cone"/>
         
         <line x1="200" y1="370" x2="200" y2="80" class="mn-wl-stay"/>
         
         <path id="curvePath" d="M200.0,370.0 L200.3,364.2 L201.2,358.4 L202.7,352.6 L204.8,346.8 L207.4,341.0 L210.6,335.2 L214.1,329.4 L218.1,323.6 L222.4,317.8 L226.9,312.0 L231.7,306.2 L236.6,300.4 L241.4,294.6 L246.3,288.8 L251.1,283.0 L255.6,277.2 L259.9,271.4 L263.9,265.6 L267.4,259.8 L270.6,254.0 L273.2,248.2 L275.3,242.4 L276.8,236.6 L277.7,230.8 L278.0,225.0 L277.7,219.2 L276.8,213.4 L275.3,207.6 L273.2,201.8 L270.6,196.0 L267.4,190.2 L263.9,184.4 L259.9,178.6 L255.6,172.8 L251.1,167.0 L246.3,161.2 L241.4,155.4 L236.6,149.6 L231.7,143.8 L226.9,138.0 L222.4,132.2 L218.1,126.4 L214.1,120.6 L210.6,114.8 L207.4,109.0 L204.8,103.2 L202.7,97.4 L201.2,91.6 L200.3,85.8 L200.0,80.0" class="mn-wl-move" style="stroke-linejoin:round"/>
         
-        <g stroke="var(--mn-ink)" stroke-width="5.5" stroke-linecap="round">
+        <g stroke="var(--math-ink)" stroke-width="5.5" stroke-linecap="round">
           <line x1="191" y1="336" x2="209" y2="336"/><line x1="191" y1="302" x2="209" y2="302"/><line x1="191" y1="268" x2="209" y2="268"/><line x1="191" y1="234" x2="209" y2="234"/><line x1="191" y1="200" x2="209" y2="200"/><line x1="191" y1="166" x2="209" y2="166"/><line x1="191" y1="132" x2="209" y2="132"/><line x1="191" y1="98" x2="209" y2="98"/>
           <line x1="203.9" y1="328.8" x2="219.3" y2="338.1"/><line x1="247.8" y1="272.6" x2="262.1" y2="283.6"/><line x1="267.9" y1="235.0" x2="285.5" y2="238.8"/><line x1="265.0" y1="205.5" x2="281.7" y2="198.8"/><line x1="233.3" y1="159.7" x2="247.1" y2="148.1"/><line x1="197.1" y1="108.0" x2="213.6" y2="100.9"/>
         </g>
@@ -329,7 +316,7 @@ Velocity is the *slope* of a worldline. Acceleration is its *rate of change of s
           <line x1="191" y1="336" x2="209" y2="336"/><line x1="191" y1="302" x2="209" y2="302"/><line x1="191" y1="268" x2="209" y2="268"/><line x1="191" y1="234" x2="209" y2="234"/><line x1="191" y1="200" x2="209" y2="200"/><line x1="191" y1="166" x2="209" y2="166"/><line x1="191" y1="132" x2="209" y2="132"/><line x1="191" y1="98" x2="209" y2="98"/>
           <line x1="203.9" y1="328.8" x2="219.3" y2="338.1"/><line x1="247.8" y1="272.6" x2="262.1" y2="283.6"/><line x1="267.9" y1="235.0" x2="285.5" y2="238.8"/><line x1="265.0" y1="205.5" x2="281.7" y2="198.8"/><line x1="233.3" y1="159.7" x2="247.1" y2="148.1"/><line x1="197.1" y1="108.0" x2="213.6" y2="100.9"/>
         </g>
-        <circle cx="200" cy="370" r="5.5" fill="var(--mn-ink)"/><circle cx="200" cy="80" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="200" cy="370" r="5.5" fill="var(--math-ink)"/><circle cx="200" cy="80" r="5.5" fill="var(--math-ink)"/>
         <text x="612" y="374" class="mn-t-lab-b" text-anchor="end">x</text>
         <text x="210" y="26" class="mn-t-lab-b">ct</text>
         <text x="52" y="70" class="mn-t-teal">straight: no acceleration</text>
@@ -340,7 +327,7 @@ Velocity is the *slope* of a worldline. Acceleration is its *rate of change of s
         <text x="306" y="114" class="mn-t-small">for out of the time budget</text>
         <text x="292" y="148" class="mn-t-small">tangent = instantaneous</text>
         <text x="292" y="162" class="mn-t-small">velocity at this moment</text>
-        <line x1="217.1" y1="126.5" x2="260.9" y2="178.5" stroke="var(--mn-blue)" stroke-width="2" stroke-dasharray="5 4"/>
+        <line x1="217.1" y1="126.5" x2="260.9" y2="178.5" stroke="var(--math-blue)" stroke-width="2" stroke-dasharray="5 4"/>
         <text x="292" y="186" class="mn-t-blue">slope keeps changing:</text>
         <text x="292" y="200" class="mn-t-blue">that change is acceleration</text>
       </svg>
@@ -378,19 +365,19 @@ Worked miniature — a clock whose speed profile over 4 Earth seconds is: accele
 <tr><td><strong>Total</strong></td><td class="num"><strong>4.00 s</strong></td><td class="num">—</td><td class="num"><strong>3.48 s</strong></td></tr></tbody>
 </table>
 
-<p style="font-size:.93rem;color:var(--mn-ink2)">The accelerating phases contribute <em>more</em> proper time per second than cruising — because during them the speed (and hence γ) is lower on average. Acceleration itself added no penalty and no bonus; it simply moved the clock through a range of γ values.</p>
+<p style="font-size:.93rem;color:var(--math-ink2)">The accelerating phases contribute <em>more</em> proper time per second than cruising — because during them the speed (and hence γ) is lower on average. Acceleration itself added no penalty and no bonus; it simply moved the clock through a range of γ values.</p>
 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 400" role="img" aria-label="A curved worldline approximated by straight segments, each labelled with its local gamma">
         <line x1="36" y1="340" x2="604" y2="340" class="mn-axis"/><line x1="150" y1="372" x2="150" y2="16" class="mn-axis"/>
-        <path d="M604 340 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M150 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 340 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M150 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         <line x1="150" y1="340" x2="420" y2="70" class="mn-cone"/>
         
         <path d="M150.0,340.0 L151.8,313.0 L156.0,286.0 L162.7,259.0 L171.8,232.0 L183.4,205.0 L197.5,178.0 L214.0,151.0 L232.9,124.0 L254.4,97.0 L278.3,70.0" class="mn-wl-move"/>
         
-        <polyline points="150,340 152.0,272.5 173.6,205.0 215.5,137.5 278.3,70.0" fill="none" stroke="var(--mn-blue)" stroke-width="2.6" stroke-linejoin="miter" stroke-linecap="round"/>
-        <g fill="var(--mn-blue)" stroke="var(--mn-surface)" stroke-width="1.6"><circle cx="152.0" cy="272.5" r="5.5"/><circle cx="173.6" cy="205.0" r="5.5"/><circle cx="215.5" cy="137.5" r="5.5"/></g>
-        <circle cx="150" cy="340" r="5.5" fill="var(--mn-ink)"/><circle cx="278.3" cy="70" r="5.5" fill="var(--mn-ink)"/>
+        <polyline points="150,340 152.0,272.5 173.6,205.0 215.5,137.5 278.3,70.0" fill="none" stroke="var(--math-blue)" stroke-width="2.6" stroke-linejoin="miter" stroke-linecap="round"/>
+        <g fill="var(--math-blue)" stroke="var(--mn-surface)" stroke-width="1.6"><circle cx="152.0" cy="272.5" r="5.5"/><circle cx="173.6" cy="205.0" r="5.5"/><circle cx="215.5" cy="137.5" r="5.5"/></g>
+        <circle cx="150" cy="340" r="5.5" fill="var(--math-ink)"/><circle cx="278.3" cy="70" r="5.5" fill="var(--math-ink)"/>
         <text x="612" y="344" class="mn-t-lab-b" text-anchor="end">x</text><text x="160" y="26" class="mn-t-lab-b">ct</text>
         <text x="30" y="300" class="mn-t-small">segment 1: v₁ small,</text><text x="30" y="314" class="mn-t-small">Δτ₁ ≈ Δt₁/γ₁</text>
         <text x="230" y="160" class="mn-t-small">segment 3: v₃ larger,</text><text x="230" y="174" class="mn-t-small">Δτ₃ ≈ Δt₃/γ₃ — thinner</text><text x="230" y="188" class="mn-t-small">slice of time</text>
@@ -409,17 +396,17 @@ Each twin, coasting, sees the other's clock run slow — so who is younger at re
 <div class="mn-diagram">
 <svg viewBox="0 0 640 450" role="img" aria-label="Twin paradox Minkowski diagram: Earth twin vertical worldline, travelling twin goes out at 0.6c and returns, with simultaneity lines swinging at the turnaround">
         <line x1="36" y1="380" x2="604" y2="380" class="mn-axis"/><line x1="170" y1="412" x2="170" y2="16" class="mn-axis"/>
-        <path d="M604 380 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M170 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 380 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M170 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         <line x1="170" y1="380" x2="470" y2="80" class="mn-cone"/>
         
-        <line x1="170" y1="278" x2="430" y2="122" stroke="var(--mn-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
-        <line x1="170" y1="164" x2="430" y2="320" stroke="var(--mn-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
+        <line x1="170" y1="278" x2="430" y2="122" stroke="var(--math-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
+        <line x1="170" y1="164" x2="430" y2="320" stroke="var(--math-blue)" stroke-width="1.8" stroke-dasharray="6 4"/>
         
         <line x1="170" y1="380" x2="170" y2="62" class="mn-wl-stay"/>
         
-        <polyline points="170,380 265,221 170,62" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linejoin="round"/>
-        <circle cx="170" cy="380" r="5.5" fill="var(--mn-ink)"/><circle cx="265" cy="221" r="6" fill="var(--mn-orange)"/><circle cx="170" cy="62" r="5.5" fill="var(--mn-ink)"/>
-        <circle cx="170" cy="278" r="5" fill="var(--mn-blue)"/><circle cx="170" cy="164" r="5" fill="var(--mn-blue)"/>
+        <polyline points="170,380 265,221 170,62" fill="none" stroke="var(--math-orange)" stroke-width="3.2" stroke-linejoin="round"/>
+        <circle cx="170" cy="380" r="5.5" fill="var(--math-ink)"/><circle cx="265" cy="221" r="6" fill="var(--math-orange)"/><circle cx="170" cy="62" r="5.5" fill="var(--math-ink)"/>
+        <circle cx="170" cy="278" r="5" fill="var(--math-blue)"/><circle cx="170" cy="164" r="5" fill="var(--math-blue)"/>
         <text x="612" y="384" class="mn-t-lab-b" text-anchor="end">x</text><text x="180" y="26" class="mn-t-lab-b">ct</text>
         <text x="52" y="52" class="mn-t-teal">Earth twin: one straight</text>
         <text x="52" y="66" class="mn-t-teal">worldline, τ = 10 yr</text>
@@ -458,15 +445,15 @@ Hold the accelerometer pinned at a constant proper acceleration *g* forever. In 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 440" role="img" aria-label="Hyperbolic worldline of a constantly accelerating rocket approaching its light-ray asymptote, the Rindler horizon">
         <line x1="36" y1="370" x2="604" y2="370" class="mn-axis"/><line x1="256" y1="408" x2="256" y2="16" class="mn-axis"/>
-        <path d="M604 370 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M604 370 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M256 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
         
         <line id="rindlerAsym" x1="185" y1="370" x2="518" y2="37" class="mn-cone"/>
-        <line id="rindlerHor" x1="185" y1="370" x2="556" y2="370" stroke="var(--mn-red)" stroke-width="1.6" stroke-dasharray="3 5"/>
+        <line id="rindlerHor" x1="185" y1="370" x2="556" y2="370" stroke="var(--math-red)" stroke-width="1.6" stroke-dasharray="3 5"/>
         
         <g aria-hidden="true">
-          <line x1="329" y1="366" x2="329" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="402" y1="366" x2="402" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="475" y1="366" x2="475" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="548" y1="366" x2="548" y2="374" stroke="var(--mn-ink3)" stroke-width="1.2"/>
+          <line x1="329" y1="366" x2="329" y2="374" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="402" y1="366" x2="402" y2="374" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="475" y1="366" x2="475" y2="374" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="548" y1="366" x2="548" y2="374" stroke="var(--math-ink3)" stroke-width="1.2"/>
           <text x="329" y="358" class="mn-t-small" text-anchor="middle">1</text><text x="402" y="358" class="mn-t-small" text-anchor="middle">2</text><text x="475" y="358" class="mn-t-small" text-anchor="middle">3</text><text x="548" y="358" class="mn-t-small" text-anchor="middle">4</text>
-          <line x1="252" y1="297" x2="260" y2="297" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="224" x2="260" y2="224" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="151" x2="260" y2="151" stroke="var(--mn-ink3)" stroke-width="1.2"/><line x1="252" y1="78" x2="260" y2="78" stroke="var(--mn-ink3)" stroke-width="1.2"/>
+          <line x1="252" y1="297" x2="260" y2="297" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="252" y1="224" x2="260" y2="224" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="252" y1="151" x2="260" y2="151" stroke="var(--math-ink3)" stroke-width="1.2"/><line x1="252" y1="78" x2="260" y2="78" stroke="var(--math-ink3)" stroke-width="1.2"/>
           <text x="244" y="301" class="mn-t-small" text-anchor="end">1</text><text x="244" y="228" class="mn-t-small" text-anchor="end">2</text><text x="244" y="155" class="mn-t-small" text-anchor="end">3</text><text x="244" y="82" class="mn-t-small" text-anchor="end">4</text>
           <text x="244" y="358" class="mn-t-small" text-anchor="end">0</text>
         </g>
@@ -474,16 +461,16 @@ Hold the accelerometer pinned at a constant proper acceleration *g* forever. In 
         <path id="rindlerPath" d="M256 370 L272 333 L287 297 L318 261 L348 224 L385 188 L415 151 L452 115 L486 78" class="mn-wl-move"/>
         
         <g id="rindlerMarker">
-          <circle id="rindlerDot" cx="468" cy="97" r="7" fill="var(--mn-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
+          <circle id="rindlerDot" cx="468" cy="97" r="7" fill="var(--math-orange)" stroke="var(--mn-surface)" stroke-width="2.5"/>
           <text id="rindlerTauLab" x="456" y="82" class="mn-t-orange" text-anchor="end" style="paint-order:stroke;stroke:var(--mn-surface);stroke-width:4px">τ = 2.0 yr — this event on the ship clock</text>
         </g>
-        <circle cx="256" cy="370" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="256" cy="370" r="5.5" fill="var(--math-ink)"/>
         <text x="612" y="374" class="mn-t-lab-b" text-anchor="end">x (ly)</text><text x="266" y="26" class="mn-t-lab-b">ct (yr)</text>
         <text x="492" y="66" class="mn-t-orange" id="rindlerLab">1g hyperbola</text>
         <text x="430" y="96" class="mn-t-lab">asymptote: a light ray</text>
         <text x="430" y="110" class="mn-t-small">the worldline leans ever closer,</text>
         <text x="430" y="124" class="mn-t-small">never crosses — v &lt; c forever</text>
-        <text x="52" y="392" class="mn-t-lab" fill="var(--mn-red)">Rindler horizon, c²/g ≈ 0.97 ly behind the start:</text>
+        <text x="52" y="392" class="mn-t-lab" fill="var(--math-red)">Rindler horizon, c²/g ≈ 0.97 ly behind the start:</text>
         <text x="52" y="408" class="mn-t-small">signals from left of the dashed ray never reach the rocket</text>
         <text x="52" y="120" class="mn-t-small">slope at any point = v/c = tanh(gτ/c):</text>
         <text x="52" y="136" class="mn-t-small">starts vertical (v = 0),</text>
@@ -521,23 +508,23 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 440" role="img" aria-label="Quasi three dimensional light cone with a stationary central worldline and a curved accelerating worldline inside it">
-        <ellipse cx="320" cy="100" rx="190" ry="54" fill="none" stroke="var(--mn-gold)" stroke-width="1.8"/>
-        <ellipse cx="320" cy="100" rx="190" ry="54" fill="var(--mn-gold-soft)" opacity=".45"/>
+        <ellipse cx="320" cy="100" rx="190" ry="54" fill="none" stroke="var(--math-gold)" stroke-width="1.8"/>
+        <ellipse cx="320" cy="100" rx="190" ry="54" fill="var(--math-gold-soft)" opacity=".45"/>
         
         <g id="fig9Cross">
-          <line id="fig9DiamX" x1="162.5" y1="69.8" x2="477.5" y2="130.2" stroke="var(--mn-blue)" stroke-width="1.7"/>
-          <line id="fig9DiamY" x1="426.2" y1="55.2" x2="213.8" y2="144.8" stroke="var(--mn-teal)" stroke-width="1.7"/>
-          <circle cx="320" cy="100" r="4" fill="var(--mn-ink)"/>
+          <line id="fig9DiamX" x1="162.5" y1="69.8" x2="477.5" y2="130.2" stroke="var(--math-blue)" stroke-width="1.7"/>
+          <line id="fig9DiamY" x1="426.2" y1="55.2" x2="213.8" y2="144.8" stroke="var(--math-teal)" stroke-width="1.7"/>
+          <circle cx="320" cy="100" r="4" fill="var(--math-ink)"/>
           <text id="fig9DiamXLab" x="486" y="135" class="mn-t-blue">x</text>
           <text id="fig9DiamYLab" x="204" y="158" class="mn-t-teal mn-t-halo">y</text>
         </g>
         <line x1="320" y1="380" x2="130" y2="100" class="mn-cone"/><line x1="320" y1="380" x2="510" y2="100" class="mn-cone"/>
-        <ellipse cx="320" cy="240" rx="95" ry="27" fill="none" stroke="var(--mn-gold)" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <ellipse cx="320" cy="240" rx="95" ry="27" fill="none" stroke="var(--math-gold)" stroke-width="1.2" stroke-dasharray="4 4"/>
         <line x1="320" y1="380" x2="320" y2="30" class="mn-axis"/>
-        <path d="M320 30 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M320 30 l-4 10 h8 z" fill="var(--math-ink3)"/>
         <line x1="320" y1="380" x2="320" y2="100" class="mn-wl-stay"/>
         <path id="fig9Worldline" d="M320 380 C 378 302, 402 205, 386 112" class="mn-wl-move"/>
-        <circle cx="320" cy="380" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="320" cy="380" r="5.5" fill="var(--math-ink)"/>
         <text x="330" y="34" class="mn-t-lab-b">ct</text>
         <text x="470" y="70" class="mn-t-lab mn-t-halo">circle of light at this instant:</text>
         <text x="470" y="86" class="mn-t-small mn-t-halo">radius = c × elapsed time</text>
@@ -558,21 +545,21 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 <svg viewBox="0 0 640 460" role="img" aria-label="Interactive quasi three dimensional view of a helical worldline for circular motion inside a light cone">
         <g id="coneRings">
           <line x1="320" y1="400" x2="164" y2="160" class="mn-cone"/><line x1="320" y1="400" x2="476" y2="160" class="mn-cone"/>
-          <ellipse cx="320" cy="320" rx="52" ry="22" fill="none" stroke="var(--mn-gold)" stroke-width="1.2"/>
-          <ellipse cx="320" cy="240" rx="104" ry="44" fill="none" stroke="var(--mn-gold)" stroke-width="1.2"/>
-          <ellipse cx="320" cy="160" rx="156" ry="66" fill="none" stroke="var(--mn-gold)" stroke-width="1.6"/>
+          <ellipse cx="320" cy="320" rx="52" ry="22" fill="none" stroke="var(--math-gold)" stroke-width="1.2"/>
+          <ellipse cx="320" cy="240" rx="104" ry="44" fill="none" stroke="var(--math-gold)" stroke-width="1.2"/>
+          <ellipse cx="320" cy="160" rx="156" ry="66" fill="none" stroke="var(--math-gold)" stroke-width="1.6"/>
         </g>
         <line x1="320" y1="400" x2="320" y2="86" class="mn-axis"/>
-        <path d="M320 86 l-4 10 h8 z" fill="var(--mn-ink3)"/>
+        <path d="M320 86 l-4 10 h8 z" fill="var(--math-ink3)"/>
         
         <g id="spokes">
-          <line id="fig10DiamX" x1="190.7" y1="123.1" x2="449.3" y2="196.9" stroke="var(--mn-blue)" stroke-width="1.9"/>
-          <line id="fig10DiamY" x1="407.2" y1="105.3" x2="232.8" y2="214.7" stroke="var(--mn-teal)" stroke-width="1.9"/>
+          <line id="fig10DiamX" x1="190.7" y1="123.1" x2="449.3" y2="196.9" stroke="var(--math-blue)" stroke-width="1.9"/>
+          <line id="fig10DiamY" x1="407.2" y1="105.3" x2="232.8" y2="214.7" stroke="var(--math-teal)" stroke-width="1.9"/>
         </g>
-        <circle cx="320" cy="160" r="4" fill="var(--mn-ink)"/>
-        <line id="helixEntry" x1="320" y1="400" x2="316" y2="348" stroke="var(--mn-orange)" stroke-width="3" stroke-linecap="round"/>
-        <polyline id="helixPath" points="316,348 308,331 300,309 294,285 292,261 292,237 297,213 304,190 312,168 323,148" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linecap="round"/>
-        <circle cx="320" cy="400" r="5.5" fill="var(--mn-ink)"/>
+        <circle cx="320" cy="160" r="4" fill="var(--math-ink)"/>
+        <line id="helixEntry" x1="320" y1="400" x2="316" y2="348" stroke="var(--math-orange)" stroke-width="3" stroke-linecap="round"/>
+        <polyline id="helixPath" points="316,348 308,331 300,309 294,285 292,261 292,237 297,213 304,190 312,168 323,148" fill="none" stroke="var(--math-orange)" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="320" cy="400" r="5.5" fill="var(--math-ink)"/>
         <text x="330" y="90" class="mn-t-lab-b">ct</text>
         <text x="452" y="212" class="mn-t-small">x axis</text>
         <text x="196" y="108" class="mn-t-small">y axis</text>
@@ -621,18 +608,18 @@ No instantaneous turnarounds here. Your traveller accelerates at a steady, felt 
 <div class="mn-diagram">
 <svg viewBox="0 0 640 440" role="img" aria-label="Worldline diagram for a twin trip with acceleration, cruise and deceleration phases, generated from the lab parameters">
       <line x1="40" y1="395" x2="610" y2="395" class="mn-axis"/><line x1="90" y1="420" x2="90" y2="30" class="mn-axis"/>
-      <path d="M610 395 l-10 -4 v8 z" fill="var(--mn-ink3)"/><path d="M90 30 l-4 10 h8 z" fill="var(--mn-ink3)"/>
-      <line id="labStar" x1="470" y1="60" x2="470" y2="395" stroke="var(--mn-blue)" stroke-width="1.6" stroke-dasharray="6 4"/>
+      <path d="M610 395 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M90 30 l-4 10 h8 z" fill="var(--math-ink3)"/>
+      <line id="labStar" x1="470" y1="60" x2="470" y2="395" stroke="var(--math-blue)" stroke-width="1.6" stroke-dasharray="6 4"/>
       
       <g id="labProxima">
-        <line id="labProximaLine" x1="536" y1="78" x2="536" y2="156" stroke="var(--mn-gold)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>
-        <circle id="labProximaDot" cx="536" cy="88" r="5.5" fill="var(--mn-gold)" stroke="var(--mn-surface)" stroke-width="2"/>
-        <text id="labProximaLab" x="525" y="106" class="mn-t-lab-b mn-t-halo" text-anchor="end" style="fill:var(--mn-gold)">Proxima Centauri</text>
+        <line id="labProximaLine" x1="536" y1="78" x2="536" y2="156" stroke="var(--math-gold)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>
+        <circle id="labProximaDot" cx="536" cy="88" r="5.5" fill="var(--math-gold)" stroke="var(--mn-surface)" stroke-width="2"/>
+        <text id="labProximaLab" x="525" y="106" class="mn-t-lab-b mn-t-halo" text-anchor="end" style="fill:var(--math-gold)">Proxima Centauri</text>
         <text id="labProximaSub" x="525" y="122" class="mn-t-small mn-t-halo" text-anchor="end">nearest star — 4.25 ly</text>
       </g>
       <line x1="90" y1="395" x2="90" y2="60" class="mn-wl-stay"/>
-      <path id="labPath" d="M90 395 Q 122 374 151 361 L408 273 Q 442 259 470 240 Q 442 226 408 207 L151 119 Q 122 106 90 85" fill="none" stroke="var(--mn-orange)" stroke-width="3.2" stroke-linejoin="round"/>
-      <circle cx="90" cy="395" r="5.5" fill="var(--mn-ink)"/><circle cx="90" cy="85" r="5.5" fill="var(--mn-ink)"/>
+      <path id="labPath" d="M90 395 Q 122 374 151 361 L408 273 Q 442 259 470 240 Q 442 226 408 207 L151 119 Q 122 106 90 85" fill="none" stroke="var(--math-orange)" stroke-width="3.2" stroke-linejoin="round"/>
+      <circle cx="90" cy="395" r="5.5" fill="var(--math-ink)"/><circle cx="90" cy="85" r="5.5" fill="var(--math-ink)"/>
       <text x="612" y="399" class="mn-t-lab-b" text-anchor="end">x</text><text x="100" y="40" class="mn-t-lab-b">ct</text>
       <text x="52" y="70" class="mn-t-teal">Earth</text>
       <text id="labStarLab" x="478" y="70" class="mn-t-blue">star — 4 ly</text>
@@ -696,7 +683,7 @@ No instantaneous turnarounds here. Your traveller accelerates at a steady, felt 
 
 ---
 
-<p style="font-size:.88rem;color:var(--mn-ink3);margin-top:2em">Conventions: signature (−,+,+,+); <em>c</em> = 299,792,458 m/s = 1 ly/yr in diagram units; 1<em>g</em> = 9.81 m/s² = 1.03 ly/yr². All readouts are computed live from the formulas shown. Flat spacetime throughout — curved-spacetime (gravitational) time dilation is general relativity's extension of Step 9's bridge. Key sources for the experimental record: Bailey et al., <em>Nature</em> 268 (1977) for the muon ring; Hafele &amp; Keating, <em>Science</em> 177 (1972).</p>
+<p style="font-size:.88rem;color:var(--math-ink3);margin-top:2em">Conventions: signature (−,+,+,+); <em>c</em> = 299,792,458 m/s = 1 ly/yr in diagram units; 1<em>g</em> = 9.81 m/s² = 1.03 ly/yr². All readouts are computed live from the formulas shown. Flat spacetime throughout — curved-spacetime (gravitational) time dilation is general relativity's extension of Step 9's bridge. Key sources for the experimental record: Bailey et al., <em>Nature</em> 268 (1977) for the muon ring; Hafele &amp; Keating, <em>Science</em> 177 (1972).</p>
 
 <script set:html={`
 
