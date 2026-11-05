@@ -1,0 +1,767 @@
+---
+title: "Hilbert Space and the Hypercomplex Tower: ℝ, ℂ, ℍ, 𝕆, 𝕊 and Beyond"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Hilbert Space note (theme-adaptive) ===== */
+:root {
+  --hs-bg:#faf7f0;
+  --hs-surface:var(--color-bg); --hs-surface2:var(--color-code-bg);
+  --hs-ink:#1e2422; --hs-muted:#5c665f;
+  --hs-line:#ddd3bf; --hs-line-soft:#e7dfcd;
+  --hs-teal:#0d6e5f; --hs-teal-soft:#dcefe9; --hs-ochre:#a85f06; --hs-ochre-soft:#f7e8d2;
+  --hs-rust:#b03a26; --hs-rust-soft:#f8e2dc; --hs-blue:#205f9e; --hs-blue-soft:#dde9f5;
+  --hs-gold:#8a6d1a; --hs-gold-soft:#f2ecc9;
+  --hs-good:#0d6e5f; --hs-bad:#b03a26;
+  --hs-shadow:0 1px 3px rgba(30,36,34,.08), 0 8px 24px rgba(30,36,34,.06);
+}
+:root[data-theme="dark"] {
+  --hs-bg:#131519;
+  --hs-surface:var(--color-bg); --hs-surface2:var(--color-code-bg);
+  --hs-ink:#ede8db; --hs-muted:#a9a496;
+  --hs-line:#3a3d45; --hs-line-soft:#2c2f36;
+  --hs-teal:#57c2ab; --hs-teal-soft:#1d332e; --hs-ochre:#e2a558; --hs-ochre-soft:#38301f;
+  --hs-rust:#ef8a73; --hs-rust-soft:#3a2721; --hs-blue:#7db1e6; --hs-blue-soft:#22303f;
+  --hs-gold:#d9c26a; --hs-gold-soft:#33301d;
+  --hs-good:#57c2ab; --hs-bad:#ef8a73;
+  --hs-shadow:0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+
+/* ===== Note typography ===== */
+.hs-kicker { font-size:13px; letter-spacing:.09em; text-transform:uppercase; color:var(--hs-teal); font-weight:600; margin:0 0 10px; }
+.hs-lede { font-size:19px; color:var(--hs-muted); max-width:46em; }
+.hs-small { font-size:14.5px; color:var(--hs-muted); }
+.hs-mono { font-family:var(--font-mono); font-size:.92em; }
+
+/* ===== Figure cards ===== */
+figure { margin:22px 0; background:var(--hs-surface); border:1px solid var(--hs-line); border-radius:10px; padding:18px 18px 12px; box-shadow:var(--hs-shadow); }
+figure svg { width:100%; height:auto; display:block; }
+figcaption { font-size:14.5px; color:var(--hs-muted); margin-top:10px; line-height:1.55; }
+figcaption b { color:var(--hs-ink); }
+.hs-figtitle { font-family:"Spectral",Georgia,serif; font-weight:600; font-size:18.5px; margin:0 0 10px; color:var(--hs-ink); }
+
+/* ===== MathML ===== */
+math { font-family:"STIX Two Math","Cambria Math","Latin Modern Math",serif; font-size:1.07em; line-height:1.25; }
+math[display="block"] { font-size:1.1em; margin:.2em 0; }
+.hs-readout math { font-size:1.03em; }
+figcaption math, p math, td.hs-d math, td:not(.hs-f) math { font-size:1.05em; }
+
+/* ===== Formula tables (wrapped in .hs-tablewrap as an overflow safety net) =====
+   Natural (content) width capped at the container: a table is only as wide as
+   its content (no padded-out cells / wasted horizontal space), and when the
+   content is wider than the column, auto table-layout wraps the long prose to
+   fit instead of ballooning — so no scrollbar. Only a genuinely over-wide table
+   (the 9-column ledger) exceeds 100% and scrolls inside the wrapper. */
+.hs-tablewrap { overflow-x:auto; margin:16px 0; background:var(--hs-surface); border:1px solid var(--hs-line); border-radius:8px; }
+table.hs-formulas { max-width:100%; border-collapse:collapse; }
+table.hs-formulas th, table.hs-formulas td { border:1px solid var(--hs-line-soft); padding:12px 14px; vertical-align:top; text-align:left; }
+table.hs-formulas th { font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--hs-muted); font-weight:600; background:var(--hs-surface2); }
+table.hs-formulas td.hs-f { font-size:16px; white-space:normal; }
+table.hs-formulas td.hs-d { font-size:15px; color:var(--hs-muted); }
+
+/* ===== Data tables ===== */
+table.hs-data { max-width:100%; border-collapse:collapse; font-size:15px; }
+table.hs-data th, table.hs-data td { border:1px solid var(--hs-line-soft); padding:9px 11px; text-align:left; vertical-align:top; }
+table.hs-data th { background:var(--hs-surface2); font-weight:600; }
+table.hs-data td.hs-c, table.hs-data th.hs-c { text-align:center; }
+.hs-yes { color:var(--hs-good); font-weight:600; }
+.hs-no { color:var(--hs-bad); font-weight:600; }
+.hs-part { color:var(--hs-ochre); font-weight:600; }
+
+/* ===== Callouts ===== */
+.hs-note { border:1px solid var(--hs-line); background:var(--hs-surface2); border-radius:8px; padding:14px 16px; margin:18px 0; }
+.hs-note b.hs-tag { font-size:12.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--hs-teal); display:block; margin-bottom:4px; }
+.hs-warn b.hs-tag { color:var(--hs-rust); }
+
+/* ===== Controls / readouts ===== */
+.hs-controls { background:var(--hs-surface2); border:1px solid var(--hs-line); border-radius:8px; padding:14px 16px; margin:14px 0; }
+.hs-controls label { font-weight:600; font-size:15px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.hs-controls label .hs-val { font-family:var(--font-mono); color:var(--hs-teal); font-weight:500; }
+.hs-controls input[type=range] { width:100%; accent-color:var(--hs-teal); height:32px; cursor:pointer; }
+.hs-btnrow { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+button.hs-chip { font:inherit; font-size:15px; padding:7px 16px; border-radius:999px; border:1.5px solid var(--hs-line); background:var(--hs-surface); color:var(--hs-ink); cursor:pointer; }
+button.hs-chip[aria-pressed="true"] { border-color:var(--hs-teal); background:var(--hs-teal-soft); color:var(--hs-teal); font-weight:600; }
+button.hs-chip:focus-visible, .hs-controls input[type=range]:focus-visible { outline:2.5px solid var(--hs-ochre); outline-offset:2px; }
+.hs-readout { font-family:var(--font-mono); font-size:15.5px; background:var(--hs-surface); border:1px solid var(--hs-line); border-radius:8px; padding:12px 14px; margin:12px 0; line-height:1.7; overflow-wrap:anywhere; }
+.hs-readout .hs-k { color:var(--hs-muted); font-family:var(--font-body); font-size:13px; letter-spacing:.05em; text-transform:uppercase; }
+
+/* ===== Basis grid / legend ===== */
+.hs-basisgrid { display:flex; flex-wrap:wrap; gap:5px; margin:10px 0; }
+.hs-basisgrid .hs-cell { font-family:var(--font-mono); font-size:13px; border:1px solid var(--hs-line); border-radius:5px; padding:4px 0; width:52px; text-align:center; background:var(--hs-surface); }
+.hs-basisgrid .hs-cell.hs-real { background:var(--hs-teal-soft); border-color:var(--hs-teal); font-weight:600; }
+.hs-basisgrid .hs-cell.hs-new { background:var(--hs-ochre-soft); border-color:var(--hs-ochre); }
+.hs-legend { display:flex; gap:18px; flex-wrap:wrap; font-size:13.5px; color:var(--hs-muted); margin:6px 0; }
+.hs-legend span::before { content:""; display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+.hs-legend .hs-lg-old::before { background:var(--hs-teal-soft); border:1.5px solid var(--hs-teal); }
+.hs-legend .hs-lg-new::before { background:var(--hs-ochre-soft); border:1.5px solid var(--hs-ochre); }
+.hs-legend .hs-lg-plain::before { background:var(--hs-surface); border:1.5px solid var(--hs-line); }
+
+/* ===== Shared SVG text ===== */
+svg text { font-family:var(--font-body); }
+svg text:not([fill]) { fill:var(--hs-ink); }
+svg .hs-svgmono { font-family:var(--font-mono); }
+
+/* ===== Footer of the ported doc ===== */
+.hs-foot { margin-top:2.5em; border-top:1px solid var(--hs-line); padding-top:16px; font-size:.9rem; color:var(--hs-muted); }
+
+@media (max-width:640px) {
+  .hs-lede { font-size:17px; }
+  figure { padding:13px 12px 10px; }
+  table.hs-formulas td.hs-f { font-size:14.5px; }
+  table.hs-data { font-size:13.5px; }
+  table.hs-data th, table.hs-data td { padding:7px 8px; }
+  .hs-basisgrid .hs-cell { width:44px; font-size:12px; }
+}
+`}</style>
+
+<p class="hs-kicker">Interactive explainer — Inner products, completeness, and the Cayley–Dickson ladder</p>
+<p class="hs-lede">Two great constructions run through modern mathematics. One goes <em>up in dimension without end</em>: Hilbert space, where vectors can be whole functions and sums can have infinitely many terms. The other doubles dimension in discrete jumps — ℝ → ℂ → ℍ → 𝕆 → 𝕊 → the 32-dimensional trigintaduonions — and pays a toll at every jump, surrendering one cherished law of arithmetic each time. This page builds both, step by step, and shows exactly where they meet.</p>
+
+
+
+<section>
+<h2 id="hilbert">1 — Hilbert space: geometry with infinitely many directions</h2>
+<p>A <strong>Hilbert space</strong> is a vector space equipped with an <strong>inner product</strong> — a machine that takes two vectors and returns a number measuring how much they point the same way — and one extra demand: the space must be <strong>complete</strong>, meaning every sequence of vectors that <em>ought</em> to converge to something actually converges to a vector inside the space. Inner product gives geometry (lengths, angles, projections); completeness guarantees the geometry has no holes.</p>
+
+<p>Everything starts with the inner product. In the plane, for <math><mi>u</mi><mo>=</mo><mo>(</mo><msub><mi>u</mi><mn>1</mn></msub><mo>,</mo><msub><mi>u</mi><mn>2</mn></msub><mo>)</mo></math> and <math><mi>v</mi><mo>=</mo><mo>(</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><msub><mi>v</mi><mn>2</mn></msub><mo>)</mo></math>, it is the familiar dot product. The definition, and the three quantities it buys you, are collected in one table:</p>
+
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:24%">Quantity</th><th style="width:38%">Formula</th><th>What it means</th></tr>
+  <tr><td>Inner product</td><td class="hs-f"><math display="block"><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>=</mo><msub><mi>u</mi><mn>1</mn></msub><msub><mi>v</mi><mn>1</mn></msub><mo>+</mo><msub><mi>u</mi><mn>2</mn></msub><msub><mi>v</mi><mn>2</mn></msub></mrow></math></td><td class="hs-d">A single number: positive when u and v lean together, zero when perpendicular, negative when opposed.</td></tr>
+  <tr><td>Length (norm)</td><td class="hs-f"><math display="block"><mrow><mo>‖</mo><mi>u</mi><mo>‖</mo><mo>=</mo><msqrt><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>u</mi><mo>⟩</mo></mrow></msqrt><mo>=</mo><msqrt><mrow><msubsup><mi>u</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>u</mi><mn>2</mn><mn>2</mn></msubsup></mrow></msqrt></mrow></math></td><td class="hs-d">Pythagoras, restated: a vector's length is its inner product with itself, square-rooted.</td></tr>
+  <tr><td>Angle</td><td class="hs-f"><math display="block"><mrow><mi>cos</mi><mo>&#x2061;</mo><mi>θ</mi><mo>=</mo><mfrac><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo></mrow><mrow><mo>‖</mo><mi>u</mi><mo>‖</mo><mo>‖</mo><mi>v</mi><mo>‖</mo></mrow></mfrac></mrow></math></td><td class="hs-d">The inner product, normalised by the two lengths, is exactly the cosine of the angle between the vectors.</td></tr>
+  <tr><td>Projection</td><td class="hs-f"><math display="block"><mrow><msub><mi>proj</mi><mn>u</mn></msub><mi>v</mi><mo>=</mo><mfrac><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo></mrow><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>u</mi><mo>⟩</mo></mrow></mfrac><mo>·</mo><mi>u</mi></mrow></math></td><td class="hs-d">The shadow of v along u — the part of v that u can "see". What remains, <math><mi>v</mi><mo>−</mo><msub><mi>proj</mi><mn>u</mn></msub><mi>v</mi></math>, is perpendicular to u.</td></tr>
+</table></div>
+
+<figure>
+  <p class="hs-figtitle">Figure 1 — The inner product as geometry in the plane</p>
+  <svg viewBox="0 0 640 360" role="img" aria-label="Two vectors u and v from the origin, the angle between them, and the projection of v onto u shown as a dashed foot">
+    <line x1="70" y1="300" x2="610" y2="300" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <line x1="110" y1="330" x2="110" y2="30" stroke="var(--hs-line)" stroke-width="1.5"/>
+    
+    <line x1="430" y1="110" x2="430" y2="300" stroke="var(--hs-muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+    <rect x="418" y="288" width="12" height="12" fill="none" stroke="var(--hs-muted)" stroke-width="1.5"/>
+    
+    <line x1="110" y1="300" x2="510" y2="300" stroke="var(--hs-teal)" stroke-width="3.5"/>
+    <polygon points="510,300 494,292 494,308" fill="var(--hs-teal)"/>
+    
+    <line x1="110" y1="300" x2="430" y2="110" stroke="var(--hs-ochre)" stroke-width="3.5"/>
+    <polygon points="430,110 413,113 421,127" fill="var(--hs-ochre)"/>
+    
+    <path d="M 215 300 A 105 105 0 0 0 201 241" fill="none" stroke="var(--hs-rust)" stroke-width="2.5"/>
+    <text x="228" y="272" font-size="17" fill="var(--hs-rust)" font-weight="600">θ</text>
+    <text x="300" y="326" font-size="17" fill="var(--hs-teal)" font-weight="600">u = (4, 0)</text>
+    <text x="392" y="94" font-size="17" fill="var(--hs-ochre)" font-weight="600">v = (3.2, 1.9)</text>
+    <text x="438" y="200" font-size="14" fill="var(--hs-muted)" transform="rotate(-90 448 200)"></text>
+    <text x="330" y="282" font-size="14.5" fill="var(--hs-muted)">proj of v onto u</text>
+    <text x="118" y="322" font-size="14" fill="var(--hs-muted)">O</text>
+  </svg>
+  <figcaption><b>Reading the picture.</b> Here <math><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>=</mo><mn>4</mn><mo>·</mo><mn>3.2</mn><mo>+</mo><mn>0</mn><mo>·</mo><mn>1.9</mn><mo>=</mo><mn>12.8</mn></math>. The dashed drop from the tip of v lands at distance 3.2 along u — exactly the first component of v — and the leftover vertical segment is perpendicular to u. That splitting of a vector into "parallel part + perpendicular part" is the single most-used move in Hilbert space theory, and it works in every dimension, including infinitely many.</figcaption>
+</figure>
+
+<h3 id="hs-explorer-inner-product">Try it: the inner-product explorer</h3>
+<p>One slider turns v around the origin; a second stretches it. The diagram, its moving labels, and the readouts below all follow the same two controls, so you can watch the inner product change sign as v swings past perpendicular — and check the Cauchy–Schwarz inequality <math><mo>|</mo><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>|</mo><mo>≤</mo><mo>‖</mo><mi>u</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>v</mi><mo>‖</mo></math>, which says the inner product can never exceed the product of the lengths, with equality only when the vectors are parallel.</p>
+
+<figure>
+  <p class="hs-figtitle" id="hilbTitle">Figure 2 — Inner-product explorer: v at 45°, |v| = 3.0</p>
+  <svg id="hilbSvg" viewBox="0 0 640 380" role="img" aria-label="Interactive diagram: fixed vector u on the horizontal axis and vector v at the chosen angle and length, with its projection">
+    <line x1="40" y1="300" x2="616" y2="300" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <line x1="320" y1="348" x2="320" y2="24" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <line id="hbProj" x1="458" y1="162" x2="458" y2="300" stroke="var(--hs-muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+    <line id="hbU" x1="320" y1="300" x2="567" y2="300" stroke="var(--hs-teal)" stroke-width="3.5"/>
+    <polygon id="hbUHead" points="567,300 551,292 551,308" fill="var(--hs-teal)"/>
+    <line id="hbV" x1="320" y1="300" x2="458" y2="162" stroke="var(--hs-ochre)" stroke-width="3.5"/>
+    <polygon id="hbVHead" points="458,162 441,165 455,179" fill="var(--hs-ochre)"/>
+    <path id="hbArc" d="M 420 300 A 100 100 0 0 0 391 229" fill="none" stroke="var(--hs-rust)" stroke-width="2.5"/>
+    <text id="hbTheta" x="447" y="247" font-size="17" fill="var(--hs-rust)" font-weight="600">θ = 45°</text>
+    <text id="hbULab" x="420" y="326" font-size="16.5" fill="var(--hs-teal)" font-weight="600">u, |u| = 3.8</text>
+    <text id="hbVLab" x="479" y="141" font-size="16.5" fill="var(--hs-ochre)" font-weight="600">v, |v| = 3.0</text>
+    <text id="hbProjLab" x="468" y="282" font-size="14" fill="var(--hs-muted)">proj at 2.12</text>
+    <text x="328" y="322" font-size="14" fill="var(--hs-muted)">O</text>
+  </svg>
+  <div class="hs-controls">
+    <label for="hbAngle">Angle θ of v <span class="hs-val" id="hbAngleVal">45°</span></label>
+    <input type="range" id="hbAngle" min="0" max="180" step="1" value="45" />
+    <label for="hbLen" style="margin-top:8px">Length |v| <span class="hs-val" id="hbLenVal">3.0</span></label>
+    <input type="range" id="hbLen" min="0.5" max="4.5" step="0.1" value="3" />
+  </div>
+  <div class="hs-readout" id="hbOut"></div>
+  <figcaption><b>What to try.</b> At θ = 90° the inner product is exactly 0 — perpendicular vectors are "orthogonal", the Hilbert-space word for it. Past 90° the projection points <em>backwards</em> along u and the inner product goes negative. At θ = 0° Cauchy–Schwarz becomes an equality.</figcaption>
+</figure>
+
+<h3 id="hs-completeness">Completeness: no holes in the space</h3>
+<p>Geometry alone does not make a Hilbert space. Consider the rational numbers ℚ on a line: you can add them and measure distances, yet the sequence 1, 1.4, 1.41, 1.414, … — rationals closing in on <math><msqrt><mn>2</mn></msqrt></math> — is a <strong>Cauchy sequence</strong> (its terms get arbitrarily close to <em>each other</em>) whose limit is missing from ℚ. A space with such a hole is an <em>inner product space</em> but not a Hilbert space. Completeness is the demand that every Cauchy sequence converges to a point of the space itself.</p>
+
+<figure>
+  <p class="hs-figtitle">Figure 3 — A Cauchy sequence closing in on its limit</p>
+  <svg viewBox="0 0 640 190" role="img" aria-label="Number line with points of a sequence clustering ever tighter around a limit point marked L">
+    <line x1="40" y1="110" x2="610" y2="110" stroke="var(--hs-muted)" stroke-width="2"/>
+    <polygon points="610,110 596,104 596,116" fill="var(--hs-muted)"/>
+    <g fill="var(--hs-teal)">
+      <circle cx="110" cy="110" r="6"/><circle cx="215" cy="110" r="6"/><circle cx="290" cy="110" r="6"/>
+      <circle cx="338" cy="110" r="6"/><circle cx="368" cy="110" r="6"/><circle cx="388" cy="110" r="6"/>
+      <circle cx="400" cy="110" r="6"/><circle cx="408" cy="110" r="6"/>
+    </g>
+    <line x1="416" y1="78" x2="416" y2="142" stroke="var(--hs-rust)" stroke-width="3"/>
+    <text x="398" y="62" font-size="17" fill="var(--hs-rust)" font-weight="600">limit L</text>
+    <g font-size="14" fill="var(--hs-muted)" text-anchor="middle">
+      <text x="110" y="142" fill="var(--hs-muted)">x₁</text><text x="215" y="142" fill="var(--hs-muted)">x₂</text><text x="290" y="142" fill="var(--hs-muted)">x₃</text>
+      <text x="338" y="142" fill="var(--hs-muted)">x₄</text><text x="368" y="88" fill="var(--hs-muted)">x₅</text><text x="400" y="88" fill="var(--hs-muted)">x₇</text>
+    </g>
+    <text x="40" y="34" font-size="14" fill="var(--hs-muted)">gaps shrink</text>
+  </svg>
+  <figcaption><b>Why it matters.</b> Completeness is what licenses infinite processes: Fourier series, limits of approximations, solutions of differential equations built as limits. ℝ is complete (that is essentially its construction from ℚ); ℚ is not. Every finite-dimensional inner product space is automatically complete — which is why the finite hypercomplex algebras later in this page are all, quietly, Hilbert spaces already. The interesting completeness questions begin at infinite dimension.</figcaption>
+</figure>
+
+<h3 id="hs-flagship-examples">The two flagship infinite-dimensional examples</h3>
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:20%">Space</th><th style="width:40%">Its "vectors" and inner product</th><th>Why it is complete / useful</th></tr>
+  <tr><td><b><math><msup><mi>ℓ</mi><mn>2</mn></msup></math></b> — square-summable sequences</td><td class="hs-f"><math><mi>x</mi><mo>=</mo><mo>(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msub><mi>x</mi><mn>3</mn></msub><mo>,</mo><mo>…</mo><mo>)</mo></math> with <math><mo>∑</mo><msup><mrow><mo>|</mo><msub><mi>x</mi><mn>i</mn></msub><mo>|</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mo>∞</mo></math>, and <math display="block"><mrow><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mover><mi>y</mi><mo>¯</mo></mover><mi>i</mi></msub></mrow></math></td><td class="hs-d">The direct infinite generalisation of <math><msup><mi>ℂ</mi><mi>n</mi></msup></math>. The condition <math><mo>∑</mo><msup><mrow><mo>|</mo><msub><mi>x</mi><mn>i</mn></msub><mo>|</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mo>∞</mo></math> is exactly "finite length", and the inner-product series always converges by Cauchy–Schwarz.</td></tr>
+  <tr><td><b><math><msup><mi>L</mi><mn>2</mn></msup></math></b> — square-integrable functions</td><td class="hs-f"><math><mi>f</mi></math> a function on <math><mo>[</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>]</mo></math> with <math><mo>∫</mo><msup><mrow><mo>|</mo><mi>f</mi><mo>|</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mo>∞</mo></math>, and <math display="block"><mrow><mo>⟨</mo><mi>f</mi><mo>,</mo><mi>g</mi><mo>⟩</mo><mo>=</mo><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mi>g</mi><mo>(</mo><mi>x</mi><mo>)</mo><mi>d</mi><mi>x</mi></mrow></math></td><td class="hs-d">Functions become points in a space; the integral is their dot product. Quantum mechanics lives here: a wavefunction ψ is a unit vector, and <math><mo>⟨</mo><mi>φ</mi><mo>,</mo><mi>ψ</mi><mo>⟩</mo></math> is a probability amplitude.</td></tr>
+</table></div>
+<p>In <math><msup><mi>L</mi><mn>2</mn></msup></math>, the trigonometric functions <math><mn>1</mn><mo>,</mo><mi>cos</mi><mo>&#x2061;</mo><mi>x</mi><mo>,</mo><mi>sin</mi><mo>&#x2061;</mo><mi>x</mi><mo>,</mo><mi>cos</mi><mo>&#x2061;</mo><mn>2</mn><mi>x</mi><mo>,</mo><mi>sin</mi><mo>&#x2061;</mo><mn>2</mn><mi>x</mi><mo>,</mo><mo>…</mo></math> form an <em>orthonormal basis</em> — infinitely many mutually perpendicular unit directions. Any square-integrable function is a (possibly infinite) combination of them: its Fourier series. Completeness is precisely the theorem that the partial sums converge to the function in the L² sense. The explorer below builds a square wave out of sine waves, one basis direction at a time.</p>
+
+<figure>
+  <p class="hs-figtitle" id="fourierTitle">Figure 4 — Fourier synthesis: a square wave built from 3 sine terms</p>
+  <svg id="fourierSvg" viewBox="0 0 640 300" role="img" aria-label="Chart showing a square wave target and its approximation by a sum of sine waves">
+    <line x1="40" y1="150" x2="616" y2="150" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <line x1="60" y1="270" x2="60" y2="30" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <path id="fourierTarget" d="M 70 70 L 340 70 L 340 230 L 610 230" fill="none" stroke="var(--hs-muted)" stroke-width="2" stroke-dasharray="6 5"/>
+    <path id="fourierPath" d="" fill="none" stroke="var(--hs-teal)" stroke-width="3"/>
+    <text x="76" y="58" font-size="14" fill="var(--hs-muted)">target square wave (dashed)</text>
+    <text x="76" y="262" font-size="14" fill="var(--hs-teal)" font-weight="600">partial sum S_N(x)</text>
+    <text x="520" y="58" font-size="14" fill="var(--hs-muted)">one period</text>
+  </svg>
+  <div class="hs-controls">
+    <label for="fourierN">Number of sine terms N <span class="hs-val" id="fourierNVal">3</span></label>
+    <input type="range" id="fourierN" min="1" max="24" step="1" value="3" />
+  </div>
+  <div class="hs-readout" id="fourierOut"></div>
+  <figcaption><b>How to read it.</b> Each added term is one more basis direction of <math><msup><mi>L</mi><mn>2</mn></msup></math> being switched on. The approximation overshoots near the jumps by about 9% no matter how many terms you add (the Gibbs phenomenon) — pointwise it misbehaves there, yet the <em>total squared error</em> still shrinks to zero, which is convergence in the Hilbert-space sense. Infinite dimensions are not a luxury; a sharp edge genuinely needs all of them.</figcaption>
+</figure>
+</section>
+
+
+<section>
+<h2 id="tower">2 — The hypercomplex tower at a glance</h2>
+<p>A <strong>hypercomplex number system</strong> is what you get when you try to keep doing arithmetic — add, subtract, multiply, take lengths — in more dimensions than the familiar number line and plane. There is a classical construction that doubles the dimension at every step (Section 3), producing an infinite ladder. But arithmetic gets worse as you climb. The whole story of the tower is in this ledger of what survives:</p>
+
+<div class="hs-tablewrap"><table class="hs-data">
+  <tr>
+    <th>Algebra</th><th class="hs-c">Dim</th><th>Basis units</th><th class="hs-c">Ordered</th><th class="hs-c">Commutative<br /><math><mi>a</mi><mo>·</mo><mi>b</mi><mo>=</mo><mi>b</mi><mo>·</mo><mi>a</mi></math></th><th class="hs-c">Associative<br /><math><mo>(</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>)</mo><mo>·</mo><mi>c</mi><mo>=</mo><mi>a</mi><mo>·</mo><mo>(</mo><mi>b</mi><mo>·</mo><mi>c</mi><mo>)</mo></math></th><th class="hs-c">Alternative</th><th class="hs-c">Division<br />(no zero divisors)</th><th class="hs-c">Normed<br /><math><mo>‖</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>‖</mo><mo>=</mo><mo>‖</mo><mi>a</mi><mo>‖</mo><mo>‖</mo><mi>b</mi><mo>‖</mo></math></th>
+  </tr>
+  <tr><td><b>ℝ</b> reals</td><td class="hs-c">1</td><td class="hs-mono">1</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td></tr>
+  <tr><td><b>ℂ</b> complex</td><td class="hs-c">2</td><td><math><mn>1</mn><mo>,</mo><mi>i</mi></math></td><td class="hs-c hs-no">lost</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td></tr>
+  <tr><td><b>ℍ</b> quaternions</td><td class="hs-c">4</td><td><math><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></math></td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td></tr>
+  <tr><td><b>𝕆</b> octonions</td><td class="hs-c">8</td><td><math><msub><mi>e</mi><mn>0</mn></msub><mo>…</mo><msub><mi>e</mi><mn>7</mn></msub></math></td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td><td class="hs-c hs-yes">yes</td></tr>
+  <tr><td><b>𝕊</b> sedenions</td><td class="hs-c">16</td><td><math><msub><mi>e</mi><mn>0</mn></msub><mo>…</mo><msub><mi>e</mi><mn>15</mn></msub></math></td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td></tr>
+  <tr><td><b>𝕋</b> trigintaduonions</td><td class="hs-c">32</td><td><math><msub><mi>e</mi><mn>0</mn></msub><mo>…</mo><msub><mi>e</mi><mn>31</mn></msub></math></td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td><td class="hs-c hs-no">lost</td></tr>
+</table></div>
+<p class="hs-small">"Alternative" is the weakened associativity law <math><mi>a</mi><mo>·</mo><mo>(</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>a</mi><mo>·</mo><mi>a</mi><mo>)</mo><mo>·</mo><mi>b</mi></math> and <math><mo>(</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>)</mo><mo>·</mo><mi>b</mi><mo>=</mo><mi>a</mi><mo>·</mo><mo>(</mo><mi>b</mi><mo>·</mo><mi>b</mi><mo>)</mo></math> — associativity when two of the three factors coincide. It is strong enough to keep octonion division working. Below the sedenions nothing in the table is left except addition, a conjugation, and a notion of length that no longer respects multiplication.</p>
+
+<figure>
+  <p class="hs-figtitle">Figure 5 — The tower: each step doubles the dimension and drops one law</p>
+  <svg viewBox="0 0 640 400" role="img" aria-label="Staircase diagram climbing from reals dimension 1 through complex 2, quaternions 4, octonions 8, sedenions 16, to trigintaduonions 32, with the law lost at each step labelled on the riser">
+    
+    <g>
+      <rect x="30" y="330" width="95" height="42" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+      <rect x="125" y="278" width="95" height="94" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+      <rect x="220" y="226" width="95" height="146" fill="var(--hs-blue-soft)" stroke="var(--hs-blue)" stroke-width="1.5"/>
+      <rect x="315" y="174" width="95" height="198" fill="var(--hs-blue-soft)" stroke="var(--hs-blue)" stroke-width="1.5"/>
+      <rect x="410" y="122" width="95" height="250" fill="var(--hs-ochre-soft)" stroke="var(--hs-ochre)" stroke-width="1.5"/>
+      <rect x="505" y="70" width="105" height="302" fill="var(--hs-rust-soft)" stroke="var(--hs-rust)" stroke-width="1.5"/>
+    </g>
+    <g font-weight="700" font-size="21" text-anchor="middle">
+      <text x="77" y="358" fill="var(--hs-teal)">ℝ</text>
+      <text x="172" y="306" fill="var(--hs-teal)">ℂ</text>
+      <text x="267" y="254" fill="var(--hs-blue)">ℍ</text>
+      <text x="362" y="202" fill="var(--hs-blue)">𝕆</text>
+      <text x="457" y="150" fill="var(--hs-ochre)">𝕊</text>
+      <text x="557" y="98" fill="var(--hs-rust)">𝕋</text>
+    </g>
+    <g font-size="13.5" fill="var(--hs-muted)" text-anchor="middle" class="hs-svgmono">
+      <text x="77" y="392" fill="var(--hs-muted)">dim 1</text><text x="172" y="392" fill="var(--hs-muted)">dim 2</text><text x="267" y="392" fill="var(--hs-muted)">dim 4</text>
+      <text x="362" y="392" fill="var(--hs-muted)">dim 8</text><text x="457" y="392" fill="var(--hs-muted)">dim 16</text><text x="557" y="392" fill="var(--hs-muted)">dim 32</text>
+    </g>
+    <g font-size="13.5" fill="var(--hs-rust)">
+      <text x="130" y="266" fill="var(--hs-rust)">− ordering</text>
+      <text x="225" y="214" fill="var(--hs-rust)">− commutativity</text>
+      <text x="320" y="162" fill="var(--hs-rust)">− associativity</text>
+      <text x="405" y="110" fill="var(--hs-rust)">− alternativity, division, norm</text>
+      <text x="610" y="58" text-anchor="end" fill="var(--hs-rust)">− nothing left to lose but structure itself</text>
+    </g>
+  </svg>
+  <figcaption><b>The pattern.</b> Dimension doubles; one law falls per step, in a fixed order. This is not an accident of one construction: <b>Hurwitz's theorem (1898)</b> proves that ℝ, ℂ, ℍ and 𝕆 are the <em>only</em> normed division algebras over the reals, in any dimension, by any method. The ladder of well-behaved arithmetics provably ends at 8. Everything above is built anyway — and Section 4 shows what still works up there.</figcaption>
+</figure>
+</section>
+
+
+<section>
+<h2 id="cd">3 — The Cayley–Dickson construction: how each level is built from the last</h2>
+<p>The doubling machine is due to Cayley and Dickson. Its input is an algebra A with a <strong>conjugation</strong> (an operation <math><mi>a</mi><mo>↦</mo><msup><mi>a</mi><mo>*</mo></msup></math> that flips the sign of every imaginary part, like complex conjugation). Its output is a new algebra <math><msup><mi>A</mi><mn>2</mn></msup></math> whose elements are <em>ordered pairs</em> (a, b) of elements of A — so the dimension exactly doubles. Three definitions do all the work. They are stated once, in full generality, and then every algebra in the tower is just this recipe applied repeatedly:</p>
+
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:26%">Ingredient</th><th style="width:40%">Definition in <math><msup><mi>A</mi><mn>2</mn></msup></math></th><th>Notes</th></tr>
+  <tr><td>Elements</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo><mo>,</mo><mspace width="0.4em"/><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>A</mi></mrow></math></td><td class="hs-d">Think "a is the old part, b is the coefficient of one brand-new imaginary unit ℓ". Formally <math><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> means <math><mi>a</mi><mo>+</mo><mi>b</mi><mi>ℓ</mi></math>.</td></tr>
+  <tr><td>Conjugation</td><td class="hs-f"><math display="block"><mrow><msup><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></mrow><mo>*</mo></msup><mo>=</mo><mo>(</mo><msup><mi>a</mi><mo>*</mo></msup><mo>,</mo><mo>−</mo><mi>b</mi><mo>)</mo></mrow></math></td><td class="hs-d">Conjugate the old part; negate the new part. For ℝ, <math><msup><mi>a</mi><mo>*</mo></msup><mo>=</mo><mi>a</mi></math>, so ℂ's rule <math><msup><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></mrow><mo>*</mo></msup><mo>=</mo><mo>(</mo><mi>a</mi><mo>,</mo><mo>−</mo><mi>b</mi><mo>)</mo></math> is ordinary complex conjugation.</td></tr>
+  <tr><td>Multiplication</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo><mo>(</mo><mi>c</mi><mo>,</mo><mi>d</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>a</mi><mi>c</mi><mo>−</mo><msup><mi>d</mi><mo>*</mo></msup><mi>b</mi><mo>,</mo><mspace width="0.4em"/><mi>d</mi><mi>a</mi><mo>+</mo><mi>b</mi><msup><mi>c</mi><mo>*</mo></msup><mo>)</mo></mrow></math></td><td class="hs-d">Every symbol on the right is an operation inside A. This one line, applied recursively, generates the multiplication tables of ℂ, ℍ, 𝕆, 𝕊, 𝕋, …</td></tr>
+  <tr><td rowspan="2">The new unit</td><td class="hs-f"><math display="block"><mrow><mi>ℓ</mi><mo>=</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math></td><td class="hs-d" rowspan="2">Check it from the multiplication rule: <math><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo><mo>=</mo><mo>(</mo><mn>0</mn><mo>·</mo><mn>0</mn><mo>−</mo><msup><mn>1</mn><mo>*</mo></msup><mo>·</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>·</mo><mn>0</mn><mo>+</mo><mn>1</mn><mo>·</mo><msup><mn>0</mn><mo>*</mo></msup><mo>)</mo><mo>=</mo><mo>(</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></math>. Each doubling manufactures a fresh square root of −1, perpendicular to all previous ones.</td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><msup><mi>ℓ</mi><mn>2</mn></msup><mo>=</mo><mo>(</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo><mo>=</mo><mo>−</mo><mn>1</mn></mrow></math></td></tr>
+</table></div>
+
+<h3 id="hs-worked-check-c-from-r">Worked check: the recipe really gives ℂ from ℝ</h3>
+<p>Take A = ℝ, where conjugation does nothing (a* = a). Apply the multiplication rule with all terms kept visible, in three steps — no step silently drops or rearranges anything:</p>
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:14%">Step</th><th style="width:48%">Computation</th><th>What happened</th></tr>
+  <tr><td>1 — Substitute</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo><mo>(</mo><mi>c</mi><mo>,</mo><mi>d</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>a</mi><mi>c</mi><mo>−</mo><msup><mi>d</mi><mo>*</mo></msup><mi>b</mi><mo>,</mo><mspace width="0.4em"/><mi>d</mi><mi>a</mi><mo>+</mo><mi>b</mi><msup><mi>c</mi><mo>*</mo></msup><mo>)</mo></mrow></math></td><td class="hs-d">The general Cayley–Dickson rule, with the pair components named.</td></tr>
+  <tr><td>2 — Use ℝ's conjugation</td><td class="hs-f"><math display="block"><mrow><mo>=</mo><mo>(</mo><mi>a</mi><mi>c</mi><mo>−</mo><mi>d</mi><mi>b</mi><mo>,</mo><mspace width="0.4em"/><mi>d</mi><mi>a</mi><mo>+</mo><mi>b</mi><mi>c</mi><mo>)</mo></mrow></math> since <math><msup><mi>d</mi><mo>*</mo></msup><mo>=</mo><mi>d</mi></math> and <math><msup><mi>c</mi><mo>*</mo></msup><mo>=</mo><mi>c</mi></math> in ℝ</td><td class="hs-d">Only the two conjugates are replaced; every product term is still present, in the same order.</td></tr>
+  <tr><td>3 — Reorder real products</td><td class="hs-f"><math display="block"><mrow><mo>=</mo><mo>(</mo><mi>a</mi><mi>c</mi><mo>−</mo><mi>b</mi><mi>d</mi><mo>,</mo><mspace width="0.4em"/><mi>a</mi><mi>d</mi><mo>+</mo><mi>b</mi><mi>c</mi><mo>)</mo></mrow></math></td><td class="hs-d">Real multiplication commutes, so <math><mi>d</mi><mi>b</mi><mo>=</mo><mi>b</mi><mi>d</mi></math> and <math><mi>d</mi><mi>a</mi><mo>=</mo><mi>a</mi><mi>d</mi></math>. This is exactly the school rule for <math><mo>(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>i</mi><mo>)</mo><mo>(</mo><mi>c</mi><mo>+</mo><mi>d</mi><mi>i</mi><mo>)</mo></math>. The familiar formula was the doubling rule all along.</td></tr>
+</table></div>
+<p>Run the same recipe on ℂ and the output is ℍ: writing a quaternion as a pair of complex numbers, <math><mi>q</mi><mo>=</mo><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> with <math><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>ℂ</mi></math>, is the standard "complex pair" form <math><mi>q</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>j</mi></math>. Run it on ℍ to get 𝕆, on 𝕆 to get 𝕊, on 𝕊 to get the trigintaduonions 𝕋. One caveat explains the falling laws of Figure 5: the recipe's output inherits a law only if the input had a <em>stronger</em> one. Doubling a commutative algebra yields a merely associative one waiting to happen, and so on — each application spends one law to buy twice the dimensions.</p>
+
+<h3 id="hs-doubling-explorer">The doubling explorer</h3>
+<p>Figures 6 and 7 are driven by <strong>one shared slider</strong>: the doubling step k. Figure 6 shows the pair construction at that step; Figure 7 shows the basis it produces and the property ledger that results. Both titles track the slider.</p>
+
+<figure>
+  <p class="hs-figtitle" id="cdTitleA">Figure 6 — Doubling step k = 3: building 𝕆 (8 dimensions) from pairs of ℍ</p>
+  <svg id="cdSvg" viewBox="0 0 640 216" role="img" aria-label="Diagram of the Cayley-Dickson doubling: two copies of the previous algebra combine into ordered pairs forming the next algebra">
+    <rect x="36" y="52" width="150" height="64" rx="8" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+    <text id="cdBoxA1" x="111" y="80" text-anchor="middle" font-size="19" font-weight="700" fill="var(--hs-teal)">a ∈ ℍ</text>
+    <text x="111" y="103" text-anchor="middle" font-size="13.5" fill="var(--hs-muted)">first component</text>
+    <rect x="36" y="140" width="150" height="64" rx="8" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+    <text id="cdBoxA2" x="111" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="var(--hs-teal)">b ∈ ℍ</text>
+    <text x="111" y="191" text-anchor="middle" font-size="13.5" fill="var(--hs-muted)">second component</text>
+    <text x="216" y="132" font-size="26" fill="var(--hs-muted)">→</text>
+    <rect x="262" y="86" width="170" height="80" rx="8" fill="var(--hs-surface2)" stroke="var(--hs-ink)" stroke-width="1.5"/>
+    <text id="cdPair" x="347" y="120" text-anchor="middle" font-size="20" font-weight="700" fill="var(--hs-ink)">(a, b) = a + bℓ</text>
+    <text x="347" y="146" text-anchor="middle" font-size="13.5" fill="var(--hs-muted)">a single new element</text>
+    <text x="462" y="132" font-size="26" fill="var(--hs-muted)">→</text>
+    <rect x="508" y="70" width="102" height="112" rx="8" fill="var(--hs-ochre-soft)" stroke="var(--hs-ochre)" stroke-width="1.5"/>
+    <text id="cdNewSym" x="559" y="122" text-anchor="middle" font-size="34" font-weight="700" fill="var(--hs-ochre)">𝕆</text>
+    <text id="cdNewDim" x="559" y="150" text-anchor="middle" font-size="14" fill="var(--hs-muted)">dim 8</text>
+  </svg>
+  <p class="hs-small" id="cdNote" style="margin:4px 0 8px">ℓ = new unit <math><msub><mi>e</mi><mn>4</mn></msub></math>: old units enter as <math><mo>(</mo><msub><mi>e</mi><mi>i</mi></msub><mo>,</mo><mn>0</mn><mo>)</mo></math>, new units as <math><mo>(</mo><mn>0</mn><mo>,</mo><msub><mi>e</mi><mrow><mi>i</mi><mo>−</mo><mn>4</mn></mrow></msub><mo>)</mo></math>.</p>
+  <div class="hs-controls">
+    <label for="towerK">Doubling step k — dimension <math><msup><mn>2</mn><mi>k</mi></msup></math> <span class="hs-val" id="towerKVal">𝕆 — dim 8 (k = 3)</span></label>
+    <input type="range" id="towerK" min="0" max="5" step="1" value="3" />
+  </div>
+  <figcaption><b>How doubling feels from inside.</b> Half of the new algebra is an exact copy of the old one — elements (a, 0) multiply exactly as a did. The other half, elements (0, b), is the old algebra "times ℓ". Every multiplication in the new algebra is four multiplications in the old one, glued by the rule in the table above.</figcaption>
+</figure>
+
+<figure>
+  <p class="hs-figtitle" id="cdTitleB">Figure 7 — Basis and property ledger at k = 3: 𝕆, the octonions</p>
+  <div class="hs-legend"><span class="hs-lg-old">real unit e₀ = 1</span><span class="hs-lg-plain">inherited units (from the previous algebra)</span><span class="hs-lg-new">new units (added by this doubling)</span></div>
+  <div class="hs-basisgrid" id="basisGrid">
+    <span class="hs-cell hs-real"><math><msub><mi>e</mi><mn>0</mn></msub></math></span><span class="hs-cell"><math><msub><mi>e</mi><mn>1</mn></msub></math></span><span class="hs-cell"><math><msub><mi>e</mi><mn>2</mn></msub></math></span><span class="hs-cell"><math><msub><mi>e</mi><mn>3</mn></msub></math></span>
+    <span class="hs-cell hs-new"><math><msub><mi>e</mi><mn>4</mn></msub></math></span><span class="hs-cell hs-new"><math><msub><mi>e</mi><mn>5</mn></msub></math></span><span class="hs-cell hs-new"><math><msub><mi>e</mi><mn>6</mn></msub></math></span><span class="hs-cell hs-new"><math><msub><mi>e</mi><mn>7</mn></msub></math></span>
+  </div>
+  <div class="hs-readout" id="ledgerOut"></div>
+  <figcaption><b>The ledger is the lesson.</b> Slide back to k = 0 and everything is green; each step forward turns exactly one more property red, until at k = 4 (sedenions) division itself fails. The basis count, meanwhile, just keeps doubling — dimension is cheap, laws are not.</figcaption>
+</figure>
+</section>
+
+
+<section>
+<h2 id="walk">4 — Walking the tower, one algebra at a time</h2>
+
+<h3 id="hs-real">ℝ — the real numbers (dimension 1)</h3>
+<p>The ground floor is a Hilbert space already: ℝ is <math><msup><mi>ℝ</mi><mn>1</mn></msup></math> with inner product <math><mo>⟨</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>⟩</mo><mo>=</mo><mi>a</mi><mi>b</mi></math>. It is the only level with a total <strong>ordering</strong> compatible with arithmetic (<math><mi>a</mi><mo>&lt;</mo><mi>b</mi></math> implies <math><mi>a</mi><mo>+</mo><mi>c</mi><mo>&lt;</mo><mi>b</mi><mo>+</mo><mi>c</mi></math>, and products of positives are positive). Everything above ℝ¹ will have to give that up — there is no way to say whether i is "positive" that survives multiplication, since <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><mn>1</mn></math> would then have to be positive too.</p>
+
+<h3 id="hs-complex">ℂ — the complex numbers (dimension 2): pay ordering, gain roots</h3>
+<p><math><mi>ℂ</mi><mo>=</mo><msup><mi>ℝ</mi><mn>2</mn></msup></math> as a Hilbert space, with the extra gift of multiplication. The imaginary unit <math><mi>i</mi><mo>=</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></math> is the first Cayley–Dickson ℓ. Multiplying by i rotates the plane by 90° counter-clockwise, which is why <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><mn>1</mn></math> is forced geometrically: two quarter-turns make a half-turn, and a half-turn sends every number to its negative.</p>
+<figure>
+  <p class="hs-figtitle">Figure 8 — Multiplication by i is a quarter-turn</p>
+  <svg viewBox="0 0 640 300" role="img" aria-label="Complex plane compass: 1 to the east, i to the north, minus 1 west, minus i south, with curved arrows showing successive multiplications by i rotating a point through the four directions">
+    <line x1="40" y1="150" x2="610" y2="150" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <line x1="320" y1="280" x2="320" y2="20" stroke="var(--hs-line)" stroke-width="1.5"/>
+    <path d="M 415 118 A 100 100 0 0 0 352 55" fill="none" stroke="var(--hs-teal)" stroke-width="2.5" marker-end="url(#arrT)"/>
+    <path d="M 288 55 A 100 100 0 0 0 225 118" fill="none" stroke="var(--hs-teal)" stroke-width="2.5" marker-end="url(#arrT)"/>
+    <path d="M 225 182 A 100 100 0 0 0 288 245" fill="none" stroke="var(--hs-teal)" stroke-width="2.5" marker-end="url(#arrT)"/>
+    <path d="M 352 245 A 100 100 0 0 0 415 182" fill="none" stroke="var(--hs-teal)" stroke-width="2.5" marker-end="url(#arrT)"/>
+    <defs><marker id="arrT" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--hs-teal)"/></marker></defs>
+    <g font-size="18" font-weight="700">
+      <circle cx="445" cy="150" r="5" fill="var(--hs-ink)"/><text x="462" y="157" fill="var(--hs-ink)">1</text>
+      <circle cx="320" cy="38" r="5" fill="var(--hs-ink)"/><text x="334" y="45" fill="var(--hs-ink)">i</text>
+      <circle cx="195" cy="150" r="5" fill="var(--hs-ink)"/><text x="150" y="157" fill="var(--hs-ink)">−1</text>
+      <circle cx="320" cy="262" r="5" fill="var(--hs-ink)"/><text x="334" y="269" fill="var(--hs-ink)">−i</text>
+    </g>
+    <text x="470" y="100" font-size="14.5" fill="var(--hs-teal)">×i</text>
+    <text x="150" y="100" font-size="14.5" fill="var(--hs-teal)">×i</text>
+    <text x="150" y="222" font-size="14.5" fill="var(--hs-teal)">×i</text>
+    <text x="470" y="222" font-size="14.5" fill="var(--hs-teal)">×i</text>
+    <text x="330" y="292" font-size="13.5" fill="var(--hs-muted)">real axis →</text>
+  </svg>
+  <figcaption><b>The cycle closes.</b> Four multiplications by i rotate through 360° and return every number to itself: <math><msup><mi>i</mi><mn>4</mn></msup><mo>=</mo><mn>1</mn></math>. In exchange for ordering, ℂ gains the fundamental theorem of algebra — every polynomial has all its roots — and becomes the scalar field of quantum mechanics.</figcaption>
+</figure>
+
+<h3 id="hs-quaternion">ℍ — the quaternions (dimension 4): pay commutativity, gain 3D rotation</h3>
+<p>Hamilton's quaternions (1843) write <math><mi>q</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>i</mi><mo>+</mo><mi>c</mi><mi>j</mi><mo>+</mo><mi>d</mi><mi>k</mi></math> with three imaginary units obeying the relations he carved into Brougham Bridge: <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><msup><mi>j</mi><mn>2</mn></msup><mo>=</mo><msup><mi>k</mi><mn>2</mn></msup><mo>=</mo><mi>i</mi><mi>j</mi><mi>k</mi><mo>=</mo><mo>−</mo><mn>1</mn></math>. From those, the full multiplication of units follows — and it is <em>ordered</em>: <math><mi>i</mi><mi>j</mi><mo>=</mo><mi>k</mi></math> but <math><mi>j</mi><mi>i</mi><mo>=</mo><mo>−</mo><mi>k</mi></math>. Rotations in 3D do not commute either (tip a book forward-then-yaw versus yaw-then-forward), and that is precisely why quaternions, not despite but because of non-commutativity, are the working language of 3D rotation in graphics, robotics and spacecraft attitude control.</p>
+<figure>
+  <p class="hs-figtitle">Figure 9 — The quaternion unit cycle, and a multiplication bench</p>
+  <svg viewBox="0 0 640 250" role="img" aria-label="Triangle cycle diagram: i times j equals k, j times k equals i, k times i equals j, with arrows showing cyclic order; reversing the order negates the result">
+    <circle cx="320" cy="125" r="86" fill="none" stroke="var(--hs-line)" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <path d="M 356 52 A 86 86 0 0 1 398 172" fill="none" stroke="var(--hs-blue)" stroke-width="2.5" marker-end="url(#arrB)"/>
+    <path d="M 330 210 A 86 86 0 0 1 232 160" fill="none" stroke="var(--hs-blue)" stroke-width="2.5" marker-end="url(#arrB)"/>
+    <path d="M 244 84 A 86 86 0 0 1 300 43" fill="none" stroke="var(--hs-blue)" stroke-width="2.5" marker-end="url(#arrB)"/>
+    <defs><marker id="arrB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--hs-blue)"/></marker></defs>
+    <g font-size="21" font-weight="700" text-anchor="middle">
+      <circle cx="320" cy="39" r="19" fill="var(--hs-blue-soft)" stroke="var(--hs-blue)"/><text x="320" y="47" fill="var(--hs-blue)">i</text>
+      <circle cx="395" cy="187" r="19" fill="var(--hs-blue-soft)" stroke="var(--hs-blue)"/><text x="395" y="195" fill="var(--hs-blue)">j</text>
+      <circle cx="245" cy="187" r="19" fill="var(--hs-blue-soft)" stroke="var(--hs-blue)"/><text x="245" y="195" fill="var(--hs-blue)">k</text>
+    </g>
+    <g font-size="15" fill="var(--hs-ink)" text-anchor="middle" class="hs-svgmono">
+      <text x="440" y="104" fill="var(--hs-ink)">i·j = k</text>
+      <text x="320" y="240" fill="var(--hs-ink)">j·k = i</text>
+      <text x="180" y="104" fill="var(--hs-ink)">k·i = j</text>
+    </g>
+    <text x="320" y="130" font-size="14" fill="var(--hs-muted)" text-anchor="middle">follow the arrows: product is the next unit;</text>
+    <text x="320" y="150" font-size="14" fill="var(--hs-muted)" text-anchor="middle">go against them: the negative</text>
+  </svg>
+  <div class="hs-controls">
+    <div class="hs-small" style="margin-bottom:2px"><b>First factor a</b></div>
+    <div class="hs-btnrow" role="group" aria-label="First factor">
+      <button class="hs-chip hs-quat-a" data-v="i" aria-pressed="true">i</button>
+      <button class="hs-chip hs-quat-a" data-v="j" aria-pressed="false">j</button>
+      <button class="hs-chip hs-quat-a" data-v="k" aria-pressed="false">k</button>
+    </div>
+    <div class="hs-small" style="margin-bottom:2px"><b>Second factor b</b></div>
+    <div class="hs-btnrow" role="group" aria-label="Second factor">
+      <button class="hs-chip hs-quat-b" data-v="i" aria-pressed="false">i</button>
+      <button class="hs-chip hs-quat-b" data-v="j" aria-pressed="true">j</button>
+      <button class="hs-chip hs-quat-b" data-v="k" aria-pressed="false">k</button>
+    </div>
+  </div>
+  <div class="hs-readout" id="quatOut"></div>
+  <figcaption><b>Associativity survives.</b> ℍ loses commutativity but keeps <math><mo>(</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>)</mo><mo>·</mo><mi>c</mi><mo>=</mo><mi>a</mi><mo>·</mo><mo>(</mo><mi>b</mi><mo>·</mo><mi>c</mi><mo>)</mo></math>, keeps division (every non-zero q has inverse <math><msup><mi>q</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><mfrac><msup><mi>q</mi><mo>*</mo></msup><msup><mrow><mo>‖</mo><mi>q</mi><mo>‖</mo></mrow><mn>2</mn></msup></mfrac></math>), and keeps the norm law <math><mo>‖</mo><mi>p</mi><mi>q</mi><mo>‖</mo><mo>=</mo><mo>‖</mo><mi>p</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>q</mi><mo>‖</mo></math>. By Hurwitz, it is the last level where multiplication is fully associative.</figcaption>
+</figure>
+
+<h3 id="hs-octonion">𝕆 — the octonions (dimension 8): pay associativity, keep division</h3>
+<p>An octonion has seven imaginary units <math><msub><mi>e</mi><mn>1</mn></msub><mo>…</mo><msub><mi>e</mi><mn>7</mn></msub></math> (with <math><msub><mi>e</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></math>), each squaring to <math><mo>−</mo><mn>1</mn></math>. Their multiplication is encoded by the <strong>Fano plane</strong>: seven points, seven lines of three points each. The rule: the three units on any line form a quaternion-style triple — the product of any two of them is the third, with the sign fixed by the line's cyclic direction (click a line in Figure 10). But with three <em>different</em> lines involved, brackets start to matter. Here is a complete, checkable witness, with every intermediate product evaluated:</p>
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:14%">Step</th><th style="width:46%">Computation</th><th>What happened</th></tr>
+  <tr><td>1 — Left bracketing, inside first</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><msub><mi>e</mi><mn>2</mn></msub><mo>)</mo><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><msub><mi>e</mi><mn>3</mn></msub><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub></mrow></math></td><td class="hs-d"><math><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><msub><mi>e</mi><mn>2</mn></msub><mo>=</mo><msub><mi>e</mi><mn>3</mn></msub></math>, because \{1, 2, 3\} is a Fano line with cyclic order 1 → 2 → 3.</td></tr>
+  <tr><td>2 — Left bracketing, finish</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><msub><mi>e</mi><mn>2</mn></msub><mo>)</mo><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><msub><mi>e</mi><mn>7</mn></msub></mrow></math></td><td class="hs-d"><math><msub><mi>e</mi><mn>3</mn></msub><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><msub><mi>e</mi><mn>7</mn></msub></math>, from the line \{3, 4, 7\} with cyclic order 3 → 4 → 7.</td></tr>
+  <tr><td>3 — Right bracketing, inside first</td><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><mo>(</mo><msub><mi>e</mi><mn>2</mn></msub><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>)</mo><mo>=</mo><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><msub><mi>e</mi><mn>6</mn></msub></mrow></math></td><td class="hs-d"><math><msub><mi>e</mi><mn>2</mn></msub><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><msub><mi>e</mi><mn>6</mn></msub></math>, from the line \{2, 4, 6\} with cyclic order 2 → 4 → 6. Same three factors, different grouping.</td></tr>
+  <tr><td>4 — Right bracketing, finish</td><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><mo>(</mo><msub><mi>e</mi><mn>2</mn></msub><mo>·</mo><msub><mi>e</mi><mn>4</mn></msub><mo>)</mo><mo>=</mo><mo>−</mo><msub><mi>e</mi><mn>7</mn></msub></mrow></math></td><td class="hs-d"><math><msub><mi>e</mi><mn>1</mn></msub><mo>·</mo><msub><mi>e</mi><mn>6</mn></msub><mo>=</mo><mo>−</mo><msub><mi>e</mi><mn>7</mn></msub></math>: on the line \{1, 7, 6\} the pair (1, 6) runs against the cyclic order 1 → 7 → 6, so the sign flips.</td></tr>
+  <tr><td rowspan="2">5 — Compare</td><td class="hs-f"><math display="block"><mrow><mo>(</mo><msub><mi>e</mi><mn>1</mn></msub><msub><mi>e</mi><mn>2</mn></msub><mo>)</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>7</mn></msub></mrow></math></td><td class="hs-d" rowspan="2">The two bracketings differ — not by a little, but by a sign on the whole answer. Associativity is dead.</td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>1</mn></msub><mo>(</mo><msub><mi>e</mi><mn>2</mn></msub><msub><mi>e</mi><mn>4</mn></msub><mo>)</mo><mo>=</mo><mo>−</mo><msub><mi>e</mi><mn>7</mn></msub></mrow></math></td></tr>
+</table></div>
+<p>What survives is <strong>alternativity</strong>: bracketings still agree whenever two of the three factors are equal, and that is enough to keep inverses and the norm law working. 𝕆 is the last division algebra, and the last normed one — Hurwitz's theorem says there is no ninth dimension where this could continue.</p>
+
+<figure>
+  <p class="hs-figtitle">Figure 10 — The Fano plane: octonion multiplication at a click</p>
+  <svg id="fanoSvg" viewBox="0 0 640 340" role="img" aria-label="Fano plane diagram: a triangle with vertices e1, e6, e5, edge midpoints e7, e3, e4, and centre e2, joined by seven lines of three points each, one drawn as a circle">
+    
+    <g stroke="transparent" stroke-width="22" style="cursor:pointer">
+      <line class="hs-fano-hit" data-line="0" x1="320" y1="40" x2="320" y2="300"/>
+      <line class="hs-fano-hit" data-line="1" x1="320" y1="40" x2="570" y2="300"/>
+      <line class="hs-fano-hit" data-line="2" x1="70" y1="300" x2="320" y2="40"/>
+      <line class="hs-fano-hit" data-line="3" x1="70" y1="300" x2="570" y2="300"/>
+      <line class="hs-fano-hit" data-line="4" x1="70" y1="300" x2="445" y2="170"/>
+      <line class="hs-fano-hit" data-line="5" x1="570" y1="300" x2="195" y2="170"/>
+      <circle class="hs-fano-hit" data-line="6" cx="320" cy="175" r="125" fill="none"/>
+    </g>
+    
+    <g stroke="var(--hs-muted)" stroke-width="2" fill="none">
+      <line class="hs-fano-vis" data-line="0" x1="320" y1="40" x2="320" y2="300"/>
+      <line class="hs-fano-vis" data-line="1" x1="320" y1="40" x2="570" y2="300"/>
+      <line class="hs-fano-vis" data-line="2" x1="70" y1="300" x2="320" y2="40"/>
+      <line class="hs-fano-vis" data-line="3" x1="70" y1="300" x2="570" y2="300"/>
+      <line class="hs-fano-vis" data-line="4" x1="70" y1="300" x2="445" y2="170"/>
+      <line class="hs-fano-vis" data-line="5" x1="570" y1="300" x2="195" y2="170"/>
+      <circle class="hs-fano-vis" data-line="6" cx="320" cy="175" r="125"/>
+    </g>
+    <g font-size="16" font-weight="700" text-anchor="middle" fill="var(--hs-ink)">
+      <circle cx="320" cy="40" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="320" y="46" fill="var(--hs-ink)">e₁</text>
+      <circle cx="320" cy="213" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="320" y="219" fill="var(--hs-ink)">e₂</text>
+      <circle cx="320" cy="300" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="320" y="306" fill="var(--hs-ink)">e₃</text>
+      <circle cx="445" cy="170" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="445" y="176" fill="var(--hs-ink)">e₄</text>
+      <circle cx="570" cy="300" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="570" y="306" fill="var(--hs-ink)">e₅</text>
+      <circle cx="70" cy="300" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="70" y="306" fill="var(--hs-ink)">e₆</text>
+      <circle cx="195" cy="170" r="17" fill="var(--hs-surface)" stroke="var(--hs-ink)" stroke-width="1.5"/><text x="195" y="176" fill="var(--hs-ink)">e₇</text>
+    </g>
+  </svg>
+  <div class="hs-readout" id="fanoOut"></div>
+  <figcaption><b>Seven lines, seven quaternionic triples.</b> Each line of the Fano plane, together with e₀ = 1, spans a copy of ℍ inside 𝕆. The diagram is the entire multiplication table of the imaginary units, compressed: pick any two units, and the line through them names their product. Click each of the seven lines (the circle counts as a line) to read off its triple.</figcaption>
+</figure>
+
+<h3 id="hs-sedenions">𝕊 — the sedenions (dimension 16): pay division itself</h3>
+<p>Double once more and the failure is no longer about the <em>order</em> of operations — it is about existence. The sedenions contain <strong>zero divisors</strong>: non-zero elements whose product is exactly zero. That kills division (if <math><mi>x</mi><mi>y</mi><mo>=</mo><mn>0</mn></math> with <math><mi>x</mi><mo>≠</mo><mn>0</mn></math>, then y has no inverse), kills the norm law (<math><mo>‖</mo><mi>x</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>y</mi><mo>‖</mo><mo>&gt;</mo><mn>0</mn></math> but <math><mo>‖</mo><mi>x</mi><mi>y</mi><mo>‖</mo><mo>=</mo><mn>0</mn></math>), and kills alternativity too. Here is a fully explicit witness, expanded with every term kept, and every basis product evaluated using the Cayley–Dickson rule of Section 3:</p>
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:14%">Step</th><th style="width:48%">Computation</th><th>What happened</th></tr>
+  <tr><td rowspan="2">1 — Set up</td><td class="hs-f"><math display="block"><mrow><mi>x</mi><mo>=</mo><msub><mi>e</mi><mn>3</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub></mrow></math></td><td class="hs-d" rowspan="2">Both factors are plainly non-zero: <math><mo>‖</mo><mi>x</mi><mo>‖</mo><mo>=</mo><mo>‖</mo><mi>y</mi><mo>‖</mo><mo>=</mo><msqrt><mn>2</mn></msqrt></math>.</td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>y</mi><mo>=</mo><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>15</mn></msub></mrow></math></td></tr>
+  <tr><td>2 — Expand</td><td class="hs-f"><math display="block"><mrow><mi>x</mi><mo>·</mo><mi>y</mi><mo>=</mo><msub><mi>e</mi><mn>3</mn></msub><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>3</mn></msub><msub><mi>e</mi><mn>15</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>10</mn></msub><msub><mi>e</mi><mn>15</mn></msub></mrow></math></td><td class="hs-d">Distributivity gives four terms; all four are kept, signs attached. Nothing has cancelled yet.</td></tr>
+  <tr><td rowspan="4">3 — Evaluate each term</td><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>3</mn></msub><msub><mi>e</mi><mn>6</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>5</mn></msub></mrow></math></td><td class="hs-d" rowspan="4">Each product of basis units from the recursive Cayley–Dickson table for 𝕊. Note the repeats: <math><msub><mi>e</mi><mn>5</mn></msub></math> and <math><msub><mi>e</mi><mn>12</mn></msub></math> each appear twice.</td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>3</mn></msub><msub><mi>e</mi><mn>15</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>12</mn></msub></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>10</mn></msub><msub><mi>e</mi><mn>6</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>12</mn></msub></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><msub><mi>e</mi><mn>10</mn></msub><msub><mi>e</mi><mn>15</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>5</mn></msub></mrow></math></td></tr>
+  <tr><td>4 — Substitute back, keeping all four terms</td><td class="hs-f"><math display="block"><mrow><mi>x</mi><mo>·</mo><mi>y</mi><mo>=</mo><mo>(</mo><mo>+</mo><msub><mi>e</mi><mn>5</mn></msub><mo>)</mo><mo>+</mo><mo>(</mo><mo>−</mo><msub><mi>e</mi><mn>12</mn></msub><mo>)</mo><mo>+</mo><mo>(</mo><mo>+</mo><msub><mi>e</mi><mn>12</mn></msub><mo>)</mo><mo>+</mo><mo>(</mo><mo>−</mo><msub><mi>e</mi><mn>5</mn></msub><mo>)</mo></mrow></math></td><td class="hs-d">The signs from step 2 attach to the values from step 3. The four terms now visibly pair up.</td></tr>
+  <tr><td>5 — Cancel in pairs</td><td class="hs-f"><math display="block"><mrow><mi>x</mi><mo>·</mo><mi>y</mi><mo>=</mo><mo>(</mo><msub><mi>e</mi><mn>5</mn></msub><mo>−</mo><msub><mi>e</mi><mn>5</mn></msub><mo>)</mo><mo>+</mo><mo>(</mo><msub><mi>e</mi><mn>12</mn></msub><mo>−</mo><msub><mi>e</mi><mn>12</mn></msub><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math></td><td class="hs-d">Total cancellation. Two non-zero sedenions multiply to zero — impossible in ℝ, ℂ, ℍ and 𝕆, routine in 𝕊.</td></tr>
+</table></div>
+<figure>
+  <p class="hs-figtitle">Figure 11 — Zero-divisor cancellation: four terms, two annihilating pairs</p>
+  <svg viewBox="0 0 640 240" role="img" aria-label="Bar diagram: four product terms plus e5, minus e12, plus e12, minus e5 shown as signed bars that cancel in pairs to give zero">
+    <line x1="50" y1="120" x2="610" y2="120" stroke="var(--hs-muted)" stroke-width="2"/>
+    <g>
+      <rect x="80" y="46" width="90" height="74" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+      <rect x="200" y="120" width="90" height="74" fill="var(--hs-rust-soft)" stroke="var(--hs-rust)" stroke-width="1.5"/>
+      <rect x="330" y="46" width="90" height="74" fill="var(--hs-teal-soft)" stroke="var(--hs-teal)" stroke-width="1.5"/>
+      <rect x="460" y="120" width="90" height="74" fill="var(--hs-rust-soft)" stroke="var(--hs-rust)" stroke-width="1.5"/>
+    </g>
+    <g font-size="17" font-weight="700" text-anchor="middle" class="hs-svgmono">
+      <text x="125" y="90" fill="var(--hs-teal)">+e₅</text>
+      <text x="245" y="164" fill="var(--hs-rust)">−e₁₂</text>
+      <text x="375" y="90" fill="var(--hs-teal)">+e₁₂</text>
+      <text x="505" y="164" fill="var(--hs-rust)">−e₅</text>
+    </g>
+    <path d="M 125 30 C 220 2, 420 2, 505 30" fill="none" stroke="var(--hs-muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <path d="M 245 210 C 290 228, 340 228, 375 210" fill="none" stroke="var(--hs-muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="315" y="16" font-size="13.5" fill="var(--hs-muted)" text-anchor="middle">e₅ pair cancels</text>
+    <text x="310" y="238" font-size="13.5" fill="var(--hs-muted)" text-anchor="middle">e₁₂ pair cancels</text>
+  </svg>
+  <figcaption><b>Why this can only happen from 16 dimensions up.</b> The cancellation needs two independent "copies" of octonion-like structure whose products can mirror and annihilate each other. Inside 𝕆 there is no room for the mirror; the doubling to 𝕊 creates it. Notice the ingredients: <math><msub><mi>e</mi><mn>3</mn></msub></math> and <math><msub><mi>e</mi><mn>6</mn></msub></math> live in the original 𝕆 half of 𝕊, while <math><msub><mi>e</mi><mn>10</mn></msub></math> and <math><msub><mi>e</mi><mn>15</mn></msub></math> live in the new ℓ half — a zero divisor is always a conspiracy between the old half and the new half.</figcaption>
+</figure>
+
+<h3 id="hs-trigintaduonions">𝕋 — the trigintaduonions (dimension 32): the construction outlives the arithmetic</h3>
+<p>Nothing stops the machine. One more doubling gives the <strong>trigintaduonions</strong>: 32-dimensional numbers <math><mi>x</mi><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math> with <math><msub><mi>e</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></math> and thirty-one imaginary units, built as pairs of sedenions, <math><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> with <math><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>𝕊</mi></math>, multiplied by the same one-line rule. (One proposed naming scheme also calls this level the <em>pathions</em>, the 64-dimensional level the <em>chingons</em>, the 128-dimensional the <em>routons</em> and the 256-dimensional the <em>voudons</em> — playful names signalling that these are now objects of study, not of calculation.)</p>
+<p>What is true up here:</p>
+<div class="hs-tablewrap"><table class="hs-data">
+  <tr><th style="width:30%">Feature</th><th>Situation in the trigintaduonions (dim 32)</th></tr>
+  <tr><td>Still standing</td><td>Addition, subtraction, real scalar multiplication; conjugation <math><mi>x</mi><mo>↦</mo><msup><mi>x</mi><mo>*</mo></msup></math>; the quadratic norm <math><mi>N</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>x</mi><mo>·</mo><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mo>∑</mo><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup></math>, a non-negative real; <b>power-associativity</b> — powers <math><msup><mi>x</mi><mi>n</mi></msup></math> are unambiguous because the subalgebra generated by any <em>single</em> element is commutative and associative (a general Cayley–Dickson theorem, true at every level, forever).</td></tr>
+  <tr><td>Long gone</td><td>Commutativity, associativity, alternativity, division, and the multiplicative norm law — all lost at or before the sedenions and never regained. The sedenion zero divisors of Figure 11 embed unchanged: the same <math><mo>(</mo><msub><mi>e</mi><mn>3</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub><mo>)</mo><mo>(</mo><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>15</mn></msub><mo>)</mo><mo>=</mo><mn>0</mn></math> holds verbatim in 𝕋, since 𝕊 sits inside 𝕋 as the pairs <math><mo>(</mo><mi>a</mi><mo>,</mo><mn>0</mn><mo>)</mo></math>.</td></tr>
+  <tr><td>What proliferates</td><td>Zero divisors become abundant and structured — in 𝕊 and beyond they organise into interlocking families (in 𝕊, the zero divisors built from basis units form patterns related to the "box" of 84 distinguished pairs). At 32 dimensions and above, classifying them is a research topic, not a table.</td></tr>
+  <tr><td>Why anyone cares</td><td>The tower's well-behaved floors explain deep facts elsewhere: 𝕆 underlies the exceptional Lie groups and appears in string-theory compactifications; the pattern of losses (Hurwitz, and Bott–Milnor's result that only dimensions 1, 2, 4, 8 admit the relevant parallelisable spheres <math><msup><mi>S</mi><mn>0</mn></msup><mo>,</mo><msup><mi>S</mi><mn>1</mn></msup><mo>,</mo><msup><mi>S</mi><mn>3</mn></msup><mo>,</mo><msup><mi>S</mi><mn>7</mn></msup></math>) ties the tower to topology. The higher floors are studied for the zero-divisor geometry itself and for proposed applications in signal processing and physics — with the honest caveat that without division, "solving equations" up here is a different and harder game.</td></tr>
+</table></div>
+
+<figure>
+  <p class="hs-figtitle">Figure 12 — The ladder never ends: dimension <math><msup><mn>2</mn><mi>k</mi></msup></math> against step k</p>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Line chart on a logarithmic dimension axis: points for k equals 0 to 8 with dimensions 1, 2, 4, 8, 16, 32, 64, 128, 256, doubling at every step">
+    <g stroke="var(--hs-line-soft)" stroke-width="1">
+      <line x1="70" y1="285" x2="610" y2="285"/><line x1="70" y1="257" x2="610" y2="257"/><line x1="70" y1="229" x2="610" y2="229"/>
+      <line x1="70" y1="201" x2="610" y2="201"/><line x1="70" y1="173" x2="610" y2="173"/><line x1="70" y1="145" x2="610" y2="145"/>
+      <line x1="70" y1="117" x2="610" y2="117"/><line x1="70" y1="89" x2="610" y2="89"/><line x1="70" y1="61" x2="610" y2="61"/>
+      <line x1="70" y1="33" x2="610" y2="33"/>
+    </g>
+    <g font-size="12.5" fill="var(--hs-muted)" text-anchor="end" class="hs-svgmono">
+      <text x="62" y="289" fill="var(--hs-muted)">1</text><text x="62" y="261" fill="var(--hs-muted)">2</text><text x="62" y="233" fill="var(--hs-muted)">4</text><text x="62" y="205" fill="var(--hs-muted)">8</text>
+      <text x="62" y="177" fill="var(--hs-muted)">16</text><text x="62" y="149" fill="var(--hs-muted)">32</text><text x="62" y="121" fill="var(--hs-muted)">64</text><text x="62" y="93" fill="var(--hs-muted)">128</text>
+      <text x="62" y="65" fill="var(--hs-muted)">256</text><text x="62" y="37" fill="var(--hs-muted)">512</text>
+    </g>
+    <polyline points="85,285 150,257 215,229 280,201 345,173 410,145 475,117 540,89 600,61" fill="none" stroke="var(--hs-teal)" stroke-width="2.5"/>
+    <g fill="var(--hs-teal)">
+      <circle cx="85" cy="285" r="5"/><circle cx="150" cy="257" r="5"/><circle cx="215" cy="229" r="5"/><circle cx="280" cy="201" r="5"/>
+      <circle cx="345" cy="173" r="5"/><circle cx="410" cy="145" r="5"/><circle cx="475" cy="117" r="5"/><circle cx="540" cy="89" r="5"/><circle cx="600" cy="61" r="5"/>
+    </g>
+    <g font-size="13" fill="var(--hs-ink)" text-anchor="middle" font-weight="600">
+      <text x="85" y="268" fill="var(--hs-ink)">ℝ</text><text x="150" y="240" fill="var(--hs-ink)">ℂ</text><text x="215" y="212" fill="var(--hs-ink)">ℍ</text><text x="280" y="184" fill="var(--hs-ink)">𝕆</text>
+      <text x="345" y="156" fill="var(--hs-ink)">𝕊</text><text x="410" y="128" fill="var(--hs-ink)">𝕋</text>
+      <text x="475" y="100" fill="var(--hs-ink)">64</text><text x="540" y="72" fill="var(--hs-ink)">128</text><text x="596" y="44" fill="var(--hs-ink)">256</text>
+    </g>
+    <g font-size="13" fill="var(--hs-muted)" text-anchor="middle">
+      <text x="85" y="312" fill="var(--hs-muted)">k=0</text><text x="150" y="312" fill="var(--hs-muted)">k=1</text><text x="215" y="312" fill="var(--hs-muted)">k=2</text><text x="280" y="312" fill="var(--hs-muted)">k=3</text>
+      <text x="345" y="312" fill="var(--hs-muted)">k=4</text><text x="410" y="312" fill="var(--hs-muted)">k=5</text><text x="475" y="312" fill="var(--hs-muted)">k=6</text><text x="540" y="312" fill="var(--hs-muted)">k=7</text><text x="600" y="312" fill="var(--hs-muted)">k=8</text>
+    </g>
+    <text x="70" y="18" font-size="13" fill="var(--hs-muted)">dimension (log₂ scale)</text>
+  </svg>
+  <figcaption><b>Exponential growth, linear chart.</b> On a <math><msub><mi>log</mi><mn>2</mn></msub></math> axis the doubling ladder is a straight line — each step costs one more bit of "address" for a basis unit (an index from 0 to <math><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></math>) while the multiplication table grows as the <em>square</em> of the dimension: a trigintaduonion product is 32 × 32 = 1,024 basis products glued together by five nested layers of the Cayley–Dickson rule.</figcaption>
+</figure>
+</section>
+
+
+<section>
+<h2 id="meeting">5 — Where the two constructions meet</h2>
+<p>The tower and Hilbert space were never separate stories. Equip any level of the tower with its standard inner product — for <math><mi>x</mi><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math> and <math><mi>y</mi><mo>=</mo><mo>∑</mo><msub><mi>y</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math>, take <math><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>y</mi><mn>i</mn></msub></math>, equivalently <math><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mi>Re</mi><mo>(</mo><mi>x</mi><mo>·</mo><msup><mi>y</mi><mo>*</mo></msup><mo>)</mo></math> — and:</p>
+<div class="hs-tablewrap"><table class="hs-formulas">
+  <tr><th style="width:26%">Fact</th><th style="width:38%">Statement</th><th>Consequence</th></tr>
+  <tr><td rowspan="6">Every floor is a Hilbert space, as an inner product space</td><td class="hs-f"><math display="block"><mrow><mi>ℝ</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>1</mn></msup></mrow></math></td><td class="hs-d" rowspan="6">Finite-dimensional inner product spaces are automatically complete, so each floor is a Hilbert space with extra structure (a multiplication) laid on top of the geometry.</td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>ℂ</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>2</mn></msup></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>ℍ</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>4</mn></msup></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>𝕆</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>8</mn></msup></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>𝕊</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>16</mn></msup></mrow></math></td></tr>
+  <tr><td class="hs-f"><math display="block"><mrow><mi>𝕋</mi><mo>≅</mo><msup><mi>ℝ</mi><mn>32</mn></msup></mrow></math></td></tr>
+  <tr><td>The norm is the Hilbert norm</td><td class="hs-f"><math display="block"><mrow><msup><mrow><mo>‖</mo><mi>x</mi><mo>‖</mo></mrow><mn>2</mn></msup><mo>=</mo><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>x</mi><mo>⟩</mo><mo>=</mo><mi>x</mi><mo>·</mo><msup><mi>x</mi><mo>*</mo></msup><mo>=</mo><mo>∑</mo><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup></mrow></math></td><td class="hs-d">The "length" that Hurwitz's theorem is about is exactly the Hilbert-space length. Normed division algebra = Hilbert space whose multiplication never stretches lengths unexpectedly.</td></tr>
+  <tr><td>The tower stops cooperating, Hilbert space doesn't</td><td class="hs-f">dim can be any <math><mi>n</mi></math>, or <math><mo>∞</mo></math>, for a Hilbert space — but normed division only for <math><mi>n</mi><mo>∈</mo><mo>\{\{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>8</mn><mo>\}\}</mo></math></td><td class="hs-d">Hilbert space asks only for linear structure + inner product + completeness, all of which scale to any dimension. The tower additionally asks for a well-behaved multiplication, and that is the scarce resource.</td></tr>
+  <tr><td>ℂ graduates</td><td class="hs-f">Quantum theory = Hilbert space over ℂ</td><td class="hs-d">The second floor of the tower supplies the scalars for the infinite-dimensional theory: states are unit vectors in a complex Hilbert space, observables are its self-adjoint operators, and <math><mo>⟨</mo><mi>φ</mi><mo>,</mo><mi>ψ</mi><mo>⟩</mo></math> is the transition amplitude. The two constructions are, in the end, one subject.</td></tr>
+</table></div>
+
+<div class="hs-note">
+<b class="hs-tag">The one-paragraph summary</b>
+<p style="margin:0">Start with ℝ. Ask for more directions while keeping arithmetic perfect, and Cayley–Dickson doubling gives you ℂ, ℍ, 𝕆 — charging ordering, then commutativity, then associativity — after which Hurwitz's theorem proves the shop is closed: 𝕊 and the trigintaduonions beyond it keep the construction but lose division to zero divisors. Ask instead for more directions while keeping only <em>geometry</em> — inner product, length, angle, projection — plus the completeness that makes limits land, and you get Hilbert space, which happily extends to infinitely many dimensions, houses Fourier series and quantum states, and contains every floor of the tower as a finite-dimensional special case.</p>
+</div>
+</section>
+
+<div class="hs-foot">
+<p>All diagrams are drawn directly in this page as SVG. Worked examples were chosen so every step can be checked by hand: the octonion associator <math><mo>(</mo><msub><mi>e</mi><mn>1</mn></msub><msub><mi>e</mi><mn>2</mn></msub><mo>)</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>7</mn></msub></math> versus <math><msub><mi>e</mi><mn>1</mn></msub><mo>(</mo><msub><mi>e</mi><mn>2</mn></msub><msub><mi>e</mi><mn>4</mn></msub><mo>)</mo><mo>=</mo><mo>−</mo><msub><mi>e</mi><mn>7</mn></msub></math>, and the sedenion zero divisor <math><mo>(</mo><msub><mi>e</mi><mn>3</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub><mo>)</mo><mo>(</mo><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>15</mn></msub><mo>)</mo><mo>=</mo><mn>0</mn></math>, both following from the Cayley–Dickson multiplication rule stated in Section 3 — the latter holds verbatim inside the trigintaduonions as well.</p>
+</div>
+
+<script set:html={`
+(function(){
+"use strict";
+var SUB = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+function sub(n){ return String(n).split('').map(function(c){return SUB[c]||c;}).join(''); }
+function $(id){ return document.getElementById(id); }
+
+/* ---------- Figure 2: Hilbert inner-product explorer ---------- */
+var hbAngle=$('hbAngle'), hbLen=$('hbLen');
+var OX=320, OY=300, PX=65, ULEN=3.8;
+function drawHilbert(){
+  var th=parseFloat(hbAngle.value), L=parseFloat(hbLen.value);
+  var rad=th*Math.PI/180, c=Math.cos(rad), s=Math.sin(rad);
+  var ex=OX+L*PX*c, ey=OY-L*PX*s;
+  var fx=OX+L*PX*c;
+  var v=$('hbV'); v.setAttribute('x2',ex); v.setAttribute('y2',ey);
+  var head=$('hbVHead');
+  var a1=Math.atan2(-(ey-OY), ex-OX);
+  var hx=ex, hy=ey;
+  head.setAttribute('points', hx+','+hy+' '+(hx-17*Math.cos(a1-0.42))+','+(hy+17*Math.sin(a1-0.42))+' '+(hx-17*Math.cos(a1+0.42))+','+(hy+17*Math.sin(a1+0.42)));
+  var proj=$('hbProj'); proj.setAttribute('x1',fx); proj.setAttribute('x2',fx); proj.setAttribute('y1',ey); proj.setAttribute('y2',OY);
+  proj.style.display = (Math.abs(L*c)<0.03 || L*PX*s<8) ? 'none':'';
+  var r=100, sx=OX+r, sy=OY, exx=OX+r*c, eyy=OY-r*s;
+  var large = th>180?1:0;
+  $('hbArc').setAttribute('d','M '+sx+' '+sy+' A '+r+' '+r+' 0 '+large+' 0 '+exx+' '+eyy);
+  $('hbArc').style.display = th<2 ? 'none':'';
+  /* labels move with the elements; theta label at half-angle, v label beyond the tip, clamped into the view */
+  var mid=rad/2, tlx=OX+138*Math.cos(mid), tly=OY-138*Math.sin(mid);
+  var thLab=$('hbTheta'); thLab.setAttribute('x',Math.min(tlx,560)); thLab.setAttribute('y',Math.max(tly,30));
+  thLab.textContent='θ = '+th+'°';
+  var vlx=ex+30*c, vly=ey-30*s;
+  if(s<0.3){ vly=ey+26; } /* near the axis, drop the label below the tip so it never sits on the arrow */
+  var vLab=$('hbVLab');
+  vLab.setAttribute('x', Math.max(16, Math.min(vlx, 596)));
+  vLab.setAttribute('y', Math.max(24, Math.min(vly, 340)));
+  vLab.textContent='v, |v| = '+L.toFixed(1);
+  var pLab=$('hbProjLab');
+  var px = fx+10; if(px>545) px = fx-52;
+  pLab.setAttribute('x', px); pLab.setAttribute('y', OY-18);
+  pLab.textContent='proj at '+(L*c).toFixed(2);
+  $('hbAngleVal').textContent=th+'°';
+  $('hbLenVal').textContent=L.toFixed(1);
+  $('hilbTitle').textContent='Figure 2 — Inner-product explorer: v at '+th+'°, |v| = '+L.toFixed(1);
+  var ip=ULEN*L*c, prod=ULEN*L, projScal=L*c;
+  $('hbOut').innerHTML =
+    '<span class="hs-k">Inner product</span> <math><mrow><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>=</mo><mo>|</mo><mi>u</mi><mo>|</mo><mo>·</mo><mo>|</mo><mi>v</mi><mo>|</mo><mo>·</mo><mi>cos</mi><mo>&#x2061;</mo><mi>θ</mi><mo>=</mo><mn>3.8</mn><mo>×</mo><mn>'+L.toFixed(1)+'</mn><mo>×</mo><mn>'+c.toFixed(3)+'</mn><mo>=</mo></mrow></math> <b>'+ip.toFixed(2)+'</b><br>'+
+    '<span class="hs-k">Cauchy–Schwarz</span> <math><mrow><mo>|</mo><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>|</mo><mo>=</mo><mn>'+Math.abs(ip).toFixed(2)+'</mn><mo>≤</mo><mo>|</mo><mi>u</mi><mo>|</mo><mo>·</mo><mo>|</mo><mi>v</mi><mo>|</mo><mo>=</mo><mn>'+prod.toFixed(2)+'</mn></mrow></math> &nbsp;(ratio '+(prod>0?(Math.abs(ip)/prod).toFixed(3):'—')+')<br>'+
+    '<span class="hs-k">Projection</span> <math><mrow><msub><mi>proj</mi><mi>u</mi></msub><mi>v</mi></mrow></math> sits at signed distance '+projScal.toFixed(2)+' along u'+(projScal<0?' — negative: it points backwards, past the origin':'')+(Math.abs(c)<0.005?' — zero: u ⊥ v, the vectors are orthogonal':'');
+}
+hbAngle.addEventListener('input', drawHilbert);
+hbLen.addEventListener('input', drawHilbert);
+drawHilbert();
+
+/* ---------- Figure 4: Fourier synthesis ---------- */
+var fN=$('fourierN');
+function drawFourier(){
+  var N=parseInt(fN.value,10), pts=[], i, t, x, y, val, m;
+  var energy=0;
+  for(m=1;m<=2*N-1;m+=2) energy += 1/(m*m);
+  var frac = 8/(Math.PI*Math.PI)*energy;
+  for(i=0;i<=240;i++){
+    t = i/240*2*Math.PI; val=0;
+    for(m=1;m<=2*N-1;m+=2) val += Math.sin(m*t)/m;
+    val *= 4/Math.PI;
+    x = 70 + i/240*540; y = 150 - 80*val;
+    pts.push((i===0?'M ':'L ')+x.toFixed(1)+' '+y.toFixed(1));
+  }
+  $('fourierPath').setAttribute('d', pts.join(' '));
+  $('fourierNVal').textContent=N;
+  $('fourierTitle').textContent='Figure 4 — Fourier synthesis: a square wave built from '+N+' sine term'+(N===1?'':'s');
+  var terms=[];
+  for(m=1;m<=Math.min(2*N-1,9);m+=2) terms.push(m===1?'<math><mrow><mi>sin</mi><mo>&#x2061;</mo><mi>x</mi></mrow></math>':'<math><mrow><mfrac><mn>1</mn><mn>'+m+'</mn></mfrac><mi>sin</mi><mo>&#x2061;</mo><mn>'+m+'</mn><mi>x</mi></mrow></math>');
+  $('fourierOut').innerHTML =
+    '<span class="hs-k">Partial sum</span> <math><mrow><msub><mi>S</mi><mn>'+N+'</mn></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mfrac><mn>4</mn><mi>π</mi></mfrac><mo>·</mo><mo>[</mo></mrow></math> '+terms.join(' + ')+(2*N-1>9?' + …':'')+' <math><mrow><mo>]</mo></mrow></math><br>'+
+    '<span class="hs-k">Energy captured</span> '+(frac*100).toFixed(1)+'% of the square wave\\'s <math><mrow><msup><mi>L</mi><mn>2</mn></msup></mrow></math> energy<br><span class="hs-k">RMS error</span> '+Math.sqrt(Math.max(0,1-frac)).toFixed(3)+' and shrinking toward 0 as <math><mrow><mi>N</mi><mo>→</mo><mo>∞</mo></mrow></math>';
+}
+fN.addEventListener('input', drawFourier);
+drawFourier();
+
+/* ---------- Figures 6+7: shared Cayley–Dickson slider ---------- */
+var LEVELS=[
+ {sym:'ℝ', name:'the real numbers', dim:1, prev:null,
+  props:[true,true,true,true,true,true], lost:'Nothing is lost — this is the seed. Every law on the ledger holds.'},
+ {sym:'ℂ', name:'the complex numbers', dim:2, prev:'ℝ',
+  props:[false,true,true,true,true,true], lost:'Lost at this step: ordering. There is no arithmetic-compatible way to say which of two complex numbers is bigger.'},
+ {sym:'ℍ', name:'the quaternions', dim:4, prev:'ℂ',
+  props:[false,false,true,true,true,true], lost:'Lost at this step: commutativity. From here on, <math><mrow><mi>a</mi><mo>·</mo><mi>b</mi></mrow></math> and <math><mrow><mi>b</mi><mo>·</mo><mi>a</mi></mrow></math> are different numbers (for quaternions, often negatives of each other).'},
+ {sym:'𝕆', name:'the octonions', dim:8, prev:'ℍ',
+  props:[false,false,false,true,true,true], lost:'Lost at this step: associativity. Brackets matter — but alternativity survives, and with it division and the norm law. This is the last normed division algebra (Hurwitz).'},
+ {sym:'𝕊', name:'the sedenions', dim:16, prev:'𝕆',
+  props:[false,false,false,false,false,false], lost:'Lost at this step: alternativity, division and the norm law, all at once — zero divisors appear, e.g. <math><mrow><mo>(</mo><msub><mi>e</mi><mn>3</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub><mo>)</mo><mo>(</mo><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>15</mn></msub><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math> with both factors non-zero (Figure 11).'},
+ {sym:'𝕋', name:'the trigintaduonions', dim:32, prev:'𝕊',
+  props:[false,false,false,false,false,false], lost:'Nothing new is left to lose. Conjugation, the quadratic norm <math><mrow><mi>N</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>x</mi><mo>·</mo><msup><mi>x</mi><mo>*</mo></msup></mrow></math>, and power-associativity survive — as they do at every Cayley–Dickson level, without end.'}
+];
+var PROPNAMES=['Ordering','Commutativity','Associativity','Alternativity','Division (no zero divisors)','Normed'];
+var tK=$('towerK');
+function drawTower(){
+  var k=parseInt(tK.value,10), lv=LEVELS[k];
+  $('towerKVal').textContent=lv.sym+' — dim '+lv.dim+' (k = '+k+')';
+  if(k===0){
+    $('cdTitleA').textContent='Figure 6 — Doubling step k = 0: ℝ (1 dimension), the seed algebra';
+    $('cdBoxA1').textContent='ℝ is given';
+    $('cdBoxA2').textContent='not built';
+    $('cdPair').textContent='the seed';
+    $('cdNote').innerHTML='The Cayley–Dickson machine needs a starting algebra with conjugation; ℝ, with <math><mrow><msup><mi>a</mi><mo>*</mo></msup><mo>=</mo><mi>a</mi></mrow></math>, is it. Slide right to start doubling.';
+  } else {
+    $('cdTitleA').textContent='Figure 6 — Doubling step k = '+k+': building '+lv.sym+' ('+lv.dim+' dimensions) from pairs of '+lv.prev;
+    $('cdBoxA1').textContent='a ∈ '+lv.prev;
+    $('cdBoxA2').textContent='b ∈ '+lv.prev;
+    $('cdPair').textContent='(a, b) = a + bℓ';
+    $('cdNote').innerHTML='ℓ = new unit <math><mrow><msub><mi>e</mi><mn>'+(lv.dim/2)+'</mn></msub></mrow></math>: old units enter as <math><mrow><mo>(</mo><msub><mi>e</mi><mi>i</mi></msub><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math>, new units as <math><mrow><mo>(</mo><mn>0</mn><mo>,</mo><msub><mi>e</mi><mrow><mi>i</mi><mo>−</mo><mn>'+(lv.dim/2)+'</mn></mrow></msub><mo>)</mo></mrow></math>.';
+  }
+  $('cdNewSym').textContent=lv.sym;
+  $('cdNewDim').textContent='dim '+lv.dim;
+  $('cdTitleB').textContent='Figure 7 — Basis and property ledger at k = '+k+': '+lv.sym+', '+lv.name;
+  var grid=$('basisGrid'), html='', i;
+  for(i=0;i<lv.dim;i++){
+    var cls = i===0 ? 'hs-cell hs-real' : (k>=1 && i>=lv.dim/2 ? 'hs-cell hs-new' : 'hs-cell');
+    html += '<span class="'+cls+'"><math><mrow><msub><mi>e</mi><mn>'+i+'</mn></msub></mrow></math></span>';
+  }
+  grid.innerHTML=html;
+  var rows = PROPNAMES.map(function(p,idx){
+    var ok=lv.props[idx];
+    var extra = idx===5 ? ' <math><mrow><mo>‖</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>‖</mo><mo>=</mo><mo>‖</mo><mi>a</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>b</mi><mo>‖</mo></mrow></math>' : '';
+    return '<span class="hs-k">'+p+'</span>'+extra+' '+(ok?'<span class="hs-yes">holds</span>':'<span class="hs-no">lost</span>');
+  }).join('<br>');
+  $('ledgerOut').innerHTML = rows+'<br><span class="hs-k">At this step</span> '+lv.lost;
+}
+tK.addEventListener('input', drawTower);
+drawTower();
+
+/* ---------- Figure 9: quaternion bench ---------- */
+var QP={ i:{i:'−1',j:'k',k:'−j'}, j:{i:'−k',j:'−1',k:'i'}, k:{i:'j',j:'−i',k:'−1'} };
+var qa='i', qb='j';
+function drawQuat(){
+  document.querySelectorAll('.hs-quat-a').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.v===qa?'true':'false'); });
+  document.querySelectorAll('.hs-quat-b').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.v===qb?'true':'false'); });
+  var ab=QP[qa][qb], ba=QP[qb][qa];
+  function qt(s){ if(s==='−1') return '<mo>−</mo><mn>1</mn>'; if(s.charAt(0)==='−') return '<mo>−</mo><mi>'+s.slice(1)+'</mi>'; return '<mi>'+s+'</mi>'; }
+  var note = qa===qb ? '<math><mrow><msup><mi>'+qa+'</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><mn>1</mn></mrow></math>: every imaginary unit squares to −1, one of Hamilton\\'s carved relations.'
+    : 'Swap the factors and the answer negates. Non-commutativity in its smallest possible form.';
+  $('quatOut').innerHTML='<span class="hs-k">Product</span> <math><mrow><mi>'+qa+'</mi><mo>·</mo><mi>'+qb+'</mi><mo>=</mo>'+qt(ab)+'</mrow></math><br><span class="hs-k">Reversed</span> <math><mrow><mi>'+qb+'</mi><mo>·</mo><mi>'+qa+'</mi><mo>=</mo>'+qt(ba)+'</mrow></math><br>'+note;
+}
+document.querySelectorAll('.hs-quat-a').forEach(function(b){ b.addEventListener('click', function(){ qa=b.dataset.v; drawQuat(); }); });
+document.querySelectorAll('.hs-quat-b').forEach(function(b){ b.addEventListener('click', function(){ qb=b.dataset.v; drawQuat(); }); });
+drawQuat();
+
+/* ---------- Figure 10: Fano plane ---------- */
+var FANO=[ [1,2,3],[1,4,5],[1,7,6],[3,6,5],[2,4,6],[2,5,7],[3,4,7] ];
+var fanoSel=0;
+function drawFano(){
+  document.querySelectorAll('.hs-fano-vis').forEach(function(el){
+    var on = parseInt(el.dataset.line,10)===fanoSel;
+    el.setAttribute('stroke', on?'var(--hs-rust)':'var(--hs-muted)');
+    el.setAttribute('stroke-width', on?'4.5':'2');
+  });
+  var L=FANO[fanoSel], a=L[0], b=L[1], c=L[2];
+  function em(n){ return '<msub><mi>e</mi><mn>'+n+'</mn></msub>'; }
+  $('fanoOut').innerHTML =
+    '<span class="hs-k">Selected line</span> <math><mrow><mo>{</mo>'+em(a)+'<mo>,</mo>'+em(b)+'<mo>,</mo>'+em(c)+'<mo>}</mo></mrow></math> — cyclic order <math><mrow>'+em(a)+'<mo>→</mo>'+em(b)+'<mo>→</mo>'+em(c)+'<mo>→</mo>'+em(a)+'</mrow></math><br>'+
+    '<span class="hs-k">Products along the cycle</span><br><math><mrow>'+em(a)+'<mo>·</mo>'+em(b)+'<mo>=</mo>'+em(c)+'</mrow></math><br><math><mrow>'+em(b)+'<mo>·</mo>'+em(c)+'<mo>=</mo>'+em(a)+'</mrow></math><br><math><mrow>'+em(c)+'<mo>·</mo>'+em(a)+'<mo>=</mo>'+em(b)+'</mrow></math><br>'+
+    'Reversed products are the negatives, and each unit squares to <math><mrow><mo>−</mo><mn>1</mn></mrow></math>. Together with <math><mrow>'+em(0)+'<mo>=</mo><mn>1</mn></mrow></math>, this line spans a copy of ℍ inside 𝕆.';
+}
+document.querySelectorAll('.hs-fano-hit').forEach(function(el){
+  el.addEventListener('click', function(){ fanoSel=parseInt(el.dataset.line,10); drawFano(); });
+});
+drawFano();
+})();
+`} />
