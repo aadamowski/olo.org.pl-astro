@@ -112,10 +112,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
 <p class="hs-kicker">Interactive explainer — Inner products, completeness, and the Cayley–Dickson ladder</p>
 <p class="hs-lede">Two great constructions run through modern mathematics. One goes <em>up in dimension without end</em>: Hilbert space, where vectors can be whole functions and sums can have infinitely many terms. The other doubles dimension in discrete jumps — ℝ → ℂ → ℍ → 𝕆 → 𝕊 → the 32-dimensional trigintaduonions — and pays a toll at every jump, surrendering one cherished law of arithmetic each time. This page builds both, step by step, and shows exactly where they meet.</p>
 
+## 1 — Hilbert space: geometry with infinitely many directions
 
-
-<section>
-<h2 id="hilbert">1 — Hilbert space: geometry with infinitely many directions</h2>
 <p>A <strong>Hilbert space</strong> is a vector space equipped with an <strong>inner product</strong> — a machine that takes two vectors and returns a number measuring how much they point the same way — and one extra demand: the space must be <strong>complete</strong>, meaning every sequence of vectors that <em>ought</em> to converge to something actually converges to a vector inside the space. Inner product gives geometry (lengths, angles, projections); completeness guarantees the geometry has no holes.</p>
 
 <p>Everything starts with the inner product. In the plane, for <math><mi>u</mi><mo>=</mo><mo>(</mo><msub><mi>u</mi><mn>1</mn></msub><mo>,</mo><msub><mi>u</mi><mn>2</mn></msub><mo>)</mo></math> and <math><mi>v</mi><mo>=</mo><mo>(</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><msub><mi>v</mi><mn>2</mn></msub><mo>)</mo></math>, it is the familiar dot product. The definition, and the three quantities it buys you, are collected in one table:</p>
@@ -154,7 +152,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>Reading the picture.</b> Here <math><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>=</mo><mn>4</mn><mo>·</mo><mn>3.2</mn><mo>+</mo><mn>0</mn><mo>·</mo><mn>1.9</mn><mo>=</mo><mn>12.8</mn></math>. The dashed drop from the tip of v lands at distance 3.2 along u — exactly the first component of v — and the leftover vertical segment is perpendicular to u. That splitting of a vector into "parallel part + perpendicular part" is the single most-used move in Hilbert space theory, and it works in every dimension, including infinitely many.</figcaption>
 </figure>
 
-<h3 id="hs-explorer-inner-product">Try it: the inner-product explorer</h3>
+### Try it: the inner-product explorer
+
 <p>One slider turns v around the origin; a second stretches it. The diagram, its moving labels, and the readouts below all follow the same two controls, so you can watch the inner product change sign as v swings past perpendicular — and check the Cauchy–Schwarz inequality <math><mo>|</mo><mo>⟨</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>⟩</mo><mo>|</mo><mo>≤</mo><mo>‖</mo><mi>u</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>v</mi><mo>‖</mo></math>, which says the inner product can never exceed the product of the lengths, with equality only when the vectors are parallel.</p>
 
 <figure>
@@ -184,7 +183,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>What to try.</b> At θ = 90° the inner product is exactly 0 — perpendicular vectors are "orthogonal", the Hilbert-space word for it. Past 90° the projection points <em>backwards</em> along u and the inner product goes negative. At θ = 0° Cauchy–Schwarz becomes an equality.</figcaption>
 </figure>
 
-<h3 id="hs-completeness">Completeness: no holes in the space</h3>
+### Completeness: no holes in the space
+
 <p>Geometry alone does not make a Hilbert space. Consider the rational numbers ℚ on a line: you can add them and measure distances, yet the sequence 1, 1.4, 1.41, 1.414, … — rationals closing in on <math><msqrt><mn>2</mn></msqrt></math> — is a <strong>Cauchy sequence</strong> (its terms get arbitrarily close to <em>each other</em>) whose limit is missing from ℚ. A space with such a hole is an <em>inner product space</em> but not a Hilbert space. Completeness is the demand that every Cauchy sequence converges to a point of the space itself.</p>
 
 <figure>
@@ -208,7 +208,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>Why it matters.</b> Completeness is what licenses infinite processes: Fourier series, limits of approximations, solutions of differential equations built as limits. ℝ is complete (that is essentially its construction from ℚ); ℚ is not. Every finite-dimensional inner product space is automatically complete — which is why the finite hypercomplex algebras later in this page are all, quietly, Hilbert spaces already. The interesting completeness questions begin at infinite dimension.</figcaption>
 </figure>
 
-<h3 id="hs-flagship-examples">The two flagship infinite-dimensional examples</h3>
+### The two flagship infinite-dimensional examples
+
 <div class="hs-tablewrap"><table class="hs-formulas">
   <tr><th style="width:20%">Space</th><th style="width:40%">Its "vectors" and inner product</th><th>Why it is complete / useful</th></tr>
   <tr><td><b><math><msup><mi>ℓ</mi><mn>2</mn></msup></math></b> — square-summable sequences</td><td class="hs-f"><math><mi>x</mi><mo>=</mo><mo>(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msub><mi>x</mi><mn>3</mn></msub><mo>,</mo><mo>…</mo><mo>)</mo></math> with <math><mo>∑</mo><msup><mrow><mo>|</mo><msub><mi>x</mi><mn>i</mn></msub><mo>|</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mo>∞</mo></math>, and <math display="block"><mrow><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mover><mi>y</mi><mo>¯</mo></mover><mi>i</mi></msub></mrow></math></td><td class="hs-d">The direct infinite generalisation of <math><msup><mi>ℂ</mi><mi>n</mi></msup></math>. The condition <math><mo>∑</mo><msup><mrow><mo>|</mo><msub><mi>x</mi><mn>i</mn></msub><mo>|</mo></mrow><mn>2</mn></msup><mo>&lt;</mo><mo>∞</mo></math> is exactly "finite length", and the inner-product series always converges by Cauchy–Schwarz.</td></tr>
@@ -234,11 +235,9 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <div class="hs-readout" id="fourierOut"></div>
   <figcaption><b>How to read it.</b> Each added term is one more basis direction of <math><msup><mi>L</mi><mn>2</mn></msup></math> being switched on. The approximation overshoots near the jumps by about 9% no matter how many terms you add (the Gibbs phenomenon) — pointwise it misbehaves there, yet the <em>total squared error</em> still shrinks to zero, which is convergence in the Hilbert-space sense. Infinite dimensions are not a luxury; a sharp edge genuinely needs all of them.</figcaption>
 </figure>
-</section>
 
+## 2 — The hypercomplex tower at a glance
 
-<section>
-<h2 id="tower">2 — The hypercomplex tower at a glance</h2>
 <p>A <strong>hypercomplex number system</strong> is what you get when you try to keep doing arithmetic — add, subtract, multiply, take lengths — in more dimensions than the familiar number line and plane. There is a classical construction that doubles the dimension at every step (Section 3), producing an infinite ladder. But arithmetic gets worse as you climb. The whole story of the tower is in this ledger of what survives:</p>
 
 <div class="hs-tablewrap"><table class="hs-data">
@@ -288,11 +287,9 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   </svg>
   <figcaption><b>The pattern.</b> Dimension doubles; one law falls per step, in a fixed order. This is not an accident of one construction: <b>Hurwitz's theorem (1898)</b> proves that ℝ, ℂ, ℍ and 𝕆 are the <em>only</em> normed division algebras over the reals, in any dimension, by any method. The ladder of well-behaved arithmetics provably ends at 8. Everything above is built anyway — and Section 4 shows what still works up there.</figcaption>
 </figure>
-</section>
 
+## 3 — The Cayley–Dickson construction: how each level is built from the last
 
-<section>
-<h2 id="cd">3 — The Cayley–Dickson construction: how each level is built from the last</h2>
 <p>The doubling machine is due to Cayley and Dickson. Its input is an algebra A with a <strong>conjugation</strong> (an operation <math><mi>a</mi><mo>↦</mo><msup><mi>a</mi><mo>*</mo></msup></math> that flips the sign of every imaginary part, like complex conjugation). Its output is a new algebra <math><msup><mi>A</mi><mn>2</mn></msup></math> whose elements are <em>ordered pairs</em> (a, b) of elements of A — so the dimension exactly doubles. Three definitions do all the work. They are stated once, in full generality, and then every algebra in the tower is just this recipe applied repeatedly:</p>
 
 <div class="hs-tablewrap"><table class="hs-formulas">
@@ -304,7 +301,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <tr><td class="hs-f"><math display="block"><mrow><msup><mi>ℓ</mi><mn>2</mn></msup><mo>=</mo><mo>(</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo><mo>=</mo><mo>−</mo><mn>1</mn></mrow></math></td></tr>
 </table></div>
 
-<h3 id="hs-worked-check-c-from-r">Worked check: the recipe really gives ℂ from ℝ</h3>
+### Worked check: the recipe really gives ℂ from ℝ
+
 <p>Take A = ℝ, where conjugation does nothing (a* = a). Apply the multiplication rule with all terms kept visible, in three steps — no step silently drops or rearranges anything:</p>
 <div class="hs-tablewrap"><table class="hs-formulas">
   <tr><th style="width:14%">Step</th><th style="width:48%">Computation</th><th>What happened</th></tr>
@@ -314,7 +312,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
 </table></div>
 <p>Run the same recipe on ℂ and the output is ℍ: writing a quaternion as a pair of complex numbers, <math><mi>q</mi><mo>=</mo><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> with <math><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>ℂ</mi></math>, is the standard "complex pair" form <math><mi>q</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>j</mi></math>. Run it on ℍ to get 𝕆, on 𝕆 to get 𝕊, on 𝕊 to get the trigintaduonions 𝕋. One caveat explains the falling laws of Figure 5: the recipe's output inherits a law only if the input had a <em>stronger</em> one. Doubling a commutative algebra yields a merely associative one waiting to happen, and so on — each application spends one law to buy twice the dimensions.</p>
 
-<h3 id="hs-doubling-explorer">The doubling explorer</h3>
+### The doubling explorer
+
 <p>Figures 6 and 7 are driven by <strong>one shared slider</strong>: the doubling step k. Figure 6 shows the pair construction at that step; Figure 7 shows the basis it produces and the property ledger that results. Both titles track the slider.</p>
 
 <figure>
@@ -353,16 +352,15 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <div class="hs-readout" id="ledgerOut"></div>
   <figcaption><b>The ledger is the lesson.</b> Slide back to k = 0 and everything is green; each step forward turns exactly one more property red, until at k = 4 (sedenions) division itself fails. The basis count, meanwhile, just keeps doubling — dimension is cheap, laws are not.</figcaption>
 </figure>
-</section>
 
+## 4 — Walking the tower, one algebra at a time
 
-<section>
-<h2 id="walk">4 — Walking the tower, one algebra at a time</h2>
+### ℝ — the real numbers (dimension 1)
 
-<h3 id="hs-real">ℝ — the real numbers (dimension 1)</h3>
 <p>The ground floor is a Hilbert space already: ℝ is <math><msup><mi>ℝ</mi><mn>1</mn></msup></math> with inner product <math><mo>⟨</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>⟩</mo><mo>=</mo><mi>a</mi><mi>b</mi></math>. It is the only level with a total <strong>ordering</strong> compatible with arithmetic (<math><mi>a</mi><mo>&lt;</mo><mi>b</mi></math> implies <math><mi>a</mi><mo>+</mo><mi>c</mi><mo>&lt;</mo><mi>b</mi><mo>+</mo><mi>c</mi></math>, and products of positives are positive). Everything above ℝ¹ will have to give that up — there is no way to say whether i is "positive" that survives multiplication, since <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><mn>1</mn></math> would then have to be positive too.</p>
 
-<h3 id="hs-complex">ℂ — the complex numbers (dimension 2): pay ordering, gain roots</h3>
+### ℂ — the complex numbers (dimension 2): pay ordering, gain roots
+
 <p><math><mi>ℂ</mi><mo>=</mo><msup><mi>ℝ</mi><mn>2</mn></msup></math> as a Hilbert space, with the extra gift of multiplication. The imaginary unit <math><mi>i</mi><mo>=</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></math> is the first Cayley–Dickson ℓ. Multiplying by i rotates the plane by 90° counter-clockwise, which is why <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><mo>−</mo><mn>1</mn></math> is forced geometrically: two quarter-turns make a half-turn, and a half-turn sends every number to its negative.</p>
 <figure>
   <p class="hs-figtitle">Figure 8 — Multiplication by i is a quarter-turn</p>
@@ -389,7 +387,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>The cycle closes.</b> Four multiplications by i rotate through 360° and return every number to itself: <math><msup><mi>i</mi><mn>4</mn></msup><mo>=</mo><mn>1</mn></math>. In exchange for ordering, ℂ gains the fundamental theorem of algebra — every polynomial has all its roots — and becomes the scalar field of quantum mechanics.</figcaption>
 </figure>
 
-<h3 id="hs-quaternion">ℍ — the quaternions (dimension 4): pay commutativity, gain 3D rotation</h3>
+### ℍ — the quaternions (dimension 4): pay commutativity, gain 3D rotation
+
 <p>Hamilton's quaternions (1843) write <math><mi>q</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mi>i</mi><mo>+</mo><mi>c</mi><mi>j</mi><mo>+</mo><mi>d</mi><mi>k</mi></math> with three imaginary units obeying the relations he carved into Brougham Bridge: <math><msup><mi>i</mi><mn>2</mn></msup><mo>=</mo><msup><mi>j</mi><mn>2</mn></msup><mo>=</mo><msup><mi>k</mi><mn>2</mn></msup><mo>=</mo><mi>i</mi><mi>j</mi><mi>k</mi><mo>=</mo><mo>−</mo><mn>1</mn></math>. From those, the full multiplication of units follows — and it is <em>ordered</em>: <math><mi>i</mi><mi>j</mi><mo>=</mo><mi>k</mi></math> but <math><mi>j</mi><mi>i</mi><mo>=</mo><mo>−</mo><mi>k</mi></math>. Rotations in 3D do not commute either (tip a book forward-then-yaw versus yaw-then-forward), and that is precisely why quaternions, not despite but because of non-commutativity, are the working language of 3D rotation in graphics, robotics and spacecraft attitude control.</p>
 <figure>
   <p class="hs-figtitle">Figure 9 — The quaternion unit cycle, and a multiplication bench</p>
@@ -430,7 +429,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>Associativity survives.</b> ℍ loses commutativity but keeps <math><mo>(</mo><mi>a</mi><mo>·</mo><mi>b</mi><mo>)</mo><mo>·</mo><mi>c</mi><mo>=</mo><mi>a</mi><mo>·</mo><mo>(</mo><mi>b</mi><mo>·</mo><mi>c</mi><mo>)</mo></math>, keeps division (every non-zero q has inverse <math><msup><mi>q</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><mfrac><msup><mi>q</mi><mo>*</mo></msup><msup><mrow><mo>‖</mo><mi>q</mi><mo>‖</mo></mrow><mn>2</mn></msup></mfrac></math>), and keeps the norm law <math><mo>‖</mo><mi>p</mi><mi>q</mi><mo>‖</mo><mo>=</mo><mo>‖</mo><mi>p</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>q</mi><mo>‖</mo></math>. By Hurwitz, it is the last level where multiplication is fully associative.</figcaption>
 </figure>
 
-<h3 id="hs-octonion">𝕆 — the octonions (dimension 8): pay associativity, keep division</h3>
+### 𝕆 — the octonions (dimension 8): pay associativity, keep division
+
 <p>An octonion has seven imaginary units <math><msub><mi>e</mi><mn>1</mn></msub><mo>…</mo><msub><mi>e</mi><mn>7</mn></msub></math> (with <math><msub><mi>e</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></math>), each squaring to <math><mo>−</mo><mn>1</mn></math>. Their multiplication is encoded by the <strong>Fano plane</strong>: seven points, seven lines of three points each. The rule: the three units on any line form a quaternion-style triple — the product of any two of them is the third, with the sign fixed by the line's cyclic direction (click a line in Figure 10). But with three <em>different</em> lines involved, brackets start to matter. Here is a complete, checkable witness, with every intermediate product evaluated:</p>
 <div class="hs-tablewrap"><table class="hs-formulas">
   <tr><th style="width:14%">Step</th><th style="width:46%">Computation</th><th>What happened</th></tr>
@@ -480,7 +480,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>Seven lines, seven quaternionic triples.</b> Each line of the Fano plane, together with e₀ = 1, spans a copy of ℍ inside 𝕆. The diagram is the entire multiplication table of the imaginary units, compressed: pick any two units, and the line through them names their product. Click each of the seven lines (the circle counts as a line) to read off its triple.</figcaption>
 </figure>
 
-<h3 id="hs-sedenions">𝕊 — the sedenions (dimension 16): pay division itself</h3>
+### 𝕊 — the sedenions (dimension 16): pay division itself
+
 <p>Double once more and the failure is no longer about the <em>order</em> of operations — it is about existence. The sedenions contain <strong>zero divisors</strong>: non-zero elements whose product is exactly zero. That kills division (if <math><mi>x</mi><mi>y</mi><mo>=</mo><mn>0</mn></math> with <math><mi>x</mi><mo>≠</mo><mn>0</mn></math>, then y has no inverse), kills the norm law (<math><mo>‖</mo><mi>x</mi><mo>‖</mo><mo>·</mo><mo>‖</mo><mi>y</mi><mo>‖</mo><mo>&gt;</mo><mn>0</mn></math> but <math><mo>‖</mo><mi>x</mi><mi>y</mi><mo>‖</mo><mo>=</mo><mn>0</mn></math>), and kills alternativity too. Here is a fully explicit witness, expanded with every term kept, and every basis product evaluated using the Cayley–Dickson rule of Section 3:</p>
 <div class="hs-tablewrap"><table class="hs-formulas">
   <tr><th style="width:14%">Step</th><th style="width:48%">Computation</th><th>What happened</th></tr>
@@ -518,7 +519,8 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   <figcaption><b>Why this can only happen from 16 dimensions up.</b> The cancellation needs two independent "copies" of octonion-like structure whose products can mirror and annihilate each other. Inside 𝕆 there is no room for the mirror; the doubling to 𝕊 creates it. Notice the ingredients: <math><msub><mi>e</mi><mn>3</mn></msub></math> and <math><msub><mi>e</mi><mn>6</mn></msub></math> live in the original 𝕆 half of 𝕊, while <math><msub><mi>e</mi><mn>10</mn></msub></math> and <math><msub><mi>e</mi><mn>15</mn></msub></math> live in the new ℓ half — a zero divisor is always a conspiracy between the old half and the new half.</figcaption>
 </figure>
 
-<h3 id="hs-trigintaduonions">𝕋 — the trigintaduonions (dimension 32): the construction outlives the arithmetic</h3>
+### 𝕋 — the trigintaduonions (dimension 32): the construction outlives the arithmetic
+
 <p>Nothing stops the machine. One more doubling gives the <strong>trigintaduonions</strong>: 32-dimensional numbers <math><mi>x</mi><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math> with <math><msub><mi>e</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></math> and thirty-one imaginary units, built as pairs of sedenions, <math><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> with <math><mi>a</mi><mo>,</mo><mi>b</mi><mo>∈</mo><mi>𝕊</mi></math>, multiplied by the same one-line rule. (One proposed naming scheme also calls this level the <em>pathions</em>, the 64-dimensional level the <em>chingons</em>, the 128-dimensional the <em>routons</em> and the 256-dimensional the <em>voudons</em> — playful names signalling that these are now objects of study, not of calculation.)</p>
 <p>What is true up here:</p>
 <div class="hs-tablewrap"><table class="hs-data">
@@ -561,11 +563,9 @@ svg .hs-svgmono { font-family:var(--font-mono); }
   </svg>
   <figcaption><b>Exponential growth, linear chart.</b> On a <math><msub><mi>log</mi><mn>2</mn></msub></math> axis the doubling ladder is a straight line — each step costs one more bit of "address" for a basis unit (an index from 0 to <math><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></math>) while the multiplication table grows as the <em>square</em> of the dimension: a trigintaduonion product is 32 × 32 = 1,024 basis products glued together by five nested layers of the Cayley–Dickson rule.</figcaption>
 </figure>
-</section>
 
+## 5 — Where the two constructions meet
 
-<section>
-<h2 id="meeting">5 — Where the two constructions meet</h2>
 <p>The tower and Hilbert space were never separate stories. Equip any level of the tower with its standard inner product — for <math><mi>x</mi><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math> and <math><mi>y</mi><mo>=</mo><mo>∑</mo><msub><mi>y</mi><mn>i</mn></msub><msub><mi>e</mi><mn>i</mn></msub></math>, take <math><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mo>∑</mo><msub><mi>x</mi><mn>i</mn></msub><msub><mi>y</mi><mn>i</mn></msub></math>, equivalently <math><mo>⟨</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>⟩</mo><mo>=</mo><mi>Re</mi><mo>(</mo><mi>x</mi><mo>·</mo><msup><mi>y</mi><mo>*</mo></msup><mo>)</mo></math> — and:</p>
 <div class="hs-tablewrap"><table class="hs-formulas">
   <tr><th style="width:26%">Fact</th><th style="width:38%">Statement</th><th>Consequence</th></tr>
@@ -584,7 +584,6 @@ svg .hs-svgmono { font-family:var(--font-mono); }
 <b class="hs-tag">The one-paragraph summary</b>
 <p style="margin:0">Start with ℝ. Ask for more directions while keeping arithmetic perfect, and Cayley–Dickson doubling gives you ℂ, ℍ, 𝕆 — charging ordering, then commutativity, then associativity — after which Hurwitz's theorem proves the shop is closed: 𝕊 and the trigintaduonions beyond it keep the construction but lose division to zero divisors. Ask instead for more directions while keeping only <em>geometry</em> — inner product, length, angle, projection — plus the completeness that makes limits land, and you get Hilbert space, which happily extends to infinitely many dimensions, houses Fourier series and quantum states, and contains every floor of the tower as a finite-dimensional special case.</p>
 </div>
-</section>
 
 <div class="hs-foot">
 <p>All diagrams are drawn directly in this page as SVG. Worked examples were chosen so every step can be checked by hand: the octonion associator <math><mo>(</mo><msub><mi>e</mi><mn>1</mn></msub><msub><mi>e</mi><mn>2</mn></msub><mo>)</mo><msub><mi>e</mi><mn>4</mn></msub><mo>=</mo><mo>+</mo><msub><mi>e</mi><mn>7</mn></msub></math> versus <math><msub><mi>e</mi><mn>1</mn></msub><mo>(</mo><msub><mi>e</mi><mn>2</mn></msub><msub><mi>e</mi><mn>4</mn></msub><mo>)</mo><mo>=</mo><mo>−</mo><msub><mi>e</mi><mn>7</mn></msub></math>, and the sedenion zero divisor <math><mo>(</mo><msub><mi>e</mi><mn>3</mn></msub><mo>+</mo><msub><mi>e</mi><mn>10</mn></msub><mo>)</mo><mo>(</mo><msub><mi>e</mi><mn>6</mn></msub><mo>−</mo><msub><mi>e</mi><mn>15</mn></msub><mo>)</mo><mo>=</mo><mn>0</mn></math>, both following from the Cayley–Dickson multiplication rule stated in Section 3 — the latter holds verbatim inside the trigintaduonions as well.</p>

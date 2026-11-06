@@ -96,7 +96,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 1 · What is a lattice?
+## 1 — What is a lattice?
 
 <div class="lat">
 <p>Take two vectors that are not on the same line. Every integer combination of them is a lattice point:</p>
@@ -109,7 +109,7 @@ tocDepth: 2
 <p>The lattice itself is just the set of points. The <em>basis</em> is a choice of generating vectors — and, crucially, the same lattice has infinitely many bases. Some are short and nearly perpendicular. Others are long, nearly parallel, and hide the lattice's simple structure. Everything below turns on that distinction.</p>
 </div>
 
-## 2 · Skewing a basis: same area, worse vectors
+## 2 — Skewing a basis: same area, worse vectors
 
 <div class="lat">
 <p>Start with the perfect basis and shear the second vector sideways. The lattice points slide, the fundamental parallelogram leans — but its area never changes, because the determinant stays at 1. What degrades is the <em>quality</em> of the basis, measured by the orthogonality defect:</p>
@@ -159,7 +159,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 3 · Same lattice, two completely different bases
+## 3 — Same lattice, two completely different bases
 
 <div class="lat">
 <p>Here is the cryptographic trapdoor in miniature. Both panels show exactly the same points — the integer lattice. The left basis is the obvious one. The right basis uses long vectors, yet generates precisely the same set, because its determinant is also 1:</p>
@@ -184,7 +184,7 @@ tocDepth: 2
 <p class="figcap"><strong>Figure 2.</strong> If someone hands you only the orange arrows, recovering the teal arrows — a process called <em>basis reduction</em> — is easy in 2D and brutally hard in high dimensions. That asymmetry is the trapdoor: the good basis is the private key, the bad basis is the public key.</p>
 </div>
 
-## 4 · The shortest vector problem (SVP)
+## 4 — The shortest vector problem (SVP)
 
 <div class="lat">
 <p>Every lattice with determinant 1 in 2D is guaranteed a surprisingly short non-zero vector — Minkowski's theorem promises one of length at most <math><mrow><msqrt><mn>2</mn></msqrt><mo>≈</mo><mn>1.41</mn></mrow></math>. Finding it, however, is another matter when your only basis is bad. In our example the shortest vector is (1, 0), of length 1. In the good basis it is simply the first basis vector. In the bad basis it is hidden as a difference:</p>
@@ -203,7 +203,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 5 · The closest vector problem (CVP)
+## 5 — The closest vector problem (CVP)
 
 <div class="lat">
 <p>Given a point that is <em>not</em> on the lattice, find the nearest lattice point. The naive method — express the target in the basis, round each coefficient to the nearest integer (Babai rounding) — works beautifully with a good basis and fails with a bad one. <span class="draghint">Drag the blue target</span> and watch both answers update.</p>
@@ -241,7 +241,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 6 · Learning with errors (LWE): CVP in disguise
+## 6 — Learning with errors (LWE): CVP in disguise
 
 <div class="lat">
 <p>Most deployed lattice schemes are not built directly on CVP but on LWE. A secret vector s is hidden by publishing near-exact dot products, each perturbed by a tiny error. Removing the error is a closest-vector search. A fully checkable toy, modulo 17, with secret s = (3, 5):</p>
@@ -308,7 +308,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 7 · From 2D to 3D — and then imagine 768
+## 7 — From 2D to 3D — and then imagine 768
 
 <div class="lat">
 <p>In 3D a basis has three vectors and the lattice fills space. Rotate the view: the points are the integer combinations of three unit vectors, with two example combination vectors drawn inside — v = (2, 1, 1) in teal and w = (1, 2, 0) in gold. Notice how even in 3D, nearest-point intuition already gets slippery as points occlude each other.</p>
@@ -333,7 +333,7 @@ tocDepth: 2
 </div>
 </div>
 
-## 8 · The essential problems and the real schemes
+## 8 — The essential problems and the real schemes
 
 <div class="lat">
 <table class="data">
