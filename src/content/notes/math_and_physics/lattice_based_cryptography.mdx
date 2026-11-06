@@ -1,0 +1,695 @@
+---
+title: "Lattice-Based Cryptography"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Lattice note =====
+   Every accent + neutral reuses a shared /styles/math.css token (--math-*),
+   chosen by CIELAB ΔE: teal/orange/gold/red/blue (+ softs) -> the shared accent
+   palette; ink/ink2/ink3/line -> the shared warm-paper neutrals. Surfaces use
+   the site --color-bg / --color-code-bg. No note-local color tokens are needed.
+   Dark mode is handled by math.css + global.css. */
+.lat h3 {font-family: var(--font-heading);line-height:1.15;margin:0 }
+.lat h3 {font-size:1.12rem;font-weight:600 }
+.lat p {margin:0 0 14px }
+.lat a {color:var(--math-teal) }
+.lat .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em }
+.lat .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px }
+.lat .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px }
+.lat .keybox strong {color:var(--math-teal) }
+.lat .keybox p {margin:0 }
+.lat .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px }
+.lat .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px }
+.lat .diagram svg {width:100%;height:auto;display:block }
+.lat .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5 }
+.lat .figcap strong {color:var(--math-ink) }
+.lat .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink) }
+.lat .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px }
+.lat .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem }
+.lat .readbox ul {margin:0;padding-left:20px }
+.lat .readbox li {margin-bottom:6px;font-size:.96rem }
+.lat .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem }
+.lat .callout p {margin:0 }
+.lat .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px }
+.lat .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px }
+.lat .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px }
+@media(min-width:640px) {
+.lat .sliderrow {grid-template-columns:230px 1fr;align-items:center;gap:14px }
+
+}
+.lat .sliderrow label {font-weight:600;font-size:.95rem }
+.lat .sliderrow output {font-family: var(--font-mono);font-size:.92rem;text-align:right;font-weight:600 }
+@media(max-width:639px) {
+.lat .sliderrow output {text-align:left }
+
+}
+.lat input[type=range] {width:100%;min-width:0;height:32px;accent-color:var(--math-teal);cursor:pointer }
+@media(min-width:640px) {
+.lat input[type=range] {min-width:100px }
+
+}
+.lat .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px }
+.lat .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px }
+.lat .ro b {display:block;font-family: var(--font-mono);font-size:18px;line-height:1.25;color:var(--math-ink) }
+.lat .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em }
+.lat .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer }
+.lat .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0 }
+.lat table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px }
+.lat table.formulas th, .lat table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top }
+.lat table.formulas th {background:var(--color-code-bg);font-weight:600;width:32% }
+.lat table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px }
+.lat table.data th, .lat table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top }
+.lat table.data th {background:var(--color-code-bg) }
+.lat math {font-family:"STIX Two Math","Cambria Math",serif;font-size:1.06em }
+.lat table.formulas td {line-height:1.5 }
+.lat table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55 }
+.lat table.formulas math[display="block"]:first-child {margin-top:2px }
+.lat table.formulas math[display="block"]:last-child {margin-bottom:2px }
+.lat .two .diagram math[display="block"] {display:block;font-size:.84em;line-height:1.5;margin:8px 0 }
+.lat .two .diagram math[display="block"]:first-of-type {margin-top:4px }
+.lat .two .diagram math[display="block"]:last-of-type {margin-bottom:12px }
+.lat svg text {font-family: var(--font-body);fill:var(--math-ink) }
+.lat svg text.mono-t {font-family: var(--font-mono) }
+.lat .two {display:grid;grid-template-columns:1fr 1fr;gap:16px }
+@media(max-width:760px) {
+.lat .two {grid-template-columns:1fr }
+
+}
+.lat .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px }
+.lat .legend span {display:inline-flex;align-items:center;gap:6px }
+.lat .sw {width:22px;height:4px;border-radius:2px;display:inline-block }
+.lat .dotsw {width:10px;height:10px;border-radius:50%;display:inline-block }
+.lat footer {margin-top:56px;border-top:1px solid var(--math-line);padding-top:14px;font-size:13.5px;color:var(--math-ink2) }
+.lat .draghint {font-size:.88rem;color:var(--math-blue);font-weight:600 }
+
+.lat #lat-fig1 {overflow:visible }
+`}</style>
+
+<div class="lat">
+<div class="kicker">Post-quantum cryptography — the geometry underneath</div>
+
+<p class="lede" style="margin-top:16px">A lattice is an infinite, perfectly regular grid of points — but described by a <strong>basis</strong> that can make the same grid look either beautifully simple or hopelessly tangled. That gap between a good basis and a bad basis is where modern post-quantum cryptography lives: easy if you hold the good basis, apparently intractable if you only see the bad one.</p>
+
+<div class="keybox">
+<p><strong>The one-sentence idea.</strong> Publish a skewed, long-vector basis for a lattice; keep a short, nearly orthogonal basis secret. Anyone can scramble a message into the lattice, but only the holder of the good basis can reliably find the nearest lattice point and unscramble it — and no known algorithm, classical or quantum, closes that gap in high dimensions.</p>
+</div>
+</div>
+
+## 1 · What is a lattice?
+
+<div class="lat">
+<p>Take two vectors that are not on the same line. Every integer combination of them is a lattice point:</p>
+
+<table class="formulas">
+<tr><th>Lattice generated by a basis</th><td><math display="block"><mrow><mi>L</mi><mo>=</mo><mo>\{</mo><mi>a</mi><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>+</mo><mi>c</mi><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>:</mo><mi>a</mi><mo>,</mo><mi>c</mi><mo>∈</mo><mi>ℤ</mi><mo>\}</mo></mrow></math></td></tr>
+<tr><th>Fundamental parallelogram area</th><td><math display="block"><mrow><mtext>area</mtext><mo>=</mo><mo>|</mo><mi>det</mi><mo>(</mo><mi>B</mi><mo>)</mo><mo>|</mo></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">One lattice point per cell of this area, on average — the density of the lattice.</span></td></tr>
+</table>
+
+<p>The lattice itself is just the set of points. The <em>basis</em> is a choice of generating vectors — and, crucially, the same lattice has infinitely many bases. Some are short and nearly perpendicular. Others are long, nearly parallel, and hide the lattice's simple structure. Everything below turns on that distinction.</p>
+</div>
+
+## 2 · Skewing a basis: same area, worse vectors
+
+<div class="lat">
+<p>Start with the perfect basis and shear the second vector sideways. The lattice points slide, the fundamental parallelogram leans — but its area never changes, because the determinant stays at 1. What degrades is the <em>quality</em> of the basis, measured by the orthogonality defect:</p>
+
+<table class="formulas">
+<tr><th>Sheared basis</th><td><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>=</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>=</mo><mo>(</mo><mi>s</mi><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Length of the sheared vector</th><td><math display="block"><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo><mo>=</mo><msqrt><mrow><msup><mi>s</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></msqrt></mrow></math></td></tr>
+<tr><th>Orthogonality defect</th><td><math display="block"><mrow><mi>δ</mi><mo>=</mo><mfrac><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>|</mo><mo>·</mo><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo></mrow><mrow><mo>|</mo><mi>det</mi><mo>(</mo><mi>B</mi><mo>)</mo><mo>|</mo></mrow></mfrac></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">A value of 1 means perfectly orthogonal. Larger means more skewed. The dot here is genuine multiplication of the two lengths.</span></td></tr>
+</table>
+
+<div class="diagram">
+<svg id="lat-fig1" viewBox="0 0 560 360" role="img" aria-label="Interactive sheared lattice"></svg>
+<div class="legend">
+<span><span class="sw" style="background:var(--math-teal)"></span> b₁ = (1, 0)</span><span><span class="sw" style="background:var(--math-orange)"></span> b₂ = (s, 1)</span><span><span class="dotsw" style="background:var(--math-ink3)"></span> lattice points</span>
+</div>
+<p class="figcap"><strong>Figure 1.</strong> Drag the slider: the points shear sideways and the gold parallelogram leans, yet it always covers area 1 and the point density never changes. A skewed basis does not change the lattice's density — it changes how <em>hard the basis is to work with</em>. At s = 0.85 the second vector is about 31% longer and the angle has closed from 90° to about 49.6°.</p>
+</div>
+
+<div class="sliderbox">
+<h3 id="lat-fig1Title">Figure 1 — Shear s = 0.00: a nearly orthogonal (good) basis</h3>
+<div class="sliderrow">
+<label for="lat-skewSlider">Shear s — slide toward a skewed basis</label><input type="range" id="lat-skewSlider" min="0" max="0.85" step="0.01" value="0" />
+</div>
+<div class="readouts">
+<div class="ro">
+<b id="lat-roLen">1.00</b><span>Length of b₂</span>
+</div>
+<div class="ro">
+<b id="lat-roDefect">1.00</b><span>Orthogonality defect δ</span>
+</div>
+<div class="ro">
+<b id="lat-roAngle">90.0°</b><span>Angle between b₁ and b₂</span>
+</div>
+<div class="ro">
+<b>1.00</b><span>Parallelogram area (det)</span>
+</div>
+</div>
+</div>
+
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Good basis (small s):</strong> short, nearly perpendicular vectors. Rounding and nearest-point searches behave well.</li>
+<li><strong>Bad basis (large s):</strong> longer, nearly parallel vectors. The same arithmetic becomes numerically treacherous — see Figure 4.</li>
+<li><strong>Area is invariant:</strong> shearing is a volume-preserving change of description, not a change of lattice density.</li>
+</ul>
+</div>
+</div>
+
+## 3 · Same lattice, two completely different bases
+
+<div class="lat">
+<p>Here is the cryptographic trapdoor in miniature. Both panels show exactly the same points — the integer lattice. The left basis is the obvious one. The right basis uses long vectors, yet generates precisely the same set, because its determinant is also 1:</p>
+
+<table class="formulas">
+<tr><th>Good basis</th><td><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>=</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>=</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>det</mi><mo>=</mo><mn>1</mn><mo>·</mo><mn>1</mn><mo>−</mo><mn>0</mn><mo>·</mo><mn>0</mn><mo>=</mo><mn>1</mn></mrow></math></td></tr>
+<tr><th>Bad basis</th><td><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>=</mo><mo>(</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>=</mo><mo>(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>det</mi><mo>=</mo><mn>3</mn><mo>·</mo><mn>1</mn><mo>−</mo><mn>1</mn><mo>·</mo><mn>2</mn><mo>=</mo><mn>1</mn></mrow></math></td></tr>
+<tr><th>Bad-basis lengths</th><td><math display="block"><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>|</mo><mo>=</mo><msqrt><mn>10</mn></msqrt><mo>≈</mo><mn>3.16</mn></mrow></math><math display="block"><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo><mo>=</mo><msqrt><mn>5</mn></msqrt><mo>≈</mo><mn>2.24</mn></mrow></math><math display="block"><mrow><mi>δ</mi><mo>=</mo><msqrt><mn>50</mn></msqrt><mo>≈</mo><mn>7.07</mn></mrow></math></td></tr>
+</table>
+
+<div class="two">
+<div class="diagram">
+<p class="figtitle">Good basis — short and orthogonal</p><svg id="lat-fig2a" viewBox="0 0 300 260" role="img" aria-label="Good basis lattice"></svg>
+<p class="figcap">Defect 1.00. Each step moves one unit in one direction.</p>
+</div>
+<div class="diagram">
+<p class="figtitle">Bad basis — long and skewed</p><svg id="lat-fig2b" viewBox="0 0 300 260" role="img" aria-label="Bad basis lattice"></svg>
+<p class="figcap">Defect about 7.07. Identical dots — only the arrows changed.</p>
+</div>
+</div>
+
+<p class="figcap"><strong>Figure 2.</strong> If someone hands you only the orange arrows, recovering the teal arrows — a process called <em>basis reduction</em> — is easy in 2D and brutally hard in high dimensions. That asymmetry is the trapdoor: the good basis is the private key, the bad basis is the public key.</p>
+</div>
+
+## 4 · The shortest vector problem (SVP)
+
+<div class="lat">
+<p>Every lattice with determinant 1 in 2D is guaranteed a surprisingly short non-zero vector — Minkowski's theorem promises one of length at most <math><mrow><msqrt><mn>2</mn></msqrt><mo>≈</mo><mn>1.41</mn></mrow></math>. Finding it, however, is another matter when your only basis is bad. In our example the shortest vector is (1, 0), of length 1. In the good basis it is simply the first basis vector. In the bad basis it is hidden as a difference:</p>
+
+<table class="formulas">
+<tr><th>Shortest vector, bad-basis form</th><td><math display="block"><mrow><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo><mo>=</mo><mo>(</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo>)</mo><mo>−</mo><mo>(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>)</mo><mo>=</mo><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>−</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub></mrow></math></td></tr>
+<tr><th>Minkowski bound (2D, det 1)</th><td><math display="block"><mrow><msub><mi>λ</mi><mn>1</mn></msub><mo>≤</mo><msqrt><mn>2</mn></msqrt><mo>≈</mo><mn>1.41</mn></mrow></math></td></tr>
+</table>
+
+<div class="diagram">
+<svg id="lat-fig3" viewBox="0 0 560 320" role="img" aria-label="Shortest vector hidden in bad basis"></svg>
+<div class="legend">
+<span><span class="sw" style="background:var(--math-orange)"></span> bad basis vectors</span><span><span class="sw" style="background:var(--math-teal)"></span> shortest vector (1, 0)</span>
+</div>
+<p class="figcap"><strong>Figure 3.</strong> The teal arrow is the difference of the two long orange arrows. Nothing about the bad basis hints that this short combination exists — in 768 dimensions, searching all such combinations is hopeless, and the best known algorithms (sieving, enumeration, BKZ reduction) still cost time exponential in the dimension.</p>
+</div>
+</div>
+
+## 5 · The closest vector problem (CVP)
+
+<div class="lat">
+<p>Given a point that is <em>not</em> on the lattice, find the nearest lattice point. The naive method — express the target in the basis, round each coefficient to the nearest integer (Babai rounding) — works beautifully with a good basis and fails with a bad one. <span class="draghint">Drag the blue target</span> and watch both answers update.</p>
+
+<p>Default target t = (2.4, 0.6). With the good basis, rounding gives (2, 1). With the bad basis, first invert:</p>
+
+<table class="formulas">
+<tr><th>Bad-basis inverse</th><td><math display="block"><mrow><msup><mi>B</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><mo>[</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mo>−</mo><mn>2</mn></mtd></mtr><mtr><mtd><mo>−</mo><mn>1</mn></mtd><mtd><mn>3</mn></mtd></mtr></mtable><mo>]</mo></mrow></math></td></tr>
+<tr><th>Target in bad-basis coordinates</th><td><math display="block"><mrow><msup><mi>B</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi mathvariant="bold">t</mi><mo>=</mo><mo>(</mo><mn>1.2</mn><mo>,</mo><mo>−</mo><mn>0.6</mn><mo>)</mo></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Rounding to (1, −1) reconstructs the lattice point (1, 0) — not the closest one.</span></td></tr>
+<tr><th>Good-basis answer distance</th><td><math display="block"><mrow><msqrt><mrow><mn>0.32</mn></mrow></msqrt><mo>≈</mo><mn>0.57</mn></mrow></math></td></tr>
+<tr><th>Bad-basis answer distance</th><td><math display="block"><mrow><msqrt><mrow><mn>2.32</mn></mrow></msqrt><mo>≈</mo><mn>1.52</mn></mrow></math></td></tr>
+</table>
+
+<div class="diagram">
+<svg id="lat-fig4" viewBox="0 0 560 380" role="img" aria-label="Closest vector problem interactive" style="touch-action:none;cursor:grab"></svg>
+<div class="legend">
+<span><span class="dotsw" style="background:var(--math-blue)"></span> target t (drag me)</span><span><span class="dotsw" style="background:var(--math-teal)"></span> good-basis rounding</span><span><span class="dotsw" style="background:var(--math-red)"></span> bad-basis rounding</span><span><span class="sw" style="background:var(--math-teal)"></span> good basis: b1 = (1, 0), b2 = (0, 1)</span><span><span class="sw" style="background:var(--math-orange)"></span> bad basis: b1 = (3, 1), b2 = (2, 1)</span>
+</div>
+<label class="basetoggle"><input type="checkbox" id="lat-fig4Bases" checked /> Show both bases in the figure — basis arrows, cell grids, and the rounding cell around each answer</label>
+<div class="readouts" style="padding:0 6px">
+<div class="ro">
+<b id="lat-cvpTarget">(2.40, 0.60)</b><span>Target t</span>
+</div>
+<div class="ro">
+<b id="lat-cvpGood">(2, 1) — 0.57</b><span>Good basis: point — distance</span>
+</div>
+<div class="ro">
+<b id="lat-cvpBad">(1, 0) — 1.52</b><span>Bad basis: point — distance</span>
+</div>
+<div class="ro">
+<b id="lat-cvpTrue">(2, 1) — 0.57</b><span>True closest point</span>
+</div>
+</div>
+<p class="figcap"><strong>Figure 4.</strong> At the default target, bad-basis rounding lands nearly three times farther away than the true closest point (1.52 against 0.57). Drag the target into different cells: the good basis is always right or near-right, while the bad basis fails whenever the target sits in the long, thin part of its skewed cells. Decryption is exactly this step — the legitimate receiver rounds with the good basis; an attacker, stuck with the bad one, cannot. With the bases shown, the faint teal unit squares and orange skewed parallelograms are the two bases' cells tiling the plane, and the highlighted cell around each answer is the set of targets that round to it: each method snaps the target to the centre of its own cell, which is how one target produces two different answers. At the origin the teal arrows are the good basis and the orange arrows the bad basis, each labelled b1 or b2 in its basis colour. Untick the checkbox for the cleaner picture without them.</p>
+</div>
+</div>
+
+## 6 · Learning with errors (LWE): CVP in disguise
+
+<div class="lat">
+<p>Most deployed lattice schemes are not built directly on CVP but on LWE. A secret vector s is hidden by publishing near-exact dot products, each perturbed by a tiny error. Removing the error is a closest-vector search. A fully checkable toy, modulo 17, with secret s = (3, 5):</p>
+
+<table class="formulas">
+<tr><th>Sample 1 — exact value</th><td><math display="block"><mrow><mn>4</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>7</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>47</mn><mo>≡</mo><mn>13</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Sample 1 — published, error +1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>14</mn></mrow></math></td></tr>
+<tr><th>Sample 2 — exact value</th><td><math display="block"><mrow><mn>2</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>9</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>51</mn><mo>≡</mo><mn>0</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Sample 2 — published, error −1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>−</mo><mn>1</mn><mo>≡</mo><mn>16</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+</table>
+
+<p>Here are the two samples drawn out. In each panel the top line runs from the raw dot product down to its remainder — every full wrap of 17 is subtracted at once — and the bottom line sits inside a single mod-17 range, where one small error step moves the clean remainder to the published value:</p>
+
+<div class="two">
+<div class="diagram">
+<p class="figtitle">Sample 1 — a₁ = (4, 7), published b₁ = 14</p>
+<math display="block"><mrow><msub><mi mathvariant="bold">a</mi><mn>1</mn></msub><mo>·</mo><mi mathvariant="bold">s</mi><mo>=</mo><mn>4</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>7</mn><mo>·</mo><mn>5</mn></mrow></math>
+<math display="block"><mrow><mo>=</mo><mn>12</mn><mo>+</mo><mn>35</mn><mo>=</mo><mn>47</mn></mrow></math>
+<math display="block"><mrow><mn>47</mn><mo>−</mo><mn>2</mn><mo>·</mo><mn>17</mn><mo>=</mo><mn>13</mn></mrow></math>
+<math display="block"><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>14</mn></mrow></math>
+<svg id="lat-figS1" viewBox="0 0 300 142" role="img" aria-label="Sample 1 number lines: 47 reduces to 13 modulo 17, then a plus 1 error step gives 14"></svg>
+<p class="figcap">47 wraps past 17 and 34, landing on the remainder 13 — the clean lattice value. One +1 error step publishes 14 instead.</p>
+</div>
+<div class="diagram">
+<p class="figtitle">Sample 2 — a₂ = (2, 9), published b₂ = 16</p>
+<math display="block"><mrow><msub><mi mathvariant="bold">a</mi><mn>2</mn></msub><mo>·</mo><mi mathvariant="bold">s</mi><mo>=</mo><mn>2</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>9</mn><mo>·</mo><mn>5</mn></mrow></math>
+<math display="block"><mrow><mo>=</mo><mn>6</mn><mo>+</mo><mn>45</mn><mo>=</mo><mn>51</mn></mrow></math>
+<math display="block"><mrow><mn>51</mn><mo>−</mo><mn>3</mn><mo>·</mo><mn>17</mn><mo>=</mo><mn>0</mn></mrow></math>
+<math display="block"><mrow><msub><mi>b</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>−</mo><mn>1</mn><mo>≡</mo><mn>16</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math>
+<svg id="lat-figS2" viewBox="0 0 300 142" role="img" aria-label="Sample 2 number lines: 51 reduces to 0 modulo 17, then a minus 1 error step wraps to 16"></svg>
+<p class="figcap">51 is exactly three wraps, so the remainder is 0. The −1 error step walks off the left end of the range and wraps to 16 — that is −1 mod 17.</p>
+</div>
+</div>
+
+<p>Without the errors, two samples would be two linear equations and s would fall to Gaussian elimination instantly. The ±1 errors destroy linearity: the only known routes recover s by solving a closest-vector problem in a lattice built from the samples. Geometrically — and interactively, since <span class="draghint">you can drag the blue received point</span> (the tip of the error arrow) in Figure 5:</p>
+
+<div class="diagram">
+<svg id="lat-fig5" viewBox="0 0 560 320" role="img" aria-label="LWE error diagram, draggable" style="touch-action:none;cursor:grab"></svg>
+<div class="legend">
+<span><span class="dotsw" style="background:var(--math-teal)"></span> exact lattice point (3, 2)</span><span><span class="sw" style="background:var(--math-red)"></span> error e (drag its tip)</span><span><span class="dotsw" style="background:var(--math-blue)"></span> received point (lattice point + error)</span><span><span class="sw" style="background:var(--math-gold)"></span> cell of points that decode back to (3, 2)</span><span><span class="dotsw" style="background:var(--color-bg);border:2px solid var(--math-red);box-sizing:border-box"></span> point it snaps to when lost</span>
+</div>
+<div class="readouts" style="padding:0 6px">
+<div class="ro">
+<b id="lat-lweErr">(+0.20, +0.15)</b><span>Error e = (e_x, e_y)</span>
+</div>
+<div class="ro">
+<b id="lat-lweLen">0.25</b><span>Length |e|</span>
+</div>
+<div class="ro">
+<b id="lat-lweDecode">(3, 2)</b><span>Decodes to (nearest point)</span>
+</div>
+<div class="ro">
+<b id="lat-lweStatus">Recovered</b><span>Good-basis decoding</span>
+</div>
+</div>
+<p class="figcap"><strong>Figure 5.</strong> Each LWE sample is a lattice point nudged by a small error. Decoding means finding which lattice point the received point came from — CVP again. The gold cell is the set of received points that still decode back to (3, 2): the unit square centred on it. Decoding succeeds exactly while the error stays inside that cell — each component strictly inside half a step, |e_x| &lt; 0.5 and |e_y| &lt; 0.5. Drag the tip past an edge and the received point snaps to the neighbouring lattice point instead: the original is lost. The error must be small enough for the good-basis holder to correct, yet large enough that the attacker cannot simply round it away with the public bad basis.</p>
+</div>
+
+<div class="sliderbox">
+<h3 id="lat-fig5Title">Figure 5 — Error length 0.25: decoding recovers (3, 2)</h3>
+<div class="sliderrow">
+<label for="lat-errMagSlider">Error length — stretch e along its current direction</label><input type="range" id="lat-errMagSlider" min="0" max="1.6" step="0.01" value="0.25" />
+</div>
+</div>
+</div>
+
+## 7 · From 2D to 3D — and then imagine 768
+
+<div class="lat">
+<p>In 3D a basis has three vectors and the lattice fills space. Rotate the view: the points are the integer combinations of three unit vectors, with two example combination vectors drawn inside — v = (2, 1, 1) in teal and w = (1, 2, 0) in gold. Notice how even in 3D, nearest-point intuition already gets slippery as points occlude each other.</p>
+
+<div class="diagram">
+<svg id="lat-fig6" viewBox="0 0 560 400" role="img" aria-label="Rotating 3D lattice"></svg>
+<div class="legend">
+<span><span class="sw" style="background:var(--math-teal)"></span> v = (2, 1, 1)</span><span><span class="sw" style="background:var(--math-gold)"></span> w = (1, 2, 0)</span><span><span class="dotsw" style="background:var(--math-ink3)"></span> lattice points</span>
+</div>
+<p class="figcap"><strong>Figure 6.</strong> Now extrapolate. Real schemes do not use dimension 3, or 30. ML-KEM (Kyber-768) works in dimension 768 — a module lattice of rank 3 over a ring of dimension 256. There is no picture of that lattice and no neighbourhood small enough to search: the number of nearby lattice points explodes combinatorially, and every known attack scales exponentially in the dimension. The 2D failures you caused by dragging in Figure 4 become, in 768 dimensions, an absolute wall.</p>
+</div>
+
+<div class="sliderbox">
+<h3 id="lat-fig6Title">Figure 6 — 3D lattice at azimuth 35°</h3>
+<div class="sliderrow">
+<label for="lat-rotSlider">Azimuth — rotate the 3D lattice</label><input type="range" id="lat-rotSlider" min="0" max="360" step="1" value="35" />
+</div>
+</div>
+
+<div class="callout">
+<p><strong>Why dimension is the security dial.</strong> In 2D, Gauss reduction finds the good basis instantly. In a few hundred dimensions, the best reduction algorithms (BKZ with large block sizes, sieving) need astronomically many operations — and unlike factoring or discrete logarithms, no quantum algorithm is known that changes this picture. Shor's algorithm broke RSA's underlying problem; no analogue is known for SVP, CVP, or LWE.</p>
+</div>
+</div>
+
+## 8 · The essential problems and the real schemes
+
+<div class="lat">
+<table class="data">
+<tr><th>Problem</th><th>Task</th><th>Role in cryptography</th></tr>
+<tr><td><strong>SVP</strong></td><td>Find the shortest non-zero lattice vector</td><td>Hardness benchmark; attacking a scheme usually reduces to approximate SVP</td></tr>
+<tr><td><strong>CVP</strong></td><td>Find the lattice point nearest a given target</td><td>Decryption: the receiver performs this with the good basis</td></tr>
+<tr><td><strong>LWE</strong></td><td>Recover a secret from dot products perturbed by small errors</td><td>Basis of ML-KEM and ML-DSA; provably as hard as worst-case lattice problems</td></tr>
+<tr><td><strong>SIS</strong></td><td>Find a short integer combination that vanishes modulo q</td><td>Hash functions and signature constructions</td></tr>
+</table>
+
+<table class="data">
+<tr><th>Standard</th><th>Also known as</th><th>Purpose</th><th>Working dimension</th></tr>
+<tr><td><strong>ML-KEM</strong> (FIPS 203)</td><td>Kyber</td><td>Key encapsulation — agreeing on a shared secret</td><td>512, 768, or 1024 (Kyber-768: rank 3, ring dimension 256)</td></tr>
+<tr><td><strong>ML-DSA</strong> (FIPS 204)</td><td>Dilithium</td><td>Digital signatures</td><td>Module lattices over a 256-dimensional ring</td></tr>
+</table>
+
+<div class="readbox">
+<h3>The whole story in four lines</h3>
+<ul>
+<li>A lattice is a regular grid; a basis is a way of describing it, and descriptions vary from excellent to terrible.</li>
+<li>Rounding and nearest-point search are easy with a good basis and fail with a bad one — you measured the failure yourself in Figure 4.</li>
+<li>LWE turns that geometric gap into algebra: exact equations plus small errors, decodable only via a closest-vector search.</li>
+<li>At dimensions of 512 to 1024, no known classical or quantum algorithm bridges the gap in feasible time — which is why these schemes are the post-quantum standards.</li>
+</ul>
+</div>
+</div>
+
+<div class="lat">
+<footer>All numeric examples on this page are small enough to check by hand: determinants, lengths, rounding results, and the mod-17 arithmetic are stated alongside each figure.</footer>
+</div>
+
+<script set:html={`
+
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){var n=document.createElementNS(NS,tag);for(var k in attrs)n.setAttribute(k,attrs[k]);if(parent)parent.appendChild(n);return n;}
+function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+function colors(){return{teal:cssVar('--math-teal'),orange:cssVar('--math-orange'),blue:cssVar('--math-blue'),gold:cssVar('--math-gold'),red:cssVar('--math-red'),ink:cssVar('--math-ink'),ink2:cssVar('--math-ink2'),ink3:cssVar('--math-ink3'),line:cssVar('--math-line'),surface:cssVar('--color-bg')};}
+
+function arrow(svg,x1,y1,x2,y2,color,w){var c=colors();var line=el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:color,'stroke-width':w||3,'stroke-linecap':'round'},svg);var ang=Math.atan2(y2-y1,x2-x1);var s=10;el('polygon',{points:(x2)+','+(y2)+' '+(x2-s*Math.cos(ang-0.42))+','+(y2-s*Math.sin(ang-0.42))+' '+(x2-s*Math.cos(ang+0.42))+','+(y2-s*Math.sin(ang+0.42)),fill:color},svg);return line;}
+function label(svg,x,y,text,fill,size,anchor,cls){var t=el('text',{x:x,y:y,'font-size':size||13,'font-weight':600,'text-anchor':anchor||'middle',fill:fill},svg);if(cls)t.setAttribute('class',cls);t.textContent=text;return t;}
+
+/* ---------- Figure 1: skew explorer ---------- */
+var fig1=document.getElementById('lat-fig1');
+function drawFig1(s){
+  fig1.innerHTML='';var c=colors();
+  var ox=40,oy=290,sc=52;
+  function P(x,y){return[ox+x*sc,oy-y*sc];}
+  // points fill the whole viewBox: the loop range overshoots on every side and
+  // the bounds check clips whatever falls outside, so the box stays full at any shear
+  for(var i=-6;i<=12;i++){for(var j=-1;j<=6;j++){
+    var p=i*1+ j*s, q=j; // point = i*b1 + j*b2
+    var px=p, py=q;
+    var pt=P(px,py);
+    if(pt[0]>10-25*s/0.85&&pt[0]<550+25*s/0.85&&pt[1]>10&&pt[1]<350) el('circle',{cx:pt[0],cy:pt[1],r:3.2,fill:c.ink3},fig1);
+  }}
+  var o=P(0,0),a=P(1,0),b=P(s,1),ab=P(1+s,1);
+  el('polygon',{points:o.join(',')+' '+a.join(',')+' '+ab.join(',')+' '+b.join(','),fill:c.gold,opacity:0.28,stroke:c.gold,'stroke-width':1.5},fig1);
+  arrow(fig1,o[0],o[1],a[0],a[1],c.teal,3.5);
+  arrow(fig1,o[0],o[1],b[0],b[1],c.orange,3.5);
+  // labels move with vectors, kept clear of arrow tips and lattice points
+  label(fig1,a[0]+16,a[1]+21,'b1 = (1, 0)',c.teal,13,'start');
+  label(fig1,b[0]+58,b[1]-12,'b2 = ('+s.toFixed(2)+', 1)',c.orange,13,'middle');
+  label(fig1,(o[0]+ab[0])/2,(o[1]+ab[1])/2+4,'area = 1',c.ink,12.5,'middle');
+  el('circle',{cx:o[0],cy:o[1],r:4,fill:c.ink},fig1);
+  var len=Math.sqrt(s*s+1), defect=len/1, ang=Math.acos(s/len)*180/Math.PI;
+  document.getElementById('lat-roLen').textContent=len.toFixed(2);
+  document.getElementById('lat-roDefect').textContent=defect.toFixed(2);
+  document.getElementById('lat-roAngle').textContent=ang.toFixed(1)+'°';
+  var quality = s<0.25 ? 'a nearly orthogonal (good) basis' : (s<0.6 ? 'a moderately skewed basis' : 'a badly skewed basis');
+  document.getElementById('lat-fig1Title').textContent='Figure 1 — Shear s = '+s.toFixed(2)+': '+quality;
+}
+var skewSlider=document.getElementById('lat-skewSlider');
+skewSlider.addEventListener('input',function(){drawFig1(parseFloat(this.value));});
+drawFig1(0);
+
+/* ---------- Figure 2: same lattice ---------- */
+function drawFig2(svg,b1,b2,color1,color2){
+  var c=colors();var ox=42,oy=215,sc=26;
+  function P(x,y){return[ox+x*sc,oy-y*sc];}
+  for(var i=0;i<=8;i++)for(var j=0;j<=7;j++){var pt=P(i,j);el('circle',{cx:pt[0],cy:pt[1],r:2.6,fill:c.ink3},svg);}
+  var o=P(0,0);
+  var a=P(b1[0],b1[1]), b=P(b2[0],b2[1]);
+  arrow(svg,o[0],o[1],a[0],a[1],color1,3);
+  arrow(svg,o[0],o[1],b[0],b[1],color2,3);
+  label(svg,a[0]+4,a[1]+(b1[1]>0?-8:18),'b1',color1,13, b1[0]>1?'start':'middle');
+  label(svg,b[0]+4,b[1]-8,'b2',color2,13, b2[0]>1?'start':'middle');
+  el('circle',{cx:o[0],cy:o[1],r:3.5,fill:c.ink},svg);
+}
+(function(){var c=colors();drawFig2(document.getElementById('lat-fig2a'),[1,0],[0,1],c.teal,c.teal);drawFig2(document.getElementById('lat-fig2b'),[3,1],[2,1],c.orange,c.orange);})();
+
+/* ---------- Figure 3: SVP ---------- */
+(function(){
+  var svg=document.getElementById('lat-fig3');var c=colors();var ox=70,oy=255,sc=52;
+  function P(x,y){return[ox+x*sc,oy-y*sc];}
+  for(var i=0;i<=7;i++)for(var j=0;j<=4;j++){var pt=P(i,j);el('circle',{cx:pt[0],cy:pt[1],r:3,fill:c.ink3},svg);}
+  var o=P(0,0),a=P(3,1),b=P(2,1),s=P(1,0);
+  // dashed connector b2 tip to b1 tip showing difference
+  el('line',{x1:b[0],y1:b[1],x2:a[0],y2:a[1],stroke:c.teal,'stroke-width':2,'stroke-dasharray':'5 4'},svg);
+  arrow(svg,o[0],o[1],a[0],a[1],c.orange,3.5);
+  arrow(svg,o[0],o[1],b[0],b[1],c.orange,3.5);
+  arrow(svg,o[0],o[1],s[0],s[1],c.teal,4);
+  label(svg,a[0]+8,a[1]-6,'b1 = (3, 1)',c.orange,13,'start');
+  label(svg,b[0]+8,b[1]+18,'b2 = (2, 1)',c.orange,13,'start');
+  label(svg,s[0]+10,s[1]+24,'shortest: (1, 0)',c.teal,13,'start');
+  el('circle',{cx:o[0],cy:o[1],r:4,fill:c.ink},svg);
+})();
+
+/* ---------- Figure 4: CVP draggable ---------- */
+var fig4=document.getElementById('lat-fig4');
+var target={x:2.4,y:0.6};
+var dragging=false;
+function cvpCompute(t){
+  var good={x:Math.round(t.x),y:Math.round(t.y)};
+  var c1=t.x-2*t.y, c2=-t.x+3*t.y;
+  var r1=Math.round(c1), r2=Math.round(c2);
+  var bad={x:3*r1+2*r2, y:1*r1+1*r2};
+  // true closest by brute force
+  var best=null,bd=1e9;
+  for(var i=-2;i<=7;i++)for(var j=-2;j<=6;j++){var d=(t.x-i)*(t.x-i)+(t.y-j)*(t.y-j);if(d<bd){bd=d;best={x:i,y:j};}}
+  function dist(p){return Math.sqrt((t.x-p.x)*(t.x-p.x)+(t.y-p.y)*(t.y-p.y));}
+  return{good:good,bad:bad,best:best,dGood:dist(good),dBad:dist(bad),dBest:dist(best)};
+}
+function drawFig4(){
+  fig4.innerHTML='';var c=colors();var ox=60,oy=320,sc=58;
+  function P(x,y){return[ox+x*sc,oy-y*sc];}
+  function halo(t){t.setAttribute('paint-order','stroke');t.setAttribute('stroke',c.surface);t.setAttribute('stroke-width','3.5');t.setAttribute('stroke-linejoin','round');return t;}
+  var r=cvpCompute(target);
+  var showBases=basesToggle&&basesToggle.checked;
+  if(showBases){
+    // clip the cell grids to the lattice plot area so the skewed lines do not spill into the margins
+    var defs=el('defs',{},fig4);
+    var clip=el('clipPath',{id:'fig4Clip'},defs);
+    el('rect',{x:ox,y:oy-5*sc,width:7*sc,height:5*sc},clip);
+    var gridG=el('g',{'clip-path':'url(#fig4Clip)'},fig4);
+    // good basis: axis-aligned unit grid
+    for(var gi=0;gi<=7;gi++){var ga=P(gi,0),gb=P(gi,5);el('line',{x1:ga[0],y1:ga[1],x2:gb[0],y2:gb[1],stroke:c.teal,'stroke-width':1,opacity:0.18},gridG);}
+    for(var gj=0;gj<=5;gj++){var gc=P(0,gj),gd=P(7,gj);el('line',{x1:gc[0],y1:gc[1],x2:gd[0],y2:gd[1],stroke:c.teal,'stroke-width':1,opacity:0.18},gridG);}
+    // bad basis: skewed parallelogram grid, lines parallel to b1=(3,1) through multiples of b2=(2,1), and vice versa
+    for(var k1=-1;k1<=6;k1++){var s1=P(2*k1-3,k1-1),e1=P(2*k1+7.5,k1+2.5);el('line',{x1:s1[0],y1:s1[1],x2:e1[0],y2:e1[1],stroke:c.orange,'stroke-width':1,opacity:0.25},gridG);}
+    for(var k2=-1;k2<=5;k2++){var s2=P(3*k2-2,k2-1),e2=P(3*k2+5,k2+2.5);el('line',{x1:s2[0],y1:s2[1],x2:e2[0],y2:e2[1],stroke:c.orange,'stroke-width':1,opacity:0.25},gridG);}
+    // rounding cells: unit square around the good answer, skewed parallelogram around the bad answer
+    var gs=[P(r.good.x-0.5,r.good.y-0.5),P(r.good.x+0.5,r.good.y-0.5),P(r.good.x+0.5,r.good.y+0.5),P(r.good.x-0.5,r.good.y+0.5)];
+    el('polygon',{points:gs.map(function(p){return p.join(',');}).join(' '),fill:c.teal,opacity:0.13,stroke:c.teal,'stroke-width':1.5},fig4);
+    function bc(dx,dy){return P(r.bad.x+dx,r.bad.y+dy);}
+    var bs=[bc(2.5,1),bc(0.5,0),bc(-2.5,-1),bc(-0.5,0)];
+    el('polygon',{points:bs.map(function(p){return p.join(',');}).join(' '),fill:c.red,opacity:0.10,stroke:c.red,'stroke-width':1.5},fig4);
+  }
+  for(var i=0;i<=7;i++)for(var j=0;j<=5;j++){var pt=P(i,j);el('circle',{cx:pt[0],cy:pt[1],r:3,fill:c.ink3},fig4);}
+  var tp=P(target.x,target.y), gp=P(r.good.x,r.good.y), bp=P(r.bad.x,r.bad.y);
+  el('line',{x1:tp[0],y1:tp[1],x2:gp[0],y2:gp[1],stroke:c.teal,'stroke-width':2.5},fig4);
+  el('line',{x1:tp[0],y1:tp[1],x2:bp[0],y2:bp[1],stroke:c.red,'stroke-width':2.5,'stroke-dasharray':'6 4'},fig4);
+  el('circle',{cx:gp[0],cy:gp[1],r:8,fill:'none',stroke:c.teal,'stroke-width':3},fig4);
+  el('circle',{cx:bp[0],cy:bp[1],r:8,fill:'none',stroke:c.red,'stroke-width':3},fig4);
+  halo(label(fig4,gp[0],gp[1]-16,'good: ('+r.good.x+', '+r.good.y+')',c.teal,12.5));
+  if(Math.abs(bp[0]-gp[0])>40||Math.abs(bp[1]-gp[1])>24) halo(label(fig4,bp[0],bp[1]+26,'bad: ('+r.bad.x+', '+r.bad.y+')',c.red,12.5));
+  if(showBases){
+    var o=P(0,0),gb1=P(1,0),gb2=P(0,1),bb1=P(3,1),bb2=P(2,1);
+    arrow(fig4,o[0],o[1],gb1[0],gb1[1],c.teal,3);
+    arrow(fig4,o[0],o[1],gb2[0],gb2[1],c.teal,3);
+    arrow(fig4,o[0],o[1],bb1[0],bb1[1],c.orange,3.5);
+    arrow(fig4,o[0],o[1],bb2[0],bb2[1],c.orange,3.5);
+    // Short colour-coded labels only, each placed clear of the answer labels and of
+    // each other: at the default target the good answer (2, 1) coincides with the bad
+    // b2 tip and the bad answer (1, 0) with the good b1 tip, so the full-length tip
+    // labels used before collided and the centred b2 label ran off the left edge.
+    // Full coordinates for both bases are in the legend under the figure.
+    halo(label(fig4,(o[0]+gb1[0])/2,gb1[1]-13,'b1',c.teal,12.5));
+    halo(label(fig4,gb2[0]-16,(o[1]+gb2[1])/2+4,'b2',c.teal,12.5));
+    halo(label(fig4,bb1[0]+17,bb1[1]+4,'b1',c.orange,12.5));
+    halo(label(fig4,(o[0]+bb2[0])/2-14,(o[1]+bb2[1])/2-15,'b2',c.orange,12.5));
+    el('circle',{cx:o[0],cy:o[1],r:4,fill:c.ink},fig4);
+  }
+  var handle=el('circle',{cx:tp[0],cy:tp[1],r:11,fill:c.blue,stroke:c.surface||'#fff','stroke-width':2.5,style:'cursor:grab'},fig4);
+  halo(label(fig4,tp[0]+20,tp[1]+4,'t',c.blue,14,'start'));
+  document.getElementById('lat-cvpTarget').textContent='('+target.x.toFixed(2)+', '+target.y.toFixed(2)+')';
+  document.getElementById('lat-cvpGood').textContent='('+r.good.x+', '+r.good.y+') — '+r.dGood.toFixed(2);
+  document.getElementById('lat-cvpBad').textContent='('+r.bad.x+', '+r.bad.y+') — '+r.dBad.toFixed(2);
+  document.getElementById('lat-cvpTrue').textContent='('+r.best.x+', '+r.best.y+') — '+r.dBest.toFixed(2);
+  return{ox:ox,oy:oy,sc:sc};
+}
+var basesToggle=document.getElementById('lat-fig4Bases');
+basesToggle.addEventListener('change',function(){drawFig4();});
+var cvpGeom=drawFig4();
+function fig4Point(evt){
+  var rect=fig4.getBoundingClientRect();
+  var sx=560/rect.width, sy=380/rect.height;
+  var px=(evt.clientX-rect.left)*sx, py=(evt.clientY-rect.top)*sy;
+  var x=(px-cvpGeom.ox)/cvpGeom.sc, y=(cvpGeom.oy-py)/cvpGeom.sc;
+  x=Math.max(0.1,Math.min(6.9,x)); y=Math.max(0.1,Math.min(4.9,y));
+  target={x:x,y:y}; drawFig4();
+}
+fig4.addEventListener('pointerdown',function(e){dragging=true;fig4.setPointerCapture(e.pointerId);fig4Point(e);});
+fig4.addEventListener('pointermove',function(e){if(dragging)fig4Point(e);});
+fig4.addEventListener('pointerup',function(){dragging=false;});
+fig4.addEventListener('pointercancel',function(){dragging=false;});
+
+/* ---------- Step 6 sample panels: mod-17 number lines ---------- */
+function drawSampleLine(svg,raw,remainder,published,subtractLabel,errorLabel,wrapError){
+  var c=colors();
+  function X(v){return 28+v*(244/51);}
+  function X2(v){return 28+v*(244/17);}
+  // top line, 0 to 51, coloured per wrap segment
+  var segCols=[c.teal,c.gold,c.orange];
+  for(var sgm=0;sgm<3;sgm++){el('line',{x1:X(sgm*17),y1:50,x2:X((sgm+1)*17),y2:50,stroke:segCols[sgm],'stroke-width':3,'stroke-linecap':'round'},svg);}
+  [0,17,34,51].forEach(function(v){el('line',{x1:X(v),y1:45,x2:X(v),y2:55,stroke:c.ink2,'stroke-width':1.5},svg);label(svg,X(v),68,''+v,c.ink2,10.5);});
+  // reduction arc from the raw value back to the remainder's position on the same line
+  var rx=X(raw),mx=X(remainder);
+  el('path',{d:'M '+rx+' 42 C '+((rx+mx)/2)+' 4, '+((rx+mx)/2)+' 4, '+mx+' 42',fill:'none',stroke:c.red,'stroke-width':2},svg);
+  var ahx=mx,ahy=42;
+  el('polygon',{points:ahx+','+ahy+' '+(ahx-7)+','+(ahy-3)+' '+(ahx-3)+','+(ahy-8),fill:c.red},svg);
+  label(svg,(rx+mx)/2,16,subtractLabel,c.red,11.5);
+  el('circle',{cx:rx,cy:50,r:4.5,fill:c.orange},svg);
+  label(svg,rx,34,''+raw,c.orange,11.5, raw>48?'end':'middle');
+  el('circle',{cx:mx,cy:50,r:4,fill:c.teal},svg);
+  // bottom line, a single mod-17 range 0 to 17
+  el('line',{x1:X2(0),y1:102,x2:X2(17),y2:102,stroke:c.teal,'stroke-width':3,'stroke-linecap':'round'},svg);
+  [0,17].forEach(function(v){el('line',{x1:X2(v),y1:97,x2:X2(v),y2:107,stroke:c.ink2,'stroke-width':1.5},svg);label(svg,X2(v),120,''+v,c.ink2,10.5);});
+  el('circle',{cx:X2(remainder),cy:102,r:4.5,fill:c.teal},svg);
+  el('circle',{cx:X2(published),cy:102,r:4.5,fill:c.blue},svg);
+  if(!wrapError){
+    var ex1=X2(remainder),ex2=X2(published);
+    el('line',{x1:ex1,y1:93,x2:ex2-5,y2:93,stroke:c.red,'stroke-width':2.5},svg);
+    el('polygon',{points:ex2+',93 '+(ex2-8)+',89.5 '+(ex2-8)+',96.5',fill:c.red},svg);
+    label(svg,(ex1+ex2)/2,84,errorLabel,c.red,11.5);
+    var rl=label(svg,X2(remainder)-5,120,''+remainder,c.teal,10.5,'end');
+    var pl=label(svg,X2(published)+5,120,''+published,c.blue,10.5,'start');
+  }else{
+    var wx1=X2(remainder),wx2=X2(published);
+    el('path',{d:'M '+wx1+' 109 C 70 136, 210 136, '+wx2+' 109',fill:'none',stroke:c.red,'stroke-width':2,'stroke-dasharray':'5 3'},svg);
+    el('polygon',{points:wx2+',107 '+(wx2-8)+',104 '+(wx2-4)+',112',fill:c.red},svg);
+    label(svg,150,139,errorLabel,c.red,11);
+    label(svg,X2(remainder),120,''+remainder,c.teal,10.5);
+    label(svg,X2(published)-5,120,''+published,c.blue,10.5,'end');
+  }
+}
+drawSampleLine(document.getElementById('lat-figS1'),47,13,14,'−34','+1',false);
+drawSampleLine(document.getElementById('lat-figS2'),51,0,16,'−51','−1 wraps around',true);
+
+/* ---------- Figure 5: LWE, draggable error ---------- */
+var fig5=document.getElementById('lat-fig5');
+var lweExact={x:3,y:2};
+var lweErr={x:0.20,y:0.15};
+var lweDragging=false;
+var errMagSlider=document.getElementById('lat-errMagSlider');
+function fmtSigned(v){return (v<0?'−':'+')+Math.abs(v).toFixed(2);}
+function drawFig5(){
+  fig5.innerHTML='';var c=colors();var ox=80,oy=255,sc=52;
+  function P(x,y){return[ox+x*sc,oy-y*sc];}
+  function halo(t){t.setAttribute('paint-order','stroke');t.setAttribute('stroke',c.surface);t.setAttribute('stroke-width','3.5');t.setAttribute('stroke-linejoin','round');return t;}
+  var recv={x:lweExact.x+lweErr.x, y:lweExact.y+lweErr.y};
+  var dec={x:Math.round(recv.x), y:Math.round(recv.y)};
+  var recovered=Math.abs(lweErr.x)<0.5&&Math.abs(lweErr.y)<0.5;
+  // Voronoi cell of the exact point: the unit square around it
+  var cell=[P(2.5,1.5),P(3.5,1.5),P(3.5,2.5),P(2.5,2.5)];
+  el('polygon',{points:cell.map(function(p){return p.join(',');}).join(' '),fill:c.gold,opacity:0.16,stroke:c.gold,'stroke-width':1.8,'stroke-dasharray':'7 4'},fig5);
+  for(var i=0;i<=7;i++)for(var j=0;j<=4;j++){var pt=P(i,j);el('circle',{cx:pt[0],cy:pt[1],r:3,fill:c.ink3},fig5);}
+  var ep=P(lweExact.x,lweExact.y), rp=P(recv.x,recv.y), dp=P(dec.x,dec.y);
+  // decoding snap: dashed line from the received point to the point it decodes to
+  el('line',{x1:rp[0],y1:rp[1],x2:dp[0],y2:dp[1],stroke:recovered?c.teal:c.red,'stroke-width':2,'stroke-dasharray':'4 4'},fig5);
+  el('circle',{cx:dp[0],cy:dp[1],r:10,fill:'none',stroke:recovered?c.teal:c.red,'stroke-width':3},fig5);
+  if(!recovered) halo(label(fig5,dp[0],dp[1]-18,'snaps to ('+dec.x+', '+dec.y+')',c.red,12.5));
+  var adx=rp[0]-ep[0],ady=rp[1]-ep[1];
+  if(Math.sqrt(adx*adx+ady*ady)>5) arrow(fig5,ep[0],ep[1],rp[0],rp[1],c.red,3);
+  el('circle',{cx:ep[0],cy:ep[1],r:7,fill:c.teal},fig5);
+  halo(label(fig5,ep[0],ep[1]-18,'exact (3, 2)',c.teal,13));
+  // midpoint label for e, pushed perpendicular to the arrow so it never sits on it
+  var mxp=(ep[0]+rp[0])/2,myp=(ep[1]+rp[1])/2;
+  var dx=rp[0]-ep[0],dy=rp[1]-ep[1];var dl=Math.sqrt(dx*dx+dy*dy)||1;
+  halo(label(fig5,mxp-dy/dl*15,myp+dx/dl*15-4,'e',c.red,13));
+  var handle=el('circle',{cx:rp[0],cy:rp[1],r:11,fill:c.blue,stroke:c.surface,'stroke-width':2.5,style:'cursor:grab'},fig5);
+  var rAnchor=rp[0]>430?'end':'start';
+  halo(label(fig5,rp[0]+(rAnchor==='start'?17:-17),rp[1]+22,'received',c.blue,13,rAnchor));
+  var len=Math.sqrt(lweErr.x*lweErr.x+lweErr.y*lweErr.y);
+  document.getElementById('lat-lweErr').textContent='('+fmtSigned(lweErr.x)+', '+fmtSigned(lweErr.y)+')';
+  document.getElementById('lat-lweLen').textContent=len.toFixed(2);
+  document.getElementById('lat-lweDecode').textContent='('+dec.x+', '+dec.y+')';
+  var st=document.getElementById('lat-lweStatus');
+  st.textContent=recovered?'Recovered':'Lost';
+  st.style.color=recovered?c.teal:c.red;
+  document.getElementById('lat-fig5Title').textContent='Figure 5 — Error length '+len.toFixed(2)+': '+(recovered?'decoding recovers (3, 2)':'decoding snaps to ('+dec.x+', '+dec.y+') — original lost');
+  if(document.activeElement!==errMagSlider) errMagSlider.value=len.toFixed(2);
+  return{ox:ox,oy:oy,sc:sc};
+}
+var lweGeom=drawFig5();
+function fig5Point(evt){
+  var rect=fig5.getBoundingClientRect();
+  var sx=560/rect.width, sy=320/rect.height;
+  var px=(evt.clientX-rect.left)*sx, py=(evt.clientY-rect.top)*sy;
+  var x=(px-lweGeom.ox)/lweGeom.sc, y=(lweGeom.oy-py)/lweGeom.sc;
+  lweErr.x=Math.max(-1.6,Math.min(1.6,x-lweExact.x));
+  lweErr.y=Math.max(-1.6,Math.min(1.6,y-lweExact.y));
+  drawFig5();
+}
+fig5.addEventListener('pointerdown',function(e){
+  var rect=fig5.getBoundingClientRect();
+  var sx=560/rect.width;
+  var px=(e.clientX-rect.left)*sx, py=(e.clientY-rect.top)*(320/rect.height);
+  var rp=[lweGeom.ox+(lweExact.x+lweErr.x)*lweGeom.sc, lweGeom.oy-(lweExact.y+lweErr.y)*lweGeom.sc];
+  var d=Math.sqrt((px-rp[0])*(px-rp[0])+(py-rp[1])*(py-rp[1]));
+  if(d<44){lweDragging=true;fig5.setPointerCapture(e.pointerId);fig5Point(e);}
+});
+fig5.addEventListener('pointermove',function(e){if(lweDragging)fig5Point(e);});
+fig5.addEventListener('pointerup',function(){lweDragging=false;});
+fig5.addEventListener('pointercancel',function(){lweDragging=false;});
+errMagSlider.addEventListener('input',function(){
+  var m=parseFloat(this.value);
+  var len=Math.sqrt(lweErr.x*lweErr.x+lweErr.y*lweErr.y);
+  var ux,uy;
+  if(len<0.001){ux=0.8;uy=0.6;}else{ux=lweErr.x/len;uy=lweErr.y/len;}
+  lweErr.x=ux*m; lweErr.y=uy*m;
+  drawFig5();
+});
+
+/* ---------- Figure 6: 3D lattice ---------- */
+var fig6=document.getElementById('lat-fig6');
+function drawFig6(azDeg){
+  fig6.innerHTML='';var c=colors();
+  var az=azDeg*Math.PI/180, el2=28*Math.PI/180;
+  function projRaw(x,y,z){
+    var xr=x*Math.cos(az)-y*Math.sin(az);
+    var yr=x*Math.sin(az)+y*Math.cos(az);
+    return[xr, -(z*Math.cos(el2)-yr*Math.sin(el2)), yr];
+  }
+  var pts=[];
+  for(var i=-1;i<=2;i++)for(var j=-1;j<=2;j++)for(var k=0;k<=2;k++){pts.push([i,j,k]);}
+  // Auto-fit: measure the projected bounds of every lattice point plus the two
+  // example vectors, then scale and centre so the drawing fills the viewBox at
+  // any azimuth instead of sitting in a small fixed-size patch in the middle.
+  var fitPts=pts.concat([[0,0,0],[2,1,1],[1,2,0]]);
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+  fitPts.forEach(function(p){var r=projRaw(p[0],p[1],p[2]);if(r[0]<minX)minX=r[0];if(r[0]>maxX)maxX=r[0];if(r[1]<minY)minY=r[1];if(r[1]>maxY)maxY=r[1];});
+  var padX=46,padTop=30,padBottom=36;
+  var sc=Math.min((560-2*padX)/Math.max(0.001,maxX-minX),(400-padTop-padBottom)/Math.max(0.001,maxY-minY));
+  var cx=280-(minX+maxX)/2*sc;
+  var cy=(padTop+(400-padTop-padBottom)/2)-(minY+maxY)/2*sc;
+  function proj(x,y,z){var r=projRaw(x,y,z);return[cx+r[0]*sc, cy+r[1]*sc, r[2]];}
+  pts.sort(function(a,b){var pa=proj(a[0],a[1],a[2]),pb=proj(b[0],b[1],b[2]);return pa[2]-pb[2];});
+  // edges of unit cube from origin
+  var o=proj(0,0,0);
+  [[1,0,0],[0,1,0],[0,0,1]].forEach(function(e){var p=proj(e[0],e[1],e[2]);el('line',{x1:o[0],y1:o[1],x2:p[0],y2:p[1],stroke:c.line,'stroke-width':2},fig6);});
+  // example vectors
+  var v=proj(2,1,1), w=proj(1,2,0);
+  pts.forEach(function(p){var q=proj(p[0],p[1],p[2]);el('circle',{cx:q[0],cy:q[1],r:4,fill:c.ink3},fig6);});
+  arrow(fig6,o[0],o[1],v[0],v[1],c.teal,3.5);
+  arrow(fig6,o[0],o[1],w[0],w[1],c.gold,3.5);
+  // Labels anchor toward the inside of the box so the now-larger drawing never
+  // pushes them off an edge at extreme azimuths, and stay clear of each other.
+  var vAnchor = v[0]>400 ? 'end' : 'start';
+  label(fig6,v[0]+(vAnchor==='start'?8:-8),Math.max(16,v[1]-10),'v = (2, 1, 1)',c.teal,13,vAnchor);
+  var wAnchor = w[0]>440 ? 'end' : (w[0]<120 ? 'start' : (Math.abs(w[0]-v[0])<70 ? 'end' : 'start'));
+  label(fig6,w[0]+(wAnchor==='start'?8:-8),Math.min(388,w[1]+22),'w = (1, 2, 0)',c.gold,13,wAnchor);
+  el('circle',{cx:o[0],cy:o[1],r:4.5,fill:c.ink},fig6);
+  document.getElementById('lat-fig6Title').textContent='Figure 6 — 3D lattice at azimuth '+azDeg+'°';
+}
+var rotSlider=document.getElementById('lat-rotSlider');
+rotSlider.addEventListener('input',function(){drawFig6(parseInt(this.value,10));});
+drawFig6(35);
+
+`} />
