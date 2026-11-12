@@ -116,7 +116,7 @@ tocDepth: 2
 
 <table class="formulas">
 <tr><th>Sheared basis</th><td><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>=</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>=</mo><mo>(</mo><mi>s</mi><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math></td></tr>
-<tr><th>[Length of](/notes/math_and_physics/hilbert_space_hypercomplex/#1--hilbert-space-geometry-with-infinitely-many-directions) the sheared vector</th><td><math display="block"><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo><mo>=</mo><msqrt><mrow><msup><mi>s</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></msqrt></mrow></math></td></tr>
+<tr><th>[Length of](/notes/math_and_physics/hilbert_space_hypercomplex/#1-hilbert-space-geometry-with-infinitely-many-directions) the sheared vector</th><td><math display="block"><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo><mo>=</mo><msqrt><mrow><msup><mi>s</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></msqrt></mrow></math></td></tr>
 <tr><th>Orthogonality defect</th><td><math display="block"><mrow><mi>δ</mi><mo>=</mo><mfrac><mrow><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>1</mn></msub><mo>|</mo><mo>·</mo><mo>|</mo><msub><mi mathvariant="bold">b</mi><mn>2</mn></msub><mo>|</mo></mrow><mrow><mo>|</mo><mi>det</mi><mo>(</mo><mi>B</mi><mo>)</mo><mo>|</mo></mrow></mfrac></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">A value of 1 means perfectly orthogonal. Larger means more skewed. The dot here is genuine multiplication of the two lengths.</span></td></tr>
 </table>
 
@@ -129,9 +129,9 @@ tocDepth: 2
 </div>
 
 <div class="sliderbox">
-<h3 id="lat-fig1Title">Figure 1 — Shear s = 0.00: a nearly orthogonal (good) basis</h3>
+<h3 id="lat-fig1Title">Figure 1: Shear s = 0.00, a nearly orthogonal (good) basis</h3>
 <div class="sliderrow">
-<label for="lat-skewSlider">Shear s — slide toward a skewed basis</label><input type="range" id="lat-skewSlider" min="0" max="0.85" step="0.01" value="0" />
+<label for="lat-skewSlider">Shear s: slide toward a skewed basis</label><input type="range" id="lat-skewSlider" min="0" max="0.85" step="0.01" value="0" />
 </div>
 <div class="readouts">
 <div class="ro">
@@ -172,12 +172,12 @@ tocDepth: 2
 
 <div class="two">
 <div class="diagram">
-<p class="figtitle">Good basis — short and orthogonal</p><svg id="lat-fig2a" viewBox="0 0 300 260" role="img" aria-label="Good basis lattice"></svg>
-<p class="figcap">Defect 1.00. Each step moves one unit in one direction.</p>
+<p class="figtitle">Good basis: short and orthogonal</p><svg id="lat-fig2a" viewBox="0 0 300 260" role="img" aria-label="Good basis lattice"></svg>
+<p class="figcap">Defect = 1.00. Each step moves one unit in one direction.</p>
 </div>
 <div class="diagram">
-<p class="figtitle">Bad basis — long and skewed</p><svg id="lat-fig2b" viewBox="0 0 300 260" role="img" aria-label="Bad basis lattice"></svg>
-<p class="figcap">Defect about 7.07. Identical dots — only the arrows changed.</p>
+<p class="figtitle">Bad basis: long and skewed</p><svg id="lat-fig2b" viewBox="0 0 300 260" role="img" aria-label="Bad basis lattice"></svg>
+<p class="figcap">Defect ≈ 7.07. Identical dots — only the arrows changed.</p>
 </div>
 </div>
 
@@ -222,19 +222,19 @@ tocDepth: 2
 <div class="legend">
 <span><span class="dotsw" style="background:var(--math-blue)"></span> target t (drag me)</span><span><span class="dotsw" style="background:var(--math-teal)"></span> good-basis rounding</span><span><span class="dotsw" style="background:var(--math-red)"></span> bad-basis rounding</span><span><span class="sw" style="background:var(--math-teal)"></span> good basis: b1 = (1, 0), b2 = (0, 1)</span><span><span class="sw" style="background:var(--math-orange)"></span> bad basis: b1 = (3, 1), b2 = (2, 1)</span>
 </div>
-<label class="basetoggle"><input type="checkbox" id="lat-fig4Bases" checked /> Show both bases in the figure — basis arrows, cell grids, and the rounding cell around each answer</label>
+<label class="basetoggle"><input type="checkbox" id="lat-fig4Bases" checked /> Show both bases in the figure: basis arrows, cell grids, and the rounding cell around each answer</label>
 <div class="readouts" style="padding:0 6px">
 <div class="ro">
 <b id="lat-cvpTarget">(2.40, 0.60)</b><span>Target t</span>
 </div>
 <div class="ro">
-<b id="lat-cvpGood">(2, 1) — 0.57</b><span>Good basis: point — distance</span>
+<b id="lat-cvpGood">(2, 1), d = 0.57</b><span>Good basis: point, distance</span>
 </div>
 <div class="ro">
-<b id="lat-cvpBad">(1, 0) — 1.52</b><span>Bad basis: point — distance</span>
+<b id="lat-cvpBad">(1, 0), d = 1.52</b><span>Bad basis: point, distance</span>
 </div>
 <div class="ro">
-<b id="lat-cvpTrue">(2, 1) — 0.57</b><span>True closest point</span>
+<b id="lat-cvpTrue">(2, 1), d = 0.57</b><span>True closest point</span>
 </div>
 </div>
 <p class="figcap"><strong>Figure 4.</strong> At the default target, bad-basis rounding lands nearly three times farther away than the true closest point (1.52 against 0.57). Drag the target into different cells: the good basis is always right or near-right, while the bad basis fails whenever the target sits in the long, thin part of its skewed cells. Decryption is exactly this step — the legitimate receiver rounds with the good basis; an attacker, stuck with the bad one, cannot. With the bases shown, the faint teal unit squares and orange skewed parallelograms are the two bases' cells tiling the plane, and the highlighted cell around each answer is the set of targets that round to it: each method snaps the target to the centre of its own cell, which is how one target produces two different answers. At the origin the teal arrows are the good basis and the orange arrows the bad basis, each labelled b1 or b2 in its basis colour. Untick the checkbox for the cleaner picture without them.</p>
@@ -247,32 +247,32 @@ tocDepth: 2
 <p>Most deployed lattice schemes are not built directly on CVP but on LWE. A secret vector s is hidden by publishing near-exact dot products, each perturbed by a tiny error. Removing the error is a closest-vector search. A fully checkable toy, modulo 17, with secret s = (3, 5):</p>
 
 <table class="formulas">
-<tr><th>Sample 1 — exact value</th><td><math display="block"><mrow><mn>4</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>7</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>47</mn><mo>≡</mo><mn>13</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
-<tr><th>Sample 1 — published, error +1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>14</mn></mrow></math></td></tr>
-<tr><th>Sample 2 — exact value</th><td><math display="block"><mrow><mn>2</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>9</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>51</mn><mo>≡</mo><mn>0</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
-<tr><th>Sample 2 — published, error −1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>−</mo><mn>1</mn><mo>≡</mo><mn>16</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Sample 1: exact value</th><td><math display="block"><mrow><mn>4</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>7</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>47</mn><mo>≡</mo><mn>13</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Sample 1: published, error +1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>14</mn></mrow></math></td></tr>
+<tr><th>Sample 2: exact value</th><td><math display="block"><mrow><mn>2</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>9</mn><mo>·</mo><mn>5</mn><mo>=</mo><mn>51</mn><mo>≡</mo><mn>0</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Sample 2: published, error −1</th><td><math display="block"><mrow><msub><mi>b</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>−</mo><mn>1</mn><mo>≡</mo><mn>16</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
 </table>
 
 <p>Here are the two samples drawn out. In each panel the top line runs from the raw dot product down to its remainder — every full wrap of 17 is subtracted at once — and the bottom line sits inside a single mod-17 range, where one small error step moves the clean remainder to the published value:</p>
 
 <div class="two">
 <div class="diagram">
-<p class="figtitle">Sample 1 — a₁ = (4, 7), published b₁ = 14</p>
+<p class="figtitle">Sample 1: a₁ = (4, 7), published b₁ = 14</p>
 <math display="block"><mrow><msub><mi mathvariant="bold">a</mi><mn>1</mn></msub><mo>·</mo><mi mathvariant="bold">s</mi><mo>=</mo><mn>4</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>7</mn><mo>·</mo><mn>5</mn></mrow></math>
 <math display="block"><mrow><mo>=</mo><mn>12</mn><mo>+</mo><mn>35</mn><mo>=</mo><mn>47</mn></mrow></math>
 <math display="block"><mrow><mn>47</mn><mo>−</mo><mn>2</mn><mo>·</mo><mn>17</mn><mo>=</mo><mn>13</mn></mrow></math>
 <math display="block"><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>14</mn></mrow></math>
 <svg id="lat-figS1" viewBox="0 0 300 142" role="img" aria-label="Sample 1 number lines: 47 reduces to 13 modulo 17, then a plus 1 error step gives 14"></svg>
-<p class="figcap">47 wraps past 17 and 34, landing on the remainder 13 — the clean lattice value. One +1 error step publishes 14 instead.</p>
+<p class="figcap">47 wraps past 17 and 34, landing on the remainder 13, the clean lattice value. One +1 error step publishes 14 instead.</p>
 </div>
 <div class="diagram">
-<p class="figtitle">Sample 2 — a₂ = (2, 9), published b₂ = 16</p>
+<p class="figtitle">Sample 2: a₂ = (2, 9), published b₂ = 16</p>
 <math display="block"><mrow><msub><mi mathvariant="bold">a</mi><mn>2</mn></msub><mo>·</mo><mi mathvariant="bold">s</mi><mo>=</mo><mn>2</mn><mo>·</mo><mn>3</mn><mo>+</mo><mn>9</mn><mo>·</mo><mn>5</mn></mrow></math>
 <math display="block"><mrow><mo>=</mo><mn>6</mn><mo>+</mo><mn>45</mn><mo>=</mo><mn>51</mn></mrow></math>
 <math display="block"><mrow><mn>51</mn><mo>−</mo><mn>3</mn><mo>·</mo><mn>17</mn><mo>=</mo><mn>0</mn></mrow></math>
 <math display="block"><mrow><msub><mi>b</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mo>−</mo><mn>1</mn><mo>≡</mo><mn>16</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math>
 <svg id="lat-figS2" viewBox="0 0 300 142" role="img" aria-label="Sample 2 number lines: 51 reduces to 0 modulo 17, then a minus 1 error step wraps to 16"></svg>
-<p class="figcap">51 is exactly three wraps, so the remainder is 0. The −1 error step walks off the left end of the range and wraps to 16 — that is −1 mod 17.</p>
+<p class="figcap">51 is exactly three wraps, so the remainder is 0. The −1 error step walks off the left end of the range and wraps to 16: that is −1 mod 17.</p>
 </div>
 </div>
 
@@ -301,30 +301,30 @@ tocDepth: 2
 </div>
 
 <div class="sliderbox">
-<h3 id="lat-fig5Title">Figure 5 — Error length 0.25: decoding recovers (3, 2)</h3>
+<h3 id="lat-fig5Title">Figure 5: Error length = 0.25, decoding recovers (3, 2)</h3>
 <div class="sliderrow">
-<label for="lat-errMagSlider">Error length — stretch e along its current direction</label><input type="range" id="lat-errMagSlider" min="0" max="1.6" step="0.01" value="0.25" />
+<label for="lat-errMagSlider">Error length: stretch e along its current direction</label><input type="range" id="lat-errMagSlider" min="0" max="1.6" step="0.01" value="0.25" />
 </div>
 </div>
 </div>
 
-## 7 — From 2D to 3D — and then imagine 768
+## 7 — From 2D to 3D, and then imagine 768
 
 <div class="lat">
-<p>In 3D a basis has three vectors and the lattice fills space. Rotate the view: the points are the integer combinations of three unit vectors, with two example combination vectors drawn inside — v = (2, 1, 1) in teal and w = (1, 2, 0) in gold. Notice how even in 3D, nearest-point intuition already gets slippery as points occlude each other.</p>
+<p>In 3D a basis has three vectors and the lattice fills space. Rotate the view: the points are the integer combinations of three unit vectors, with two example combination vectors drawn inside: v = (2, 1, 1) in teal and w = (1, 2, 0) in gold. Notice how even in 3D, nearest-point intuition already gets slippery as points occlude each other.</p>
 
 <div class="diagram">
 <svg id="lat-fig6" viewBox="0 0 560 400" role="img" aria-label="Rotating 3D lattice"></svg>
 <div class="legend">
 <span><span class="sw" style="background:var(--math-teal)"></span> v = (2, 1, 1)</span><span><span class="sw" style="background:var(--math-gold)"></span> w = (1, 2, 0)</span><span><span class="dotsw" style="background:var(--math-ink3)"></span> lattice points</span>
 </div>
-<p class="figcap"><strong>Figure 6.</strong> Now extrapolate. Real schemes do not use dimension 3, or 30. ML-KEM (Kyber-768) works in dimension 768 — a module lattice of rank 3 over a ring of dimension 256. There is no picture of that lattice and no neighbourhood small enough to search: the number of nearby lattice points explodes combinatorially, and every known attack scales exponentially in the dimension. The 2D failures you caused by dragging in Figure 4 become, in 768 dimensions, an absolute wall.</p>
+<p class="figcap"><strong>Figure 6.</strong> Now extrapolate. Real schemes do not use dimension 3, or 30. ML-KEM (Kyber-768) works in dimension 768, a module lattice of rank 3 over a ring of dimension 256. There is no picture of that lattice and no neighbourhood small enough to search: the number of nearby lattice points explodes combinatorially, and every known attack scales exponentially in the dimension. The 2D failures you caused by dragging in Figure 4 become, in 768 dimensions, an absolute wall.</p>
 </div>
 
 <div class="sliderbox">
-<h3 id="lat-fig6Title">Figure 6 — 3D lattice at azimuth 35°</h3>
+<h3 id="lat-fig6Title">Figure 6: 3D lattice, azimuth = 35°</h3>
 <div class="sliderrow">
-<label for="lat-rotSlider">Azimuth — rotate the 3D lattice</label><input type="range" id="lat-rotSlider" min="0" max="360" step="1" value="35" />
+<label for="lat-rotSlider">Azimuth: rotate the 3D lattice</label><input type="range" id="lat-rotSlider" min="0" max="360" step="1" value="35" />
 </div>
 </div>
 
@@ -346,7 +346,7 @@ tocDepth: 2
 
 <table class="data">
 <tr><th>Standard</th><th>Also known as</th><th>Purpose</th><th>Working dimension</th></tr>
-<tr><td><strong>ML-KEM</strong> (FIPS 203)</td><td>Kyber</td><td>Key encapsulation — agreeing on a shared secret</td><td>512, 768, or 1024 (Kyber-768: rank 3, ring dimension 256)</td></tr>
+<tr><td><strong>ML-KEM</strong> (FIPS 203)</td><td>Kyber</td><td>Key encapsulation: agreeing on a shared secret</td><td>512, 768, or 1024 (Kyber-768: rank 3, ring dimension 256)</td></tr>
 <tr><td><strong>ML-DSA</strong> (FIPS 204)</td><td>Dilithium</td><td>Digital signatures</td><td>Module lattices over a 256-dimensional ring</td></tr>
 </table>
 
@@ -403,7 +403,7 @@ function drawFig1(s){
   document.getElementById('lat-roDefect').textContent=defect.toFixed(2);
   document.getElementById('lat-roAngle').textContent=ang.toFixed(1)+'°';
   var quality = s<0.25 ? 'a nearly orthogonal (good) basis' : (s<0.6 ? 'a moderately skewed basis' : 'a badly skewed basis');
-  document.getElementById('lat-fig1Title').textContent='Figure 1 — Shear s = '+s.toFixed(2)+': '+quality;
+  document.getElementById('lat-fig1Title').textContent='Figure 1: Shear s = '+s.toFixed(2)+', '+quality;
 }
 var skewSlider=document.getElementById('lat-skewSlider');
 skewSlider.addEventListener('input',function(){drawFig1(parseFloat(this.value));});
@@ -509,9 +509,9 @@ function drawFig4(){
   var handle=el('circle',{cx:tp[0],cy:tp[1],r:11,fill:c.blue,stroke:c.surface||'#fff','stroke-width':2.5,style:'cursor:grab'},fig4);
   halo(label(fig4,tp[0]+20,tp[1]+4,'t',c.blue,14,'start'));
   document.getElementById('lat-cvpTarget').textContent='('+target.x.toFixed(2)+', '+target.y.toFixed(2)+')';
-  document.getElementById('lat-cvpGood').textContent='('+r.good.x+', '+r.good.y+') — '+r.dGood.toFixed(2);
-  document.getElementById('lat-cvpBad').textContent='('+r.bad.x+', '+r.bad.y+') — '+r.dBad.toFixed(2);
-  document.getElementById('lat-cvpTrue').textContent='('+r.best.x+', '+r.best.y+') — '+r.dBest.toFixed(2);
+  document.getElementById('lat-cvpGood').textContent='('+r.good.x+', '+r.good.y+'), d = '+r.dGood.toFixed(2);
+  document.getElementById('lat-cvpBad').textContent='('+r.bad.x+', '+r.bad.y+'), d = '+r.dBad.toFixed(2);
+  document.getElementById('lat-cvpTrue').textContent='('+r.best.x+', '+r.best.y+'), d = '+r.dBest.toFixed(2);
   return{ox:ox,oy:oy,sc:sc};
 }
 var basesToggle=document.getElementById('lat-fig4Bases');
@@ -613,7 +613,7 @@ function drawFig5(){
   var st=document.getElementById('lat-lweStatus');
   st.textContent=recovered?'Recovered':'Lost';
   st.style.color=recovered?c.teal:c.red;
-  document.getElementById('lat-fig5Title').textContent='Figure 5 — Error length '+len.toFixed(2)+': '+(recovered?'decoding recovers (3, 2)':'decoding snaps to ('+dec.x+', '+dec.y+') — original lost');
+  document.getElementById('lat-fig5Title').textContent='Figure 5: Error length = '+len.toFixed(2)+', '+(recovered?'decoding recovers (3, 2)':'decoding snaps to ('+dec.x+', '+dec.y+'), original lost');
   if(document.activeElement!==errMagSlider) errMagSlider.value=len.toFixed(2);
   return{ox:ox,oy:oy,sc:sc};
 }
@@ -686,7 +686,7 @@ function drawFig6(azDeg){
   var wAnchor = w[0]>440 ? 'end' : (w[0]<120 ? 'start' : (Math.abs(w[0]-v[0])<70 ? 'end' : 'start'));
   label(fig6,w[0]+(wAnchor==='start'?8:-8),Math.min(388,w[1]+22),'w = (1, 2, 0)',c.gold,13,wAnchor);
   el('circle',{cx:o[0],cy:o[1],r:4.5,fill:c.ink},fig6);
-  document.getElementById('lat-fig6Title').textContent='Figure 6 — 3D lattice at azimuth '+azDeg+'°';
+  document.getElementById('lat-fig6Title').textContent='Figure 6: 3D lattice, azimuth = '+azDeg+'°';
 }
 var rotSlider=document.getElementById('lat-rotSlider');
 rotSlider.addEventListener('input',function(){drawFig6(parseInt(this.value,10));});
