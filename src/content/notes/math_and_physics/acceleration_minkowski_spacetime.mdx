@@ -250,6 +250,22 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
 <div class="mn-figcap"><strong id="fig3Title">Figure 3: A moving frame at 0.60c</strong> <span id="fig3Gamma">(γ = 1.25)</span>. The traveller's clock axis and simultaneity line tilt together — and both are drawn live from the Cruising speed slider below, the same slider that drives Figure 4. Disagreements about "now" — and about whose clock is slow — come straight from this tilt. No acceleration anywhere yet.</div>
 </div>
 
+<div class="mn-sliderbox">
+<h3>Try it: the velocity explorer</h3>
+<p class="mn-hint">Drag the cruising speed. Watch γ, the ticking rate, and how far the traveller's frame in Figure 3 would tilt (α). Notice: nothing here asks how the clock <em>got</em> to this speed. Hold that thought.</p>
+<div class="mn-sliderrow">
+<label for="betaSlider">Cruising speed β = v/c <span>fraction of light speed</span></label>
+<input type="range" id="betaSlider" min="0" max="0.99" step="0.01" value="0.60" />
+<div class="mn-readout" id="betaVal">0.60 c</div>
+</div>
+<div class="mn-stats">
+<div class="mn-stat"><div class="v" id="gammaVal">1.250</div><div class="k">Lorentz factor γ</div></div>
+<div class="mn-stat"><div class="v" id="rateVal">0.800</div><div class="k">proper seconds per Earth second (1/γ)</div></div>
+<div class="mn-stat"><div class="v" id="tiltVal">31.0°</div><div class="k">worldline tilt from vertical, arctan β</div></div>
+<div class="mn-stat"><div class="v" id="earthVal">8.0 yr → 6.4 yr</div><div class="k">8 Earth years become this much traveller time</div></div>
+</div>
+</div>
+
 <div class="mn-diagram">
 <div class="mn-svgwrap">
 <svg viewBox="0 0 640 430" role="img" aria-label="Graph of Lorentz factor gamma against speed beta, rising gently then steeply to infinity at the speed of light">
@@ -274,23 +290,7 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
       </svg>
 <div class="mn-axmath"><math><mrow><mi>γ</mi><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>1</mn><mo>−</mo><mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></msqrt></mfrac></mrow></math></div>
 </div>
-<div class="mn-figcap"><strong>Figure 4: The Lorentz factor γ(β).</strong> Practically 1 in everyday life (at highway speed γ − 1 ≈ 10<sup>−14</sup>), then exploding near <em>c</em>. The orange marker is live — drive it with the slider below.</div>
-</div>
-
-<div class="mn-sliderbox">
-<h3>Try it: the velocity explorer</h3>
-<p class="mn-hint">Drag the cruising speed. Watch γ, the ticking rate, and how far the traveller's frame in Figure 3 would tilt (α). Notice: nothing here asks how the clock <em>got</em> to this speed. Hold that thought.</p>
-<div class="mn-sliderrow">
-<label for="betaSlider">Cruising speed β = v/c <span>fraction of light speed</span></label>
-<input type="range" id="betaSlider" min="0" max="0.99" step="0.01" value="0.60" />
-<div class="mn-readout" id="betaVal">0.60 c</div>
-</div>
-<div class="mn-stats">
-<div class="mn-stat"><div class="v" id="gammaVal">1.250</div><div class="k">Lorentz factor γ</div></div>
-<div class="mn-stat"><div class="v" id="rateVal">0.800</div><div class="k">proper seconds per Earth second (1/γ)</div></div>
-<div class="mn-stat"><div class="v" id="tiltVal">31.0°</div><div class="k">worldline tilt from vertical, arctan β</div></div>
-<div class="mn-stat"><div class="v" id="earthVal">8.0 yr → 6.4 yr</div><div class="k">8 Earth years become this much traveller time</div></div>
-</div>
+<div class="mn-figcap"><strong>Figure 4: The Lorentz factor γ(β).</strong> Practically 1 in everyday life (at highway speed γ − 1 ≈ 10<sup>−14</sup>), then exploding near <em>c</em>. The orange marker is live — drive it with the slider above.</div>
 </div>
 
 ## 4 — Acceleration bends
@@ -541,6 +541,15 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
 <div class="mn-figcap"><strong>Figure 9: The light cone in 2+1 dimensions.</strong> "Quasi-3D": two space axes drawn in perspective, time vertical. The blue and teal lines across the top ellipse are the two diameters of the cone's base circle: the <em>x</em> and <em>y</em> diameters, at right angles in the 3D space, each endpoint lying on the projected ellipse. The cone itself is rotationally symmetric, so it is this cross (and the curved worldline) that shows the rotation when you drag the viewing-angle slider in Step 8, the same slider that rotates Figure 10. Every worldline you have seen is a slice of a picture like this.</div>
 </div>
 
+<div class="mn-sliderbox">
+<h3>Try it: rotate the 3D view (Figures 9 and 10 together)</h3>
+<div class="mn-sliderrow">
+<label for="phiSlider">Viewing angle φ <span>azimuth around the time axis, rotates both quasi-3D figures</span></label>
+<input type="range" id="phiSlider" min="0" max="360" step="1" value="34" />
+<div class="mn-readout" id="phiVal">34°</div>
+</div>
+<p class="mn-hint" style="font-size:.93rem;margin:8px 0 0">The orbiting clock's rate never varies: <math><mrow><mfrac><mi>dτ</mi><mi>dt</mi></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>γ</mi></mfrac><mo>≈</mo><mn>0.64</mn></mrow></math> the whole way round, even though its acceleration vector rotates continuously. Direction of acceleration is irrelevant to the rate — only the speed history enters the integral. Storage-ring muons live exactly this life (Step 9).</p>
+</div>
 <div class="mn-diagram">
 <svg viewBox="0 0 640 460" role="img" aria-label="Interactive quasi three dimensional view of a helical worldline for circular motion inside a light cone">
         <g id="coneRings">
@@ -568,17 +577,7 @@ Everything so far flattened space to one dimension. Restore *y* and the light "c
         <text x="52" y="90" class="mn-t-small">but constant centripetal acceleration</text>
         <text x="380" y="420" class="mn-t-lab">rings: light fronts at ct = 1, 2, 3</text>
       </svg>
-<div class="mn-figcap"><strong>Figure 10: A helix worldline (interactive).</strong> The particle enters from the centre event, settles into a circular orbit of radius 0.55 ly, and winds upward. The blue and teal lines across the top ring are the base circle's two diameters — at right angles in the 3D space, projected onto the ellipse exactly as in Figure 9. Rotate the view with the slider below: Figures 9 and 10 turn together — the cones are rotationally symmetric, but the diameter crosses and the helix are not, so rotation reveals the winding.</div>
-</div>
-
-<div class="mn-sliderbox">
-<h3>Try it: rotate the 3D view (Figures 9 and 10 together)</h3>
-<div class="mn-sliderrow">
-<label for="phiSlider">Viewing angle φ <span>azimuth around the time axis, rotates both quasi-3D figures</span></label>
-<input type="range" id="phiSlider" min="0" max="360" step="1" value="34" />
-<div class="mn-readout" id="phiVal">34°</div>
-</div>
-<p class="mn-hint" style="font-size:.93rem;margin:8px 0 0">The orbiting clock's rate never varies: <math><mrow><mfrac><mi>dτ</mi><mi>dt</mi></mfrac><mo>=</mo><mfrac><mn>1</mn><mi>γ</mi></mfrac><mo>≈</mo><mn>0.64</mn></mrow></math> the whole way round, even though its acceleration vector rotates continuously. Direction of acceleration is irrelevant to the rate — only the speed history enters the integral. Storage-ring muons live exactly this life (Step 9).</p>
+<div class="mn-figcap"><strong>Figure 10: A helix worldline (interactive).</strong> The particle enters from the centre event, settles into a circular orbit of radius 0.55 ly, and winds upward. The blue and teal lines across the top ring are the base circle's two diameters — at right angles in the 3D space, projected onto the ellipse exactly as in Figure 9. Rotate the view with the slider above: Figures 9 and 10 turn together — the cones are rotationally symmetric, but the diameter crosses and the helix are not, so rotation reveals the winding.</div>
 </div>
 
 ## 9 — What acceleration does not do
