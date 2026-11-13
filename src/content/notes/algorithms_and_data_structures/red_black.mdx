@@ -1,0 +1,1058 @@
+---
+title: "Red-black trees: balanced search by recoloring"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the RB note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:36px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px;min-width:0}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:17px;line-height:1.3;color:var(--math-ink);overflow-wrap:anywhere}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer;min-height:36px}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px .eqwrap {overflow-x:auto}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px svg text.sub-t {fill:var(--math-ink2)}
+
+.px svg text.on-dark {fill:var(--px-blk-ink)}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .dotsw {width:12px;height:12px;border-radius:50%;display:inline-block;flex:none}
+
+.px .sqsw {width:12px;height:12px;border-radius:2px;display:inline-block;flex:none;background:var(--px-blk)}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+.px .btns {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+
+.px .btn {font-family: var(--font-body);font-size:.9rem;font-weight:600;border:1px solid var(--math-line);background:var(--color-bg);color:var(--math-ink);border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px}
+
+.px .btn:hover {border-color:var(--math-teal);color:var(--math-teal)}
+
+.px .btn:disabled {opacity:.42;cursor:default;color:var(--math-ink)}
+
+.px .btn:disabled:hover {border-color:var(--math-line)}
+
+.px .btn.primary {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .btn.primary:hover {color:#fff;opacity:.9}
+
+.px .btn.danger:hover {border-color:var(--math-red);color:var(--math-red)}
+
+.px .btn[aria-pressed="true"] {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .verdict {border-radius:10px;padding:14px 18px;margin-top:14px;font-size:.97rem;border:1px solid var(--math-line);background:var(--color-code-bg)}
+
+.px .verdict p {margin:0}
+
+.px code {font-family: var(--font-mono);font-size:.88em;background:var(--color-code-bg);border-radius:4px;padding:1px 5px}
+
+.px pre.code {font-family: var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--color-code-bg);border:1px solid var(--math-line);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0}
+
+.px pre.code .cm {color:var(--math-ink3)}
+
+.px .progress {font-family: var(--font-mono);font-size:13px;color:var(--math-ink2)}
+
+.px .note {font-size:.97rem;margin-top:10px;min-height:3.2em}
+
+.px .invlist {list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+
+.px .invlist li {display:flex;gap:10px;align-items:flex-start;background:var(--color-code-bg);border-radius:8px;padding:10px 12px;font-size:.95rem}
+
+.px .badge {font-family: var(--font-mono);font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 9px;flex:none;margin-top:2px}
+
+.px .badge.ok {background:var(--math-teal-soft);color:var(--math-teal);border:1px solid var(--math-teal)}
+
+.px .badge.bad {background:var(--px-rbred-soft);color:var(--math-red);border:1px solid var(--math-red)}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Data structures: the self-balancing search tree</div>
+<p class="lede">A binary search tree stays fast only while it stays bushy, and the <strong>red-black tree</strong> is the balancing scheme that won: it sits inside C++ <code>std::map</code>, Java <code>TreeMap</code>, the Linux kernel&rsquo;s <code>rbtree</code>, and countless schedulers and indexes. Instead of the AVL tree&rsquo;s strict height arithmetic, it gives every node one extra bit — a <strong>colour</strong>, red or black — and enforces five colouring rules. Those rules are looser than AVL&rsquo;s, so updates do less restructuring, yet they still cap the longest root-to-leaf path at twice the shortest, and that single fact forces the height to stay logarithmic. This page builds the whole mechanism: the five invariants, the two repair moves (rotation and recolouring), every insert and delete fix-up case, and the proof at the end.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> Colour every node red or black so that no path from a node down to a leaf ever contains more black nodes than any other path from that node — then no path can be more than twice as long as another, and the tree can never degenerate into a chain.</p></div>
+</header>
+</div>
+
+## 1 — The five invariants
+
+<div class="px">
+<p>A red-black tree is a binary search tree in which every node carries a colour, and the colours obey five rules. Four of them are about red; the fifth is the one that does the real work. To make the rules airtight, every missing child is drawn as a special leaf called a <strong>NIL node</strong>: it holds no key, counts as black, and terminates every path. Counting NILs is what lets rule 5 compare paths of different shapes fairly.</p>
+<table class="formulas">
+<tr><th>Rule 1: Every node is coloured</th><td>Each node is exactly one of red or black. The colour is one bit of storage per node.</td></tr>
+<tr><th>Rule 2: The root is black</th><td>No exceptions, even for a one-node tree. Fix-up routines may temporarily redden the root; they always blacken it again before finishing.</td></tr>
+<tr><th>Rule 3: Every NIL leaf is black</th><td>All NIL nodes share one colour by definition: black. They are the leaves every path ends at.</td></tr>
+<tr><th>Rule 4: Red nodes have black children</th><td>A red node&rsquo;s children — real or NIL — are both black. Equivalently: no red node ever has a red parent, so reds are always separated by at least one black. This is the rule insertions most often break, and the one every insert fix-up case is about.</td></tr>
+<tr><th>Rule 5: Equal black counts on every path</th><td>For every node, all simple paths from that node down to NIL leaves contain the same number of black nodes. The shared count is called the node&rsquo;s <strong>black-height</strong>:</td></tr>
+</table>
+<div class="eqwrap">
+<table class="formulas">
+<tr><th>Black-height</th><td><math display="block"><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mtext>black nodes on a path from</mtext><mspace width="0.4em"/><mi>x</mi></mrow></math><math display="block"><mrow><mtext>down to a NIL leaf, counting the NIL,</mtext></mrow></math><math display="block"><mrow><mtext>but not counting</mtext><mspace width="0.4em"/><mi>x</mi><mspace width="0.4em"/><mtext>itself</mtext></mrow></math><math display="block"><mrow><mi>bh</mi><mo>(</mo><mtext>NIL</mtext><mo>)</mo><mo>=</mo><mn>0</mn><mspace width="1.2em"/><mi>bh</mi><mo>(</mo><mtext>leaf</mtext><mo>)</mo><mo>=</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>(a leaf&rsquo;s one comes from the NIL below it)</mtext></mrow></math></td></tr>
+</table></div>
+<p>The tree below satisfies all five rules — it is the tree you get by inserting 20, 10, 30, 5, 15, 25, 35 in that order. Click any node to see its colour, its black-height worked out along an actual path, and the live verdict on each rule. Then try the sabotage switch: painting node 10 red breaks two rules at once, and the checklist shows exactly which.</p>
+<div class="diagram">
+<p class="figtitle" id="fig1Title">Figure 1: A valid red-black tree, click a node to inspect it</p>
+<svg id="fig1Svg" viewBox="0 0 920 300" role="img" aria-label="Red-black tree diagram with selectable nodes"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-red)"></span> red node</span><span><span class="dotsw" style="background:var(--px-blk)"></span> black node</span><span><span class="sqsw"></span> NIL leaf (always black)</span><span>label under a node: its black-height</span></div>
+<label class="basetoggle"><input type="checkbox" id="fig1ShowNIL" /> Show the NIL leaves</label>
+<label class="basetoggle"><input type="checkbox" id="fig1ShowBH" checked /> Show black-height under each node</label>
+<label class="basetoggle"><input type="checkbox" id="fig1Break" /> Sabotage: paint node 10 red and break the rules</label>
+<div class="verdict" id="fig1Out" aria-live="polite"></div>
+<ul class="invlist" id="fig1Checks"></ul>
+<div class="figcap"><strong>Figure 1.</strong> Black-height of the root is 2: every root-to-NIL path passes exactly two black nodes below the root: one of \{10, 30\} and the NIL itself. The red leaves contribute height but no black-height, which is precisely the slack the rules allow: paths can differ in length, but never in black count.</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Rule 5 is the guarantee; rules 2–4 protect it.</strong> Equal black counts alone would still permit a chain of red nodes stretching one path. Rule 4 caps how many reds can pad a path: at most one red between consecutive blacks.</li>
+<li><strong>New nodes are born red.</strong> A red leaf cannot break rule 5 (it adds no black), so an insert can only ever break rule 4, or rule 2, if it becomes the root. Fix-up is correspondingly narrow.</li>
+<li><strong>NILs are usually one shared sentinel.</strong> Real implementations allocate a single black NIL object and point every empty child at it, so rule 3 costs no memory per leaf.</li>
+</ul></div>
+</div>
+
+## 2 — The only two moves: rotation and recolouring
+
+<div class="px">
+<p>Every fix-up in this page is assembled from exactly two moves. A <strong>rotation</strong> is the same constant-time pointer rearrangement as in a plain BST: a node and its child swap levels, the child&rsquo;s inner subtree (labelled β below) is handed across, and the inorder sequence — hence the BST property — is preserved exactly. A rotation changes no colours by itself. A <strong>recolouring</strong> is the opposite extreme: it changes no pointers at all, only colour bits, so it cannot disturb the BST property or the tree&rsquo;s shape — it can only move black-height between paths, which is exactly what several fix-up cases need.</p>
+<p>Step through a left rotation below. The pivot is 10, its right child 20 rises, and β (the inner subtree, everything between 10 and 20 in key order) is handed down to become 10&rsquo;s right subtree. The right rotation is the mirror image; the buttons switch between them.</p>
+<div class="diagram">
+<p class="figtitle" id="fig2Title">Figure 2: Left rotation at 10</p>
+<svg id="fig2Svg" viewBox="0 0 920 300" role="img" aria-label="Rotation walkthrough diagram"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> pivot: the node that rotates down</span><span><span class="dotsw" style="background:var(--math-teal)"></span> child that rotates up</span><span>triangles α, β, γ are whole subtrees, carried along unchanged</span></div>
+<div class="btns" role="group" aria-label="Rotation direction">
+<button class="btn" id="rotLBtn" aria-pressed="true">Left rotation</button>
+<button class="btn" id="rotRBtn" aria-pressed="false">Right rotation</button>
+</div>
+<div class="btns">
+<button class="btn" id="fig2Prev">← Prev</button>
+<button class="btn primary" id="fig2Play">Play</button>
+<button class="btn" id="fig2Next">Next →</button>
+<span class="progress" id="fig2Prog"></span>
+</div>
+<p class="note" id="fig2Note" aria-live="polite"></p>
+<div class="figcap"><strong>Figure 2.</strong> Three pointers change: the rising child takes the pivot&rsquo;s place, the pivot becomes its inner child, and β changes parent. Colours travel with their nodes — note that 20 stays red and 10 stays black throughout; when a fix-up wants new colours, it recolours as a separate, explicit step.</div>
+</div>
+<table class="formulas">
+<tr><th>Rotation</th><td><math display="block"><mrow><mtext>pointer changes</mtext><mo>=</mo><mn>3</mn></mrow></math><math display="block"><mrow><mtext>colours changed</mtext><mo>=</mo><mn>0</mn></mrow></math><math display="block"><mrow><mtext>inorder sequence</mtext><mspace width="0.5em"/><mtext>unchanged, so the BST property is preserved</mtext></mrow></math></td></tr>
+<tr><th>Recolouring</th><td><math display="block"><mrow><mtext>pointer changes</mtext><mo>=</mo><mn>0</mn></mrow></math><math display="block"><mrow><mtext>shape and inorder sequence</mtext><mspace width="0.5em"/><mtext>unchanged</mtext></mrow></math><math display="block"><mrow><mtext>black-height</mtext><mspace width="0.5em"/><mtext>redistributed between the recoloured nodes&rsquo; paths</mtext></mrow></math></td></tr>
+<tr><th>Why β can always be handed across</th><td>Every key in β lies between the pivot&rsquo;s key and the rising child&rsquo;s key — that is what “inner subtree” means. So β qualifies as the pivot&rsquo;s new inner subtree under the BST ordering, on either side. This one handover is the entire content of every rotation in this page.</td></tr>
+</table>
+<div class="callout"><p><strong>Recolouring is the cheap move, rotation the decisive one.</strong> Insert fix-up tries recolouring first (Case 1) and rotates only when recolouring cannot help. Delete fix-up is the reverse temperament: it recolours the sibling when it can (Case 2) and rotates when a red nephew gives it something to work with. Watch for that pattern in the next two steps.</p></div>
+</div>
+
+## 3 — Insert fix-up: three cases, told by the uncle
+
+<div class="px">
+<p>Insertion is an ordinary BST insert with the new node coloured <strong>red</strong>. As Step 1 noted, a red leaf adds no black to any path, so rule 5 survives automatically; the only possible damage is a <strong>red-red edge</strong> — the new node&rsquo;s parent is also red, breaking rule 4, or a red root, breaking rule 2. Fix-up walks upward from the new node repairing red-red edges, and which case applies at each level is decided by one node: the <strong>uncle</strong>, the grandparent&rsquo;s other child.</p>
+<table class="formulas">
+<tr><th>Case 1: Uncle is red</th><td>Recolour only: parent and uncle go black, grandparent goes red. The red-red edge is gone at this level, but the grandparent is now red, so the problem may reappear two levels up. Repeat from the grandparent. No rotation, and the subtree&rsquo;s black-height is unchanged — the two new blacks below exactly balance the grandparent&rsquo;s lost black on every path through it.</td></tr>
+<tr><th>Case 2: Uncle is black, new node is an inner grandchild</th><td>The new node sits on the <em>inside</em> — a right child of a left child, or the mirror. Rotate the parent away from the grandparent: the new node rises into the parent&rsquo;s place and the shape becomes the straight line of Case 3. Nothing is fixed yet; this case only converts.</td></tr>
+<tr><th>Case 3: Uncle is black, new node is an outer grandchild</th><td>The growth is a straight line. Rotate the grandparent toward the short side, then recolour: the risen parent goes black, the grandparent goes red. The red-red edge is gone, black-height is preserved, and fix-up ends — this case always terminates the loop.</td></tr>
+</table>
+<p>Pick a case and step through it. Each walkthrough starts from a valid tree, inserts one red node, and repairs what breaks. A NIL uncle counts as black, which is why Case 3 below needs no visible uncle at all.</p>
+<div class="diagram">
+<p class="figtitle" id="fig3Title">Figure 3: Insert Case 1: red uncle, recolour and climb</p>
+<svg id="fig3Svg" viewBox="0 0 920 320" role="img" aria-label="Insert fix-up walkthrough diagram"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> the new node / current node of the fix-up</span><span><span class="dotsw" style="background:var(--math-red)"></span> red node</span><span><span class="dotsw" style="background:var(--px-blk)"></span> black node</span></div>
+<div class="btns" role="group" aria-label="Insert fix-up case">
+<button class="btn" id="insC1" aria-pressed="true">Case 1: red uncle</button>
+<button class="btn" id="insC2" aria-pressed="false">Case 2: black uncle, inner</button>
+<button class="btn" id="insC3" aria-pressed="false">Case 3: black uncle, outer</button>
+</div>
+<div class="btns">
+<button class="btn" id="fig3Prev">← Prev</button>
+<button class="btn primary" id="fig3Play">Play</button>
+<button class="btn" id="fig3Next">Next →</button>
+<span class="progress" id="fig3Prog"></span>
+</div>
+<p class="note" id="fig3Note" aria-live="polite"></p>
+<div class="figcap"><strong>Figure 3.</strong> Case 1 is the only insert case that can repeat: each recolouring climbs two levels, so it runs at most half the height many times. Cases 2 and 3 together cost at most two rotations per insert, ever — one to straighten, one to settle.</div>
+</div>
+<pre class="code"><span class="cm">// insertFixup(z): z is the red node that may have a red parent</span>&#10;while parent(z) is red:&#10;&nbsp;&nbsp;&nbsp;&nbsp;g = grandparent(z);  u = uncle(z)&#10;&nbsp;&nbsp;&nbsp;&nbsp;if u is red:                          <span class="cm">// Case 1: recolour and climb</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(parent(z)) = colour(u) = black&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(g) = red;  z = g&#10;&nbsp;&nbsp;&nbsp;&nbsp;else:                                 <span class="cm">// uncle black (NIL counts)</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if z is an inner grandchild:     <span class="cm">// Case 2: straighten</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;z = parent(z);  rotate away from g at z&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(parent(z)) = black         <span class="cm">// Case 3: rotate and settle</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(g) = red;  rotate toward u at g&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break&#10;colour(root) = black                      <span class="cm">// restore rule 2</span></pre>
+<p>The demonstration sequence in the playground (Step 5), inserting 41, 38, 31, 12, 19, 8, exercises all three cases in six inserts, including a Case 2 that converts into a Case 3 on the very same key.</p>
+</div>
+
+## 4 — Delete fix-up: the doubly-black node and four cases
+
+<div class="px">
+<p>Deletion is where red-black trees earn their reputation for subtlety. Removing a <strong>red</strong> node is free: it sits on no path&rsquo;s black count and has black children, so splicing it out breaks nothing. Removing a <strong>black</strong> node is different — every path through it loses one black, and rule 5 breaks. The standard bookkeeping trick is to pretend the node that slides into the deleted node&rsquo;s place inherits the lost black as an <em>extra</em> black: it becomes <strong>doubly black</strong>. A doubly-black node is drawn below as a black square marked DB. If it is a real red node it becomes “red-and-black” and simply ends black; the interesting situation is a doubly-black NIL, which is what all four cases below start from. Fix-up&rsquo;s whole job is to shed that extra black — by pushing it up, or by borrowing black-height from the sibling&rsquo;s subtree through a rotation.</p>
+<p>Which case applies is decided by the <strong>sibling</strong> of the doubly-black node and the colours of the sibling&rsquo;s children (its nephews). The four cases, for a doubly-black node on the left (mirror everything if it is on the right):</p>
+<table class="formulas">
+<tr><th>Case 1: Sibling is red</th><td>Recolour the sibling black and the parent red, then rotate the parent toward the doubly-black side. The doubly-black node gains a new sibling — the old sibling&rsquo;s inner child — which is guaranteed black. This case only converts into Case 2, 3, or 4; it never finishes the job itself.</td></tr>
+<tr><th>Case 2: Sibling is black, both nephews black</th><td>Recolour the sibling red. Its subtree loses one black on every path, which exactly compensates: the extra black can move up to the parent. If the parent was red it just ends black and fix-up stops; if the parent was black it becomes the new doubly-black node and the loop repeats one level up. This is the delete analogue of insert Case 1: recolour and climb.</td></tr>
+<tr><th>Case 3: Sibling is black, near nephew red, far nephew black</th><td>Recolour the near nephew black and the sibling red, then rotate the sibling away from the doubly-black node. The near nephew rises into the sibling&rsquo;s place — and it is now positioned as a red <em>far</em> nephew. This case only converts into Case 4.</td></tr>
+<tr><th>Case 4: Sibling is black, far nephew red</th><td>The decisive case. The sibling takes the parent&rsquo;s colour, the parent goes black, the far nephew goes black, and the parent rotates toward the doubly-black side. The rotation moves one black across to the short side, the extra black is absorbed, and fix-up ends — always.</td></tr>
+</table>
+<p>Each walkthrough below starts at the moment a black leaf has been deleted and its NIL replacement has become doubly black, and steps through one case&rsquo;s transformation. Cases 1 and 3 end by handing over to a later case, exactly as the real algorithm does.</p>
+<div class="diagram">
+<p class="figtitle" id="fig4Title">Figure 4: Delete Case 1: red sibling, rotate to convert</p>
+<svg id="fig4Svg" viewBox="0 0 920 320" role="img" aria-label="Delete fix-up walkthrough diagram"></svg>
+<div class="legend"><span><span class="sqsw"></span> DB: doubly-black NIL; it carries one extra black</span><span><span class="dotsw" style="background:var(--math-orange)"></span> node recoloured or rotated in this step</span><span><span class="dotsw" style="background:var(--math-red)"></span> red node</span><span><span class="dotsw" style="background:var(--px-blk)"></span> black node</span></div>
+<div class="btns" role="group" aria-label="Delete fix-up case">
+<button class="btn" id="delC1" aria-pressed="true">Case 1: red sibling</button>
+<button class="btn" id="delC2" aria-pressed="false">Case 2: black sibling, black nephews</button>
+<button class="btn" id="delC3" aria-pressed="false">Case 3: red near nephew</button>
+<button class="btn" id="delC4" aria-pressed="false">Case 4: red far nephew</button>
+</div>
+<div class="btns">
+<button class="btn" id="fig4Prev">← Prev</button>
+<button class="btn primary" id="fig4Play">Play</button>
+<button class="btn" id="fig4Next">Next →</button>
+<span class="progress" id="fig4Prog"></span>
+</div>
+<p class="note" id="fig4Note" aria-live="polite"></p>
+<div class="figcap"><strong>Figure 4.</strong> Count blacks on the paths through the doubly-black node before and after each case: the transformations are designed so that the tall side lends exactly one black to the short side, or the deficit climbs one level intact. Case 2 is the only case that can repeat, and it climbs — so the loop runs at most height-many iterations, with at most three rotations in total (one each from Cases 1, 3, and 4).</div>
+</div>
+<pre class="code"><span class="cm">// deleteFixup(x): x is doubly black; w is its sibling</span>&#10;while x is not the root and x is black (carrying the extra black):&#10;&nbsp;&nbsp;&nbsp;&nbsp;w = sibling(x)&#10;&nbsp;&nbsp;&nbsp;&nbsp;if w is red:                                <span class="cm">// Case 1: convert</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(w) = black; colour(parent(x)) = red&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotate toward x at parent(x); w = sibling(x)&#10;&nbsp;&nbsp;&nbsp;&nbsp;if both children of w are black:            <span class="cm">// Case 2: recolour, climb</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(w) = red; x = parent(x)&#10;&nbsp;&nbsp;&nbsp;&nbsp;else:&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if far child of w is black:             <span class="cm">// Case 3: convert</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(near child of w) = black; colour(w) = red&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotate away from x at w; w = sibling(x)&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(w) = colour(parent(x))           <span class="cm">// Case 4: settle</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colour(parent(x)) = colour(far child of w) = black&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotate toward x at parent(x); x = root&#10;colour(x) = black                               <span class="cm">// absorb any leftover extra black</span></pre>
+<div class="readbox">
+<h3>Why delete is harder than insert</h3>
+<ul>
+<li><strong>The deficit can climb the whole tree.</strong> Insert&rsquo;s red-red edge is a local surplus that recolouring pushes up two levels at a time; delete&rsquo;s missing black is a deficit that Case 2 pushes up one level at a time, potentially to the root — where it harmlessly evaporates, because the root&rsquo;s extra black can simply be dropped.</li>
+<li><strong>Two children means a successor swap first.</strong> Deleting a node with two children copies its inorder successor&rsquo;s key into it and deletes the successor instead — and the successor, having no left child, is always one of the easy shapes. The colour that matters for fix-up is the successor&rsquo;s original colour.</li>
+<li><strong>Rotations are rarer than recolourings.</strong> Across a whole delete there are at most three rotations; everything else is colour flips on the climb. This is the concrete sense in which red-black updates are cheaper than AVL&rsquo;s.</li>
+</ul></div>
+</div>
+
+## 5 — Playground: the real algorithm, live
+
+<div class="px">
+<p>Everything so far, running. The tree below is maintained by this page&rsquo;s own red-black implementation — BST insert and delete, then the exact fix-up loops from Steps 3 and 4, and it narrates every case it fires. After each operation the whole tree is re-audited against all five invariants. Try the demo sequence first: six inserts that between them trigger Case 1, a Case 2 that converts into Case 3, and another Case 1. The tree is capped at 31 nodes so every node stays readable.</p>
+<div class="diagram">
+<p class="figtitle" id="fig5Title">Figure 5: Playground tree, 0 nodes, black-height 0</p>
+<svg id="fig5Svg" viewBox="0 0 920 84" role="img" aria-label="Playground red-black tree"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-red)"></span> red node</span><span><span class="dotsw" style="background:var(--px-blk)"></span> black node</span><span><span class="dotsw" style="background:var(--math-orange)"></span> node touched by the last operation</span></div>
+<div class="btns">
+<button class="btn primary" id="pgInsert">Insert key</button>
+<button class="btn danger" id="pgDelete">Delete key</button>
+<button class="btn" id="pgDemo">Demo: 41, 38, 31, 12, 19, 8</button>
+<button class="btn" id="pgRandom">Random tree (15 keys)</button>
+<button class="btn" id="pgClear">Clear</button>
+</div>
+<label class="basetoggle"><input type="checkbox" id="fig5ShowBH" checked /> Show black-height under each node</label>
+<label class="basetoggle"><input type="checkbox" id="fig5ShowNIL" /> Show the NIL leaves</label>
+<div class="verdict" id="fig5Out" aria-live="polite"><p>Insert a key to begin, or run the demo sequence — the six keys from the classic textbook example, exercising every insert case.</p></div>
+<div class="figcap"><strong>Figure 5.</strong> Duplicate inserts and deletes of missing keys are reported, not silently ignored. Deleting a black node narrates the doubly-black fix-up case by case; deleting a red node needs no fix-up at all, and the readout says so.</div>
+</div>
+<div class="sliderbox">
+<h3>Key to insert or delete</h3>
+<div class="sliderrow"><label for="pgKey">Key = <span id="pgKeyVal">42</span></label><input type="range" id="pgKey" min="1" max="99" step="1" value="42" /></div>
+</div>
+</div>
+
+## 6 — Why the height stays logarithmic
+
+<div class="px">
+<p>The proof has two halves, and both come straight from the invariants. First, rule 5 forces any tree with a given black-height to contain <em>exponentially</em> many nodes: a subtree whose paths all carry <em>bh</em> blacks cannot be a scrawny chain, it must branch enough to hold at least 2<sup><em>bh</em></sup> − 1 nodes. Second, rule 4 caps how much taller than the black-height the tree can be: reds can pad a path, but never two in a row, so at least half the nodes on any root-to-leaf path are black and the height is at most twice the black-height. Chain the two halves together and the height is at most twice a logarithm.</p>
+<table class="formulas">
+<tr><th>Lemma: black-height forces size</th><td>The subtree rooted at any node <em>x</em> contains at least:<math display="block"><mrow><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></msup><mo>−</mo><mn>1</mn><mspace width="1.2em"/><mtext>internal (real) nodes</mtext></mrow></math></td></tr>
+<tr><th>Why: induction on black-height, no step skipped</th><td><math display="block"><mrow><mtext>base:</mtext><mspace width="0.6em"/><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>0</mn><mspace width="0.6em"/><mtext>means</mtext><mspace width="0.4em"/><mi>x</mi><mspace width="0.4em"/><mtext>is NIL, holding</mtext><mspace width="0.4em"/><msup><mn>2</mn><mn>0</mn></msup><mo>−</mo><mn>1</mn><mo>=</mo><mn>0</mn><mspace width="0.4em"/><mtext>nodes</mtext></mrow></math><math display="block"><mrow><mtext>step: each child of</mtext><mspace width="0.4em"/><mi>x</mi><mspace width="0.4em"/><mtext>has black-height at least</mtext><mspace width="0.4em"/><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>−</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>(equal to</mtext><mspace width="0.4em"/><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mspace width="0.4em"/><mtext>if the child is red,</mtext><mspace width="0.4em"/><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>−</mo><mn>1</mn><mspace width="0.4em"/><mtext>if black)</mtext></mrow></math><math display="block"><mrow><mtext>so each child subtree holds at least</mtext><mspace width="0.4em"/><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mspace width="0.4em"/><mtext>nodes</mtext></mrow></math><math display="block"><mrow><mtext>total</mtext><mo>≥</mo><mn>2</mn><mo>×</mo><mo>(</mo><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>total</mtext><mo>≥</mo><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></msup><mo>−</mo><mn>2</mn><mo>+</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>total</mtext><mo>≥</mo><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow></msup><mo>−</mo><mn>1</mn><mspace width="1.2em"/><mtext>as claimed, the final</mtext><mspace width="0.4em"/><mo>+</mo><mn>1</mn><mspace width="0.4em"/><mtext>counts</mtext><mspace width="0.4em"/><mi>x</mi><mspace width="0.4em"/><mtext>itself</mtext></mrow></math></td></tr>
+<tr><th>Second half: height versus black-height</th><td>On the longest root-to-leaf path, red nodes are never adjacent (rule 4) and the root is black (rule 2), so at least half of the path&rsquo;s nodes are black. Counting the NIL at the path&rsquo;s end as well gives:<math display="block"><mrow><mi>bh</mi><mo>(</mo><mtext>root</mtext><mo>)</mo><mo>≥</mo><mfrac><mi>h</mi><mn>2</mn></mfrac></mrow></math>where <em>h</em> is the height in edges, root to deepest leaf.</td></tr>
+</table>
+<p>Now combine the two halves for a tree of <em>n</em> nodes and height <em>h</em>, one manipulation per line:</p>
+<div class="eqwrap">
+<table class="formulas">
+<tr><th>The bound, step by step</th><td><math display="block"><mrow><mi>n</mi><mo>≥</mo><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mtext>root</mtext><mo>)</mo></mrow></msup><mo>−</mo><mn>1</mn><mspace width="1.2em"/><mtext>by the lemma</mtext></mrow></math><math display="block"><mrow><mi>n</mi><mo>+</mo><mn>1</mn><mo>≥</mo><msup><mn>2</mn><mrow><mi>bh</mi><mo>(</mo><mtext>root</mtext><mo>)</mo></mrow></msup><mspace width="1.2em"/><mtext>add 1 to both sides</mtext></mrow></math><math display="block"><mrow><mi>n</mi><mo>+</mo><mn>1</mn><mo>≥</mo><msup><mn>2</mn><mrow><mi>h</mi><mo>/</mo><mn>2</mn></mrow></msup><mspace width="1.2em"/><mtext>since</mtext><mspace width="0.4em"/><mi>bh</mi><mo>(</mo><mtext>root</mtext><mo>)</mo><mo>≥</mo><mi>h</mi><mo>/</mo><mn>2</mn><mspace width="0.4em"/><mtext>and powers of 2 grow</mtext></mrow></math><math display="block"><mrow><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>)</mo><mo>≥</mo><mfrac><mi>h</mi><mn>2</mn></mfrac><mspace width="1.2em"/><mtext>take</mtext><mspace width="0.4em"/><msub><mi>log</mi><mn>2</mn></msub><mspace width="0.4em"/><mtext>of both sides</mtext></mrow></math><math display="block"><mrow><mi>h</mi><mo>≤</mo><mn>2</mn><mo>×</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>)</mo><mspace width="1.2em"/><mtext>multiply both sides by 2: done</mtext></mrow></math></td></tr>
+<tr><th>A million keys, worked in full</th><td><math display="block"><mrow><msup><mn>2</mn><mrow><mi>bh</mi></mrow></msup><mo>≤</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>=</mo><mn>1000001</mn></mrow></math><math display="block"><mrow><mi>bh</mi><mo>≤</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mn>1000001</mn><mo>)</mo><mo>≈</mo><mn>19.93</mn><mspace width="1.2em"/><mtext>so</mtext><mspace width="0.4em"/><mi>bh</mi><mo>≤</mo><mn>19</mn><mspace width="0.4em"/><mtext>(it is a whole number)</mtext></mrow></math><math display="block"><mrow><mi>h</mi><mo>≤</mo><mn>2</mn><mo>×</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mn>1000001</mn><mo>)</mo><mo>≈</mo><mn>39.86</mn><mspace width="1.2em"/><mtext>so</mtext><mspace width="0.4em"/><mi>h</mi><mo>≤</mo><mn>39</mn></mrow></math></td></tr>
+</table></div>
+<p>The slider below drives the comparison. It steps through perfect-tree sizes: <em>n</em> = 2<sup><em>e</em></sup> − 1, where the perfect tree&rsquo;s height is exactly <em>e</em> − 1 and the red-black guarantee is exactly 2<em>e</em>, so you can watch the guarantee stay within a factor of about two of perfect while a degenerate chain runs away exponentially. Bar lengths are drawn on a log scale; the labels are exact.</p>
+<div class="diagram">
+<p class="figtitle" id="fig6Title">Figure 6: With n = 1,023 keys, the height is guaranteed at most 20</p>
+<svg id="fig6Svg" viewBox="0 0 920 210" role="img" aria-label="Height comparison bar chart"></svg>
+<div class="figcap"><strong>Figure 6.</strong> Three heights for the same number of keys: a degenerate BST (a chain), the red-black guarantee from the proof above, and a perfect tree. The chain&rsquo;s bar would run off any honest linear scale — that is the point of the log scale.</div>
+</div>
+<div class="sliderbox">
+<h3>Choose the number of keys</h3>
+<div class="sliderrow"><label for="fig6E">Exponent e = <span id="fig6EVal">10</span></label><input type="range" id="fig6E" min="1" max="24" step="1" value="10" /></div>
+<div class="readouts">
+<div class="ro"><b id="fig6N">1,023</b><span>keys n = 2^e − 1</span></div>
+<div class="ro"><b id="fig6Chain">1,022</b><span>chain height (worst BST)</span></div>
+<div class="ro"><b id="fig6RB">20</b><span>red-black height guarantee</span></div>
+<div class="ro"><b id="fig6Perf">9</b><span>perfect tree height</span></div>
+</div>
+<div class="verdict" id="fig6Out" aria-live="polite"></div>
+</div>
+<table class="data">
+<tr><th>Keys n</th><th>Degenerate BST, worst height</th><th>Perfect tree height</th><th>Red-black worst height (guaranteed at most)</th></tr>
+<tr><td>10</td><td>9</td><td>3</td><td>6</td></tr>
+<tr><td>100</td><td>99</td><td>6</td><td>13</td></tr>
+<tr><td>1,000</td><td>999</td><td>9</td><td>19</td></tr>
+<tr><td>1,000,000</td><td>999,999</td><td>19</td><td>39</td></tr>
+<tr><td>1,000,000,000</td><td>999,999,999</td><td>29</td><td>59</td></tr>
+</table>
+<p>Read the last two columns together: the red-black worst case is never more than about twice the perfect height, at any size — the constant 2 is rule 4&rsquo;s fingerprint, the price of letting red nodes pad paths. A billion keys still fit within 59 levels, so a search touches at most 60 nodes. That is the entire content of “the height stays logarithmic”: height is Θ(log n), with a small, proved constant.</p>
+</div>
+
+## 7 — Costs, comparisons, and where red-black trees earn their keep
+
+<div class="px">
+<table class="data">
+<tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+<tr><td>Search</td><td>O(log n)</td><td>One root-to-leaf path; height at most 2 log<sub>2</sub>(n + 1) by Step 6.</td></tr>
+<tr><td>Insert</td><td>O(log n)</td><td>Descend O(log n); fix-up recolours on the climb and rotates at most twice.</td></tr>
+<tr><td>Delete</td><td>O(log n)</td><td>Descend O(log n); fix-up climbs with recolourings and rotates at most three times.</td></tr>
+<tr><td>Rotation</td><td>O(1)</td><td>Three pointer changes, independent of subtree size.</td></tr>
+<tr><td>Recolouring</td><td>O(1)</td><td>Colour-bit flips only; no pointers move.</td></tr>
+<tr><td>Space overhead</td><td>One bit per node</td><td>The colour. Often packed into a spare bit of a pointer or a flags word, so the real overhead can be zero bytes.</td></tr>
+</table>
+<p><strong>Red-black versus AVL.</strong> Both guarantee logarithmic height; they strike the bargain at different points. AVL&rsquo;s rule — subtree heights within one — is stricter, so AVL trees are a little shorter (worst case about 1.44 log<sub>2</sub> n against red-black&rsquo;s 2 log<sub>2</sub> n) and pure lookups a little faster. Red-black&rsquo;s looser colour rules buy cheaper updates: bounded rotations per operation (at most two for insert, three for delete), with most fix-up work done by recolouring, and no heights to maintain — one bit instead of a stored height or factor per node. The usual rule of thumb follows: <em>read-heavy</em> workloads favour AVL; <em>write-heavy</em> ones favour red-black. Practice agrees: red-black trees are the default ordered map in C++ (<code>std::map</code>) and Java (<code>TreeMap</code>), the Linux kernel&rsquo;s intrusive <code>rbtree</code> orders everything from virtual memory areas to timers, and database and filesystem code reaches for them whenever a balanced ordered structure must survive heavy mutation.</p>
+<p><strong>Where the pieces recur.</strong> The doubly-black bookkeeping is the same deficit-tracking idea as the borrow in subtraction, and the “recolour first, rotate only when forced” pattern recurs in AA trees (a red-black variant where reds lean one way), left-leaning red-black trees (the form Sedgewick popularised, used in several standard libraries), and the balancing of B-tree nodes on disk, where a “rotation” is a page split and recolouring&rsquo;s role is played by separator-key changes.</p>
+<div class="keybox"><p><strong>The arc, in one breath.</strong> Colour every node red or black, keep the root and the NIL leaves black, never let a red node touch another red, and insist every downward path carries the same number of blacks. Insert red and repair red-red edges by asking about the uncle — recolour if he is red, rotate if he is black. Delete black and track the missing black as a doubly-black node, repairing by asking about the sibling and its nephews. And because equal black counts force exponential size while reds at most double a path, the height is at most twice a logarithm — balance maintained not by rebuilding, but by bookkeeping.</p></div>
+Red-black tree: Bayer, 1972 (as symmetric binary B-trees); the red-black colouring and terminology are due to Guibas &amp; Sedgewick, 1978. Heights on this page count edges: a leaf has height 0. Black-height counts black nodes on a path from a node down to a NIL leaf, including the NIL but not the node itself. Every tree drawn here is produced or audited by the page&rsquo;s own red-black implementation.
+</div>
+
+
+<script set:html={`
+"use strict";
+function $(id){ return document.getElementById(id); }
+/* ============ snapshot-tree model for walkthrough figures ============ */
+/* node kinds: {v,c:'R'|'B',l,r} real, {nil:true}, {db:true}, {tri:'β'} */
+function B(v,l,r){ return {v:v,c:"B",l:l||null,r:r||null}; }
+function R(v,l,r){ return {v:v,c:"R",l:l||null,r:r||null}; }
+function NIL(){ return {nil:true}; }
+function DBN(){ return {db:true}; }
+function TRI(t){ return {tri:t}; }
+function clone(t){ return t ? JSON.parse(JSON.stringify(t)) : null; }
+/* black-height of a real node (NIL counts, node itself does not); NIL node => 0 */
+function bhOf(n){
+  if(!n || n.nil || n.db) return 0;
+  if(n.tri) return 0;
+  var l = n.l, r = n.r;
+  var lb = !l ? 1 : (l.nil||l.db) ? 1 : bhOf(l) + (l.c==="B" ? 1 : 0);
+  var rb = !r ? 1 : (r.nil||r.db) ? 1 : bhOf(r) + (r.c==="B" ? 1 : 0);
+  return Math.max(lb, rb);
+}
+function drawn(n, opts){
+  if(!n) return false;
+  if(n.nil) return !!opts.showNIL;
+  return true;
+}
+function renderRB(svg, root, opts){
+  opts = opts || {};
+  var W = 920;
+  if(!root){
+    svg.setAttribute("viewBox","0 0 920 84");
+    svg.innerHTML = '<text x="460" y="48" text-anchor="middle" font-size="15" class="sub-t">(empty tree)</text>';
+    return;
+  }
+  var idx = 0, maxD = 0;
+  (function walk(n,d){
+    if(!drawn(n,opts)) return;
+    walk(n.l,d+1); n._x = idx++; n._d = d; if(d>maxD) maxD=d; walk(n.r,d+1);
+  })(root,0);
+  var slot = W / Math.max(idx,1);
+  var Rr = opts.r || 19;
+  var cx = function(n){ return slot*(n._x+0.5); }, cy = function(n){ return 42 + n._d*66; };
+  var H = 42 + maxD*66 + 58;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  var out = "";
+  (function edges(n){
+    if(!drawn(n,opts)) return;
+    [n.l,n.r].forEach(function(c){
+      if(drawn(c,opts)) out += '<line x1="'+cx(n)+'" y1="'+(cy(n)+14)+'" x2="'+cx(c)+'" y2="'+(cy(c)-14)+'" stroke="var(--math-line)" stroke-width="1.6"/>';
+    });
+    edges(n.l); edges(n.r);
+  })(root);
+  (function nodes(n){
+    if(!drawn(n,opts)) return;
+    nodes(n.l); nodes(n.r);
+    var x = cx(n), y = cy(n);
+    var mark = opts.marks && n._id && opts.marks[n._id];
+    var hlStroke = mark==="cur" ? "var(--math-orange)" : mark==="rot" ? "var(--math-teal)" : null;
+    if(n.tri){
+      out += '<polygon points="'+x+','+(y-17)+' '+(x-21)+','+(y+17)+' '+(x+21)+','+(y+17)+'" fill="var(--color-code-bg)" stroke="'+(hlStroke||"var(--math-line)")+'" stroke-width="'+(hlStroke?2.4:1.5)+'"/>';
+      out += '<text x="'+x+'" y="'+(y+12)+'" text-anchor="middle" font-size="14">'+n.tri+'</text>';
+      return;
+    }
+    if(n.nil || n.db){
+      var w = n.db ? 30 : 26, h = 20;
+      out += '<rect x="'+(x-w/2)+'" y="'+(y-h/2)+'" width="'+w+'" height="'+h+'" rx="3" fill="var(--px-blk)" stroke="'+(hlStroke||"var(--math-line)")+'" stroke-width="'+(hlStroke?2.6:1.2)+'"/>';
+      if(n.db) out += '<rect x="'+(x-w/2+3.5)+'" y="'+(y-h/2+3.5)+'" width="'+(w-7)+'" height="'+(h-7)+'" rx="2" fill="none" stroke="var(--px-blk-ink)" stroke-width="1.1"/>';
+      out += '<text x="'+x+'" y="'+(y+3.5)+'" text-anchor="middle" font-size="'+(n.db?9:8.5)+'" font-weight="600" class="mono-t on-dark">'+(n.db?"DB":"NIL")+'</text>';
+      return;
+    }
+    var fill = n.c==="R" ? "var(--math-red)" : "var(--px-blk)";
+    out += '<g'+(opts.onPick?' class="tnode" data-v="'+n.v+'" style="cursor:pointer"':'')+'>';
+    if(opts.onPick) out += '<circle cx="'+x+'" cy="'+y+'" r="'+(Rr+7)+'" fill="transparent"/>';
+    out += '<circle cx="'+x+'" cy="'+y+'" r="'+Rr+'" fill="'+fill+'" stroke="'+(hlStroke||(n.c==="R"?"var(--math-red)":"var(--math-line)"))+'" stroke-width="'+(hlStroke?3.2:1.6)+'"/>';
+    out += '<text x="'+x+'" y="'+(y+5.5)+'" text-anchor="middle" font-size="15" font-weight="600" class="on-dark">'+n.v+'</text>';
+    out += '</g>';
+    if(opts.showBH) out += '<text x="'+x+'" y="'+(y+Rr+15)+'" text-anchor="middle" font-size="11" class="mono-t sub-t">bh='+bhOf(n)+'</text>';
+  })(root);
+  svg.innerHTML = out;
+  if(opts.onPick){
+    var gs = svg.querySelectorAll(".tnode");
+    for(var k=0;k<gs.length;k++){ (function(g){ g.addEventListener("click", function(){ opts.onPick(parseInt(g.getAttribute("data-v"),10)); }); })(gs[k]); }
+  }
+}
+function tagIds(root, prefix){
+  /* assign stable _id = prefix + value (values unique within each snapshot) */
+  (function w(n){ if(!n) return; if(typeof n.v==="number") n._id = prefix+n.v; if(n.db) n._id = prefix+"DB"; if(n.tri) n._id = prefix+n.tri; w(n.l); w(n.r); })(root);
+  return root;
+}
+function stepper(cfg){
+  var idx = 0, timer = null;
+  function stop(){ if(timer){ clearInterval(timer); timer=null; cfg.play.textContent="Play"; } }
+  function render(){
+    cfg.render(idx);
+    cfg.prog.textContent = "Step "+(idx+1)+" of "+cfg.count;
+    cfg.note.innerHTML = cfg.notes[idx];
+    cfg.prev.disabled = idx===0; cfg.next.disabled = idx===cfg.count-1;
+    if(idx===cfg.count-1) stop();
+  }
+  cfg.prev.addEventListener("click", function(){ stop(); if(idx>0) idx--; render(); });
+  cfg.next.addEventListener("click", function(){ stop(); if(idx<cfg.count-1) idx++; render(); });
+  cfg.play.addEventListener("click", function(){
+    if(timer){ stop(); return; }
+    if(idx===cfg.count-1) idx=0;
+    render(); cfg.play.textContent="Pause";
+    timer = setInterval(function(){ if(idx<cfg.count-1){ idx++; render(); } else stop(); }, 1800);
+  });
+  render();
+  return { refresh: render, stop: stop,
+    setData: function(count, notes, renderFn){ cfg.count=count; cfg.notes=notes; if(renderFn) cfg.render=renderFn; idx=0; stop(); render(); } };
+}
+
+/* ================= Figure 1: invariants ================= */
+var fig1Base = B(20, B(10, R(5), R(15)), B(30, R(25), R(35)));
+var fig1Sel = 20;
+function fig1TreeNow(){
+  var t = clone(fig1Base);
+  if($("fig1Break").checked){
+    (function w(n){ if(!n) return; if(n.v===10) n.c="R"; w(n.l); w(n.r); })(t);
+  }
+  return t;
+}
+function findSnap(n, v){ if(!n || typeof n.v!=="number" && !n) return null; if(!n) return null; if(n.v===v) return n; return findSnap(n.l,v) || findSnap(n.r,v); }
+function pathBH(root, v){
+  /* walk root->v, then count blacks below v on a path to NIL */
+  var n = root, chain = [];
+  while(n && n.v!==v){ chain.push(n); n = v < n.v ? n.l : n.r; }
+  if(!n) return null;
+  return bhOf(n);
+}
+function auditTree(root){
+  /* returns checks: {bst, rootBlack, nilBlack, noRedRed, equalBH} plus details */
+  var res = {bst:true, rootBlack: root.c==="B", nilBlack:true, noRedRed:true, equalBH:true, badBHNode:null, redRedAt:null};
+  var prev = -Infinity;
+  (function ino(n){ if(!n||n.nil) return; ino(n.l); if(n.v<=prev) res.bst=false; prev=n.v; ino(n.r); })(root);
+  (function w(n){
+    if(!n || n.nil) return;
+    if(n.c==="R"){
+      [n.l,n.r].forEach(function(c){ if(c && !c.nil && c.c==="R"){ res.noRedRed=false; if(!res.redRedAt) res.redRedAt=n.v; } });
+    }
+    w(n.l); w(n.r);
+  })(root);
+  (function bh(n){
+    if(!n || n.nil) return 1;
+    var l = bh(n.l), r = bh(n.r);
+    if(l<0 || r<0) return -1;
+    if(l!==r){ if(!res.badBHNode) res.badBHNode=n.v; res.equalBH=false; return -1; }
+    return l + (n.c==="B"?1:0);
+  })(root);
+  return res;
+}
+function fig1Render(){
+  var t = fig1TreeNow();
+  var showNIL = $("fig1ShowNIL").checked;
+  tagIds(t, "f1:");
+  var marks = {}; marks["f1:"+fig1Sel] = "cur";
+  renderRB($("fig1Svg"), t, { showNIL: showNIL, showBH: $("fig1ShowBH").checked, marks: marks,
+    onPick: function(v){ fig1Sel=v; fig1Render(); } });
+  var n = findSnap(fig1Base, fig1Sel);
+  var isBroken = $("fig1Break").checked && fig1Sel===10;
+  var colNow = isBroken ? "R" : n.c;
+  var bhNow = bhOf(findSnap(t, fig1Sel));
+  var colName = colNow==="R" ? "red" : "black";
+  /* example path for bh: go left repeatedly from selected node */
+  var probe = findSnap(t, fig1Sel), parts = [], cnt = 0, cur = probe;
+  var desc = [];
+  var m = cur.l || NIL();
+  /* build one concrete path: from node down always-left to NIL, counting blacks excluding node, including NIL */
+  (function build(x){
+    if(!x){ desc.push("NIL (black)"); cnt+=1; return; }
+    if(x.nil){ desc.push("NIL (black)"); cnt+=1; return; }
+    desc.push(x.v+" ("+(x.c==="R"?"red":"black")+")"); if(x.c==="B") cnt+=1;
+    build(x.l);
+  })(probe.l);
+  $("fig1Out").innerHTML = "<p><strong>Node "+fig1Sel+": "+colName+".</strong> Its black-height is <strong>"+bhNow+"</strong>: on the path "+fig1Sel+" → "+desc.join(" → ")+", the black nodes below "+fig1Sel+" are "+cnt+" in number (counting the NIL, not "+fig1Sel+" itself). Rule 5 says every other downward path from "+fig1Sel+" gives the same count — check a different route and see.</p>";
+  var a = auditTree(t);
+  var li = function(ok, txt){ return '<li><span class="badge '+(ok?"ok":"bad")+'">'+(ok?"PASS":"FAIL")+'</span><span>'+txt+'</span></li>'; };
+  $("fig1Checks").innerHTML =
+    li(a.bst, "<strong>Search-tree order (the BST underneath):</strong> every left subtree holds smaller keys, every right subtree larger: inorder reads 5, 10, 15, 20, 25, 30, 35.") +
+    li(true, "<strong>Rule 1: every node is coloured</strong>: each of the 7 real nodes is red or black; there is no third state.") +
+    li(a.rootBlack, "<strong>Rule 2: the root is black</strong>: root 20 is "+(a.rootBlack?"black":"not black")+".") +
+    li(true, "<strong>Rule 3: every NIL leaf is black</strong>: NIL leaves are black by definition (turn on “Show the NIL leaves” to see all 8 of them).") +
+    li(a.noRedRed, "<strong>Rule 4: red nodes have black children</strong>: "+(a.noRedRed?"the red leaves 5, 15, 25, 35 all have black parents and NIL children.":"violated — node "+a.redRedAt+" is red and has a red child, because the sabotage painted its black parent red.")) +
+    li(a.equalBH, "<strong>Rule 5: equal black counts</strong>: "+(a.equalBH?"every node&rsquo;s downward paths share one black count; the root&rsquo;s black-height is 2.":"violated at node "+a.badBHNode+": its left paths now carry one fewer black than its right paths, because a black node on the left was painted red."));
+  $("fig1Title").textContent = "Figure 1: " + ($("fig1Break").checked ? "A broken tree: node 10 painted red, two rules fail" : "A valid red-black tree, click a node to inspect it");
+}
+$("fig1ShowNIL").addEventListener("change", fig1Render);
+$("fig1ShowBH").addEventListener("change", fig1Render);
+$("fig1Break").addEventListener("change", fig1Render);
+fig1Render();
+
+/* ================= Figure 2: rotations ================= */
+var rotData = {
+  L: {
+    title: "Figure 2: Left rotation at 10",
+    snaps: [
+      tagIds(B(10, TRI("α"), R(20, TRI("β"), TRI("γ"))), "r0:"),
+      tagIds(B(10, TRI("α"), R(20, TRI("β"), TRI("γ"))), "r1:"),
+      tagIds(R(20, B(10, TRI("α"), TRI("β")), TRI("γ")), "r2:")
+    ],
+    marks: [ {"r0:10":"cur","r0:20":"rot"}, {"r1:10":"cur","r1:20":"rot","r1:β":"cur"}, {"r2:20":"rot","r2:10":"cur"} ],
+    notes: [
+      "<strong>Before.</strong> Pivot 10 (black) has right child 20 (red). The subtrees are α (keys below 10), β (keys between 10 and 20, rooted under 20), and γ (keys above 20). Inorder reads α, 10, β, 20, γ.",
+      "<strong>The handover.</strong> β is the subtree caught between the two keys: larger than 10, smaller than 20. That is exactly the qualification for being 10&rsquo;s right subtree, which is where it is about to go. No key comparisons are needed; the BST order guarantees it fits.",
+      "<strong>After.</strong> 20 has risen into 10&rsquo;s place, 10 is 20&rsquo;s left child, and β is now 10&rsquo;s right subtree. Inorder still reads α, 10, β, 20, γ: the search-tree property is untouched, only heights changed. Colours rode along with their nodes: nothing was recoloured."
+    ]
+  },
+  R: {
+    title: "Figure 2: Right rotation at 30",
+    snaps: [
+      tagIds(B(30, R(20, TRI("α"), TRI("β")), TRI("γ")), "q0:"),
+      tagIds(B(30, R(20, TRI("α"), TRI("β")), TRI("γ")), "q1:"),
+      tagIds(R(20, TRI("α"), B(30, TRI("β"), TRI("γ"))), "q2:")
+    ],
+    marks: [ {"q0:30":"cur","q0:20":"rot"}, {"q1:30":"cur","q1:20":"rot","q1:β":"cur"}, {"q2:20":"rot","q2:30":"cur"} ],
+    notes: [
+      "<strong>Before.</strong> Pivot 30 (black) has left child 20 (red). The subtrees are α (keys below 20), β (keys between 20 and 30), and γ (keys above 30). Inorder reads α, 20, β, 30, γ.",
+      "<strong>The handover.</strong> β (everything between 20 and 30) is about to become 30&rsquo;s left subtree, the mirror image of the left rotation&rsquo;s handover. The BST ordering already guarantees every key in β belongs there.",
+      "<strong>After.</strong> 20 has risen into 30&rsquo;s place, 30 is 20&rsquo;s right child, and β is now 30&rsquo;s left subtree. Inorder still reads α, 20, β, 30, γ. Colours rode along unchanged."
+    ]
+  }
+};
+var rotDir = "L";
+var fig2Stepper = stepper({
+  count: 3, notes: rotData.L.notes,
+  prev: $("fig2Prev"), next: $("fig2Next"), play: $("fig2Play"), prog: $("fig2Prog"), note: $("fig2Note"),
+  render: function(i){
+    var d = rotData[rotDir];
+    renderRB($("fig2Svg"), clone(d.snaps[i]), { marks: d.marks[i] });
+    $("fig2Title").textContent = d.title;
+  }
+});
+function setRotDir(dir){
+  rotDir = dir;
+  $("rotLBtn").setAttribute("aria-pressed", dir==="L" ? "true" : "false");
+  $("rotRBtn").setAttribute("aria-pressed", dir==="R" ? "true" : "false");
+  fig2Stepper.setData(3, rotData[dir].notes);
+}
+$("rotLBtn").addEventListener("click", function(){ setRotDir("L"); });
+$("rotRBtn").addEventListener("click", function(){ setRotDir("R"); });
+
+/* ================= Figure 3: insert fix-up cases ================= */
+var insData = {
+  C1: {
+    title: "Figure 3: Insert Case 1: red uncle, recolour and climb",
+    snaps: [
+      tagIds(B(20, R(10), R(30)), "i10:"),
+      tagIds(B(20, R(10, R(5), null), R(30)), "i11:"),
+      tagIds(R(20, B(10, R(5), null), B(30)), "i12:"),
+      tagIds(B(20, B(10, R(5), null), B(30)), "i13:")
+    ],
+    marks: [ {}, {"i11:5":"cur","i11:10":"cur"}, {"i12:5":"cur","i12:20":"cur"}, {"i13:5":"cur"} ],
+    notes: [
+      "<strong>Before.</strong> A valid tree: black root 20 with red children 10 and 30. Every path from 20 carries black-height 1 (just the NILs). We insert 5.",
+      "<strong>Insert 5, coloured red.</strong> It lands as 10&rsquo;s left child — and both are red: a red-red edge, rule 4 broken. The uncle of 5 is 30, the grandparent&rsquo;s other child, and the uncle is <em>red</em>: this is Case 1.",
+      "<strong>Recolour only.</strong> Parent 10 and uncle 30 go black; grandparent 20 goes red. The red-red edge at 5 is gone and every path through 20 keeps its black count — the two new blacks below balance 20&rsquo;s lost black. But 20 is now a red root, breaking rule 2.",
+      "<strong>Blacken the root.</strong> Fix-up always ends by recolouring the root black. Now 20 is black, 10 and 30 are black, 5 stays red: all five rules hold again. Had 20 not been the root, the algorithm would instead continue from 20, checking <em>its</em> parent for a new red-red edge."
+    ]
+  },
+  C2: {
+    title: "Figure 3: Insert Case 2: black uncle, inner grandchild, straighten first",
+    snaps: [
+      tagIds(B(30, R(10), null), "i20:"),
+      tagIds(B(30, R(10, null, R(20)), null), "i21:"),
+      tagIds(B(30, R(20, R(10), null), null), "i22:"),
+      tagIds(B(20, R(10), R(30)), "i23:")
+    ],
+    marks: [ {}, {"i21:20":"cur","i21:10":"cur"}, {"i22:20":"cur","i22:10":"cur"}, {"i23:20":"cur"} ],
+    notes: [
+      "<strong>Before.</strong> A valid tree: black root 30, red left child 10, and a NIL right child. We insert 20.",
+      "<strong>Insert 20, coloured red.</strong> It lands as 10&rsquo;s <em>right</em> child — the inner side, bending away from the grandparent. Parent 10 is red, so rule 4 is broken; the uncle of 20 is 30&rsquo;s right child, a NIL, which counts as black: Case 2.",
+      "<strong>Left-rotate the parent, 10.</strong> Node 20 rises into 10&rsquo;s place and 10 drops to its left. Nothing is fixed: 20 and its child 10 are still both red, but the shape is now a straight line down the left side: exactly the Case 3 configuration.",
+      "<strong>Case 3 finishes it.</strong> Right-rotate the grandparent 30 and recolour: 20 goes black, 30 goes red. The tree is 20 (black) with red children 10 and 30: balanced, and every rule holds. Case 2 never appears alone; it is always the first half of a Case 3."
+    ]
+  },
+  C3: {
+    title: "Figure 3: Insert Case 3: black uncle, outer grandchild, rotate and settle",
+    snaps: [
+      tagIds(B(10, null, R(20)), "i30:"),
+      tagIds(B(10, null, R(20, null, R(30))), "i31:"),
+      tagIds(R(20, B(10), R(30)), "i32:"),
+      tagIds(B(20, R(10), R(30)), "i33:")
+    ],
+    marks: [ {}, {"i31:30":"cur","i31:20":"cur"}, {"i32:20":"cur","i32:10":"cur"}, {"i33:30":"cur"} ],
+    notes: [
+      "<strong>Before.</strong> A valid tree: black root 10 with red right child 20. We insert 30.",
+      "<strong>Insert 30, coloured red.</strong> It lands as 20&rsquo;s right child — the <em>outer</em> side, continuing the straight line 10 → 20 → 30. Parent 20 is red, so rule 4 is broken; the uncle of 30 is 10&rsquo;s left child, a NIL, hence black: Case 3 directly, no straightening needed.",
+      "<strong>Left-rotate the grandparent, 10.</strong> Node 20 rises to the root and 10 drops to its left; 20&rsquo;s old left subtree was NIL, so the handover moves nothing visible. The tree is balanced now, but the colours are still the old ones — a red root with a black left child.",
+      "<strong>Recolour and finish.</strong> The risen parent 20 goes black, the rotated-down grandparent 10 goes red. Result: 20 (black) with red children 10 and 30, the same final tree as Case 2 produced, reached here in one rotation. Black-height through the subtree is unchanged, so no ancestor can be affected: fix-up ends."
+    ]
+  }
+};
+var insCase = "C1";
+var fig3Stepper = stepper({
+  count: 4, notes: insData.C1.notes,
+  prev: $("fig3Prev"), next: $("fig3Next"), play: $("fig3Play"), prog: $("fig3Prog"), note: $("fig3Note"),
+  render: function(i){
+    var d = insData[insCase];
+    renderRB($("fig3Svg"), clone(d.snaps[i]), { marks: d.marks[i] });
+    $("fig3Title").textContent = d.title;
+  }
+});
+function setInsCase(c){
+  insCase = c;
+  ["C1","C2","C3"].forEach(function(k){ $("ins"+k).setAttribute("aria-pressed", k===c ? "true" : "false"); });
+  fig3Stepper.setData(insData[c].snaps.length, insData[c].notes);
+}
+$("insC1").addEventListener("click", function(){ setInsCase("C1"); });
+$("insC2").addEventListener("click", function(){ setInsCase("C2"); });
+$("insC3").addEventListener("click", function(){ setInsCase("C3"); });
+
+/* ================= Figure 4: delete fix-up cases ================= */
+var delData = {
+  C1: {
+    title: "Figure 4: Delete Case 1: red sibling, rotate to convert",
+    snaps: [
+      tagIds(B(20, DBN(), R(30, B(25), B(35))), "d10:"),
+      tagIds(R(20, DBN(), B(30, B(25), B(35))), "d11:"),
+      tagIds(B(30, R(20, DBN(), B(25)), B(35)), "d12:")
+    ],
+    marks: [ {"d10:DB":"cur"}, {"d11:30":"cur","d11:20":"cur"}, {"d12:30":"cur","d12:25":"rot"} ],
+    notes: [
+      "<strong>The starting position.</strong> A black leaf under 20 has just been deleted; its NIL replacement (left) is doubly black — every path through it is one black short. Its sibling 30 is <em>red</em>, with black children 25 and 35: Case 1. (A red sibling is only possible because the parent here is black with a tall red-black subtree on one side.)",
+      "<strong>Recolour.</strong> Sibling 30 goes black and parent 20 goes red. No black counts change on any completed path — the swap trades one black for another along the right side — so the doubly-black node is exactly as deficient as before. The point is what the next move can now do.",
+      "<strong>Left-rotate the parent, 20.</strong> Node 30 rises, 20 drops left, and 25 is handed across to become 20&rsquo;s right child. The doubly-black node&rsquo;s new sibling is 25, and it is <em>black</em>. Case 1 has converted the situation into Case 2, 3, or 4 (here 25&rsquo;s children are NILs, so Case 2 follows). The extra black itself has not moved yet."
+    ]
+  },
+  C2: {
+    title: "Figure 4: Delete Case 2: black sibling, both nephews black, recolour and climb",
+    snaps: [
+      tagIds(B(20, DBN(), B(30, NIL(), NIL())), "d20:"),
+      tagIds(B(20, DBN(), R(30, NIL(), NIL())), "d21:"),
+      tagIds(B(20, NIL(), R(30, NIL(), NIL())), "d22:")
+    ],
+    marks: [ {"d20:DB":"cur"}, {"d21:30":"cur"}, {"d22:20":"cur"} ],
+    notes: [
+      "<strong>The starting position.</strong> The doubly-black NIL sits under black parent 20. Its sibling 30 is black, and both of 30&rsquo;s children are NILs, black nephews: Case 2. There is no red anywhere on the sibling&rsquo;s side to borrow from.",
+      "<strong>Recolour the sibling red.</strong> Node 30 gives up its black. Now every path through 30 is one black shorter — which matches the short side exactly: the deficit is no longer local to the left child, it belongs to the whole subtree at 20. The extra black lifts off the NIL and onto the parent.",
+      "<strong>The extra black moves up.</strong> The NIL is a plain NIL again, and 20 (drawn here as an ordinary node in a subtree) now carries the extra black: it is the new doubly-black node, and fix-up repeats from it. Here 20 happens to be the root of the whole tree, so the leftover extra black is simply dropped and 20 ends plain black: dropping it shortens every root-to-leaf path&rsquo;s count by the same one, so rule 5 still holds."
+    ]
+  },
+  C3: {
+    title: "Figure 4: Delete Case 3: red near nephew, rotate the sibling",
+    snaps: [
+      tagIds(B(20, DBN(), B(30, R(25), NIL())), "d30:"),
+      tagIds(B(20, DBN(), R(30, B(25), NIL())), "d31:"),
+      tagIds(B(20, DBN(), B(25, NIL(), R(30))), "d32:")
+    ],
+    marks: [ {"d30:DB":"cur","d30:25":"rot"}, {"d31:25":"cur","d31:30":"cur"}, {"d32:25":"cur","d32:30":"rot"} ],
+    notes: [
+      "<strong>The starting position.</strong> The doubly-black NIL sits under 20; its sibling 30 is black. The <em>near</em> nephew (25, the sibling&rsquo;s child on the side toward the doubly-black node) is red, while the far nephew is a black NIL: Case 3.",
+      "<strong>Recolour.</strong> Near nephew 25 goes black and sibling 30 goes red. Black counts on every completed path are unchanged — one black moved from the nephew level to the sibling level on the same paths — so the deficit is untouched. The colours are being rearranged so a rotation can help.",
+      "<strong>Right-rotate the sibling, 30.</strong> Node 25 rises into 30&rsquo;s place, and 30 becomes its right child — still red. Now read the new configuration: the doubly-black node&rsquo;s sibling is 25 (black), and its <em>far</em> nephew is 30 (red). That is exactly Case 4, which always finishes the job."
+    ]
+  },
+  C4: {
+    title: "Figure 4: Delete Case 4: red far nephew, rotate and settle",
+    snaps: [
+      tagIds(B(20, DBN(), B(30, NIL(), R(35))), "d40:"),
+      tagIds(B(20, DBN(), B(30, NIL(), B(35))), "d41:"),
+      tagIds(B(30, B(20, NIL(), NIL()), B(35)), "d42:")
+    ],
+    marks: [ {"d40:DB":"cur","d40:35":"rot"}, {"d41:30":"cur","d41:35":"cur"}, {"d42:30":"cur"} ],
+    notes: [
+      "<strong>The starting position.</strong> The doubly-black NIL sits under 20; sibling 30 is black, and the <em>far</em> nephew (35, on the side away from the doubly-black node) is red: Case 4. A red far nephew is the one configuration with a spare black to lend.",
+      "<strong>Recolour.</strong> Sibling 30 takes the parent&rsquo;s colour (black here — if the parent were red, 30 would become red), parent 20 is set black, and far nephew 35 goes black. The far side has now banked an extra black in 35, ready to be swung across by the rotation.",
+      "<strong>Left-rotate the parent, 20.</strong> Node 30 rises, 20 drops to its left, and 30&rsquo;s old left NIL is handed across as 20&rsquo;s right child. The doubly-black NIL is a plain NIL again: the path through 20 now passes 30 and 20, both black, matching every other path. The extra black is absorbed, rule 5 is restored, and fix-up ends — Case 4 always terminates the loop."
+    ]
+  }
+};
+var delCase = "C1";
+var fig4Stepper = stepper({
+  count: 3, notes: delData.C1.notes,
+  prev: $("fig4Prev"), next: $("fig4Next"), play: $("fig4Play"), prog: $("fig4Prog"), note: $("fig4Note"),
+  render: function(i){
+    var d = delData[delCase];
+    renderRB($("fig4Svg"), clone(d.snaps[i]), { marks: d.marks[i], showNIL: true });
+    $("fig4Title").textContent = d.title;
+  }
+});
+function setDelCase(c){
+  delCase = c;
+  ["C1","C2","C3","C4"].forEach(function(k){ $("del"+k).setAttribute("aria-pressed", k===c ? "true" : "false"); });
+  fig4Stepper.setData(delData[c].snaps.length, delData[c].notes);
+}
+$("delC1").addEventListener("click", function(){ setDelCase("C1"); });
+$("delC2").addEventListener("click", function(){ setDelCase("C2"); });
+$("delC3").addEventListener("click", function(){ setDelCase("C3"); });
+$("delC4").addEventListener("click", function(){ setDelCase("C4"); });
+
+/* ================= Playground: sentinel red-black engine ================= */
+var EV5 = [];
+function newNIL5(){ return {v:null, c:"B", l:null, r:null, p:null, nil:true}; }
+var NIL5 = newNIL5(); NIL5.l = NIL5.r = NIL5.p = NIL5;
+var pgRoot = NIL5;
+function pgIsRed(n){ return n !== NIL5 && n.c === "R"; }
+function pgRotL(x){
+  var y = x.r; x.r = y.l;
+  if(y.l !== NIL5) y.l.p = x;
+  y.p = x.p;
+  if(x.p === NIL5) pgRoot = y;
+  else if(x === x.p.l) x.p.l = y; else x.p.r = y;
+  y.l = x; x.p = y;
+}
+function pgRotR(x){
+  var y = x.l; x.l = y.r;
+  if(y.r !== NIL5) y.r.p = x;
+  y.p = x.p;
+  if(x.p === NIL5) pgRoot = y;
+  else if(x === x.p.r) x.p.r = y; else x.p.l = y;
+  y.r = x; x.p = y;
+}
+function pgInsert(v){
+  EV5 = [];
+  var z = {v:v, c:"R", l:NIL5, r:NIL5, p:NIL5, nil:false};
+  var y = NIL5, x = pgRoot;
+  while(x !== NIL5){ y = x; if(v === x.v){ EV5.push({t:"dup", v:v}); return false; } x = v < x.v ? x.l : x.r; }
+  z.p = y;
+  if(y === NIL5) pgRoot = z;
+  else if(v < y.v) y.l = z; else y.r = z;
+  EV5.push({t:"new", v:v});
+  while(pgIsRed(z.p)){
+    var g = z.p.p;
+    if(z.p === g.l){
+      var u = g.r;
+      if(pgIsRed(u)){ EV5.push({t:"ic1", v:v, g:g.v}); z.p.c="B"; u.c="B"; g.c="R"; z=g; }
+      else {
+        if(z === z.p.r){ EV5.push({t:"ic2", v:v, at:z.p.v}); z = z.p; pgRotL(z); }
+        EV5.push({t:"ic3", v:v, g:z.p.p.v}); z.p.c="B"; z.p.p.c="R"; pgRotR(z.p.p);
+      }
+    } else {
+      var u2 = g.l;
+      if(pgIsRed(u2)){ EV5.push({t:"ic1", v:v, g:g.v}); z.p.c="B"; u2.c="B"; g.c="R"; z=g; }
+      else {
+        if(z === z.p.l){ EV5.push({t:"ic2", v:v, at:z.p.v}); z = z.p; pgRotR(z); }
+        EV5.push({t:"ic3", v:v, g:z.p.p.v}); z.p.c="B"; z.p.p.c="R"; pgRotL(z.p.p);
+      }
+    }
+  }
+  pgRoot.c = "B";
+  return true;
+}
+function pgTransplant(u, v){
+  if(u.p === NIL5) pgRoot = v;
+  else if(u === u.p.l) u.p.l = v; else u.p.r = v;
+  v.p = u.p;
+}
+function pgMin(x){ while(x.l !== NIL5) x = x.l; return x; }
+function pgFixDelete(x, orig){
+  while(x !== pgRoot && x.c === "B"){
+    if(x === x.p.l){
+      var w = x.p.r;
+      if(w.c === "R"){ EV5.push({t:"dc1", at:w.v}); w.c="B"; x.p.c="R"; pgRotL(x.p); w = x.p.r; }
+      if(w.l.c === "B" && w.r.c === "B"){ EV5.push({t:"dc2", at:w.v}); w.c="R"; x = x.p; }
+      else {
+        if(w.r.c === "B"){ EV5.push({t:"dc3", at:w.v}); w.l.c="B"; w.c="R"; pgRotR(w); w = x.p.r; }
+        EV5.push({t:"dc4", at:x.p.v}); w.c = x.p.c; x.p.c="B"; w.r.c="B"; pgRotL(x.p); x = pgRoot;
+      }
+    } else {
+      var w2 = x.p.l;
+      if(w2.c === "R"){ EV5.push({t:"dc1", at:w2.v}); w2.c="B"; x.p.c="R"; pgRotR(x.p); w2 = x.p.l; }
+      if(w2.r.c === "B" && w2.l.c === "B"){ EV5.push({t:"dc2", at:w2.v}); w2.c="R"; x = x.p; }
+      else {
+        if(w2.l.c === "B"){ EV5.push({t:"dc3", at:w2.v}); w2.r.c="B"; w2.c="R"; pgRotL(w2); w2 = x.p.l; }
+        EV5.push({t:"dc4", at:x.p.v}); w2.c = x.p.c; x.p.c="B"; w2.l.c="B"; pgRotR(x.p); x = pgRoot;
+      }
+    }
+  }
+  x.c = "B";
+}
+function pgDelete(v){
+  EV5 = [];
+  var z = pgRoot;
+  while(z !== NIL5 && z.v !== v) z = v < z.v ? z.l : z.r;
+  if(z === NIL5){ EV5.push({t:"missing", v:v}); return false; }
+  var y = z, yOrig = y.c, x;
+  if(z.l === NIL5){ x = z.r; pgTransplant(z, z.r); }
+  else if(z.r === NIL5){ x = z.l; pgTransplant(z, z.l); }
+  else {
+    y = pgMin(z.r); yOrig = y.c; x = y.r;
+    EV5.push({t:"succ", from:v, to:y.v});
+    if(y.p !== z){ pgTransplant(y, y.r); y.r = z.r; y.r.p = y; }
+    else { x.p = y; }
+    pgTransplant(z, y); y.l = z.l; y.l.p = y; y.c = z.c;
+  }
+  EV5.push({t:"removed", v:v, colour:yOrig});
+  if(yOrig === "B") pgFixDelete(x, v);
+  return true;
+}
+function pgCount(n){ return n === NIL5 ? 0 : 1 + pgCount(n.l) + pgCount(n.r); }
+function pgToSnap(n){
+  if(n === NIL5) return NIL();
+  return {v:n.v, c:n.c, l:pgToSnap(n.l), r:pgToSnap(n.r)};
+}
+function pgAudit(){
+  if(pgRoot === NIL5) return {ok:true};
+  var bad = null;
+  (function bh(n){
+    if(n === NIL5) return 1;
+    if(bad) return 0;
+    if(n.c === "R" && (pgIsRed(n.l) || pgIsRed(n.r))){ bad = "rule 4 fails at "+n.v; return 0; }
+    var l = bh(n.l), r = bh(n.r);
+    if(l !== r){ bad = "rule 5 fails at "+n.v; return 0; }
+    return l + (n.c === "B" ? 1 : 0);
+  })(pgRoot);
+  if(pgRoot.c !== "B") bad = "rule 2 fails at the root";
+  return {ok: !bad, bad: bad};
+}
+function describeEV5(){
+  var parts = [];
+  EV5.forEach(function(e){
+    if(e.t==="new") parts.push("Inserted <strong>"+e.v+"</strong> as a red leaf (BST position).");
+    if(e.t==="dup") parts.push("<strong>"+e.v+" is already in the tree</strong> — red-black trees here hold distinct keys, so nothing changed.");
+    if(e.t==="missing") parts.push("<strong>"+e.v+" is not in the tree</strong> — nothing to delete.");
+    if(e.t==="ic1") parts.push("<strong>Insert Case 1</strong> at grandparent "+e.g+": red uncle, so parent and uncle were recoloured black and the grandparent red, and fix-up climbed.");
+    if(e.t==="ic2") parts.push("<strong>Insert Case 2</strong>: inner grandchild, so the parent ("+e.at+") was rotated to straighten the bend into a line.");
+    if(e.t==="ic3") parts.push("<strong>Insert Case 3</strong>: outer grandchild, so the grandparent ("+e.g+") was rotated and the risen node recoloured black — fix-up done.");
+    if(e.t==="succ") parts.push("Node "+e.from+" had two children, so its inorder successor <strong>"+e.to+"</strong> was copied into its place and the successor node was deleted instead.");
+    if(e.t==="removed") parts.push(e.colour==="R" ? "Removed <strong>"+e.v+"</strong>, which was <strong>red</strong> — no black count changed, so <strong>no fix-up was needed</strong>." : "Removed <strong>"+e.v+"</strong>, which was <strong>black</strong> — its replacement became doubly black and delete fix-up ran:");
+    if(e.t==="dc1") parts.push("<strong>Delete Case 1</strong>: red sibling "+e.at+" recoloured and the parent rotated to convert the case.");
+    if(e.t==="dc2") parts.push("<strong>Delete Case 2</strong>: black sibling "+e.at+" with black nephews recoloured red, and the extra black climbed to the parent.");
+    if(e.t==="dc3") parts.push("<strong>Delete Case 3</strong>: red near nephew, so sibling "+e.at+" was recoloured and rotated to produce a red far nephew.");
+    if(e.t==="dc4") parts.push("<strong>Delete Case 4</strong>: red far nephew, so the sibling took the parent&rsquo;s colour, the parent ("+e.at+") rotated, and the extra black was absorbed — fix-up done.");
+  });
+  return parts;
+}
+var pgLast = null;
+function pgRender(msg){
+  var showNIL = $("fig5ShowNIL").checked;
+  var n = pgCount(pgRoot);
+  if(pgRoot === NIL5){
+    renderRB($("fig5Svg"), null, {});
+    $("fig5Title").textContent = "Figure 5: Playground tree, 0 nodes, black-height 0";
+  } else {
+    var snap = pgToSnap(pgRoot);
+    if(!showNIL){
+      (function prune(x){ if(!x) return; if(x.l && x.l.nil) x.l = null; if(x.r && x.r.nil) x.r = null; prune(x.l); prune(x.r); })(snap);
+    }
+    tagIds(snap, "pg:");
+    var marks = {};
+    if(pgLast !== null) marks["pg:"+pgLast] = "cur";
+    renderRB($("fig5Svg"), snap, { showNIL: showNIL, showBH: $("fig5ShowBH").checked, marks: marks });
+    var bhRoot = bhOf(snap);
+    $("fig5Title").textContent = "Figure 5: Playground tree, "+n+" node"+(n===1?"":"s")+", black-height "+bhRoot;
+  }
+  if(msg !== undefined) $("fig5Out").innerHTML = "<p>"+msg+"</p>";
+}
+function pgFinish(opV){
+  var a = pgAudit();
+  var parts = describeEV5();
+  var audit = a.ok ? " <strong>Audit: all five invariants hold.</strong>" : ' <span class="warn">Audit failure: '+a.bad+" — this should never happen; the engine has a bug.</span>";
+  pgRender(parts.join(" ") + audit);
+}
+$("pgKey").addEventListener("input", function(){ $("pgKeyVal").textContent = $("pgKey").value; });
+$("pgInsert").addEventListener("click", function(){
+  var v = parseInt($("pgKey").value, 10);
+  if(pgCount(pgRoot) >= 31 && !findSnap(pgToSnap(pgRoot), v)){ pgRender("The playground caps the tree at <strong>31 nodes</strong> so labels stay readable. Delete something first, or clear and start again."); return; }
+  pgLast = v; pgInsert(v); pgFinish(v);
+});
+$("pgDelete").addEventListener("click", function(){
+  var v = parseInt($("pgKey").value, 10);
+  pgLast = null; pgDelete(v); pgFinish(v);
+});
+$("pgClear").addEventListener("click", function(){
+  pgRoot = NIL5; NIL5.p = NIL5; pgLast = null; EV5 = [];
+  pgRender("Tree cleared. Insert a key to begin.");
+});
+$("pgDemo").addEventListener("click", function(){
+  pgRoot = NIL5; pgLast = 8;
+  var seq = [41,38,31,12,19,8], all = [];
+  seq.forEach(function(v){ pgInsert(v); all = all.concat(describeEV5()); });
+  var a = pgAudit();
+  pgRender("<strong>Demo sequence 41, 38, 31, 12, 19, 8 inserted.</strong> "+all.join(" ")+(a.ok?" <strong>Audit: all five invariants hold.</strong>":""));
+});
+$("pgRandom").addEventListener("click", function(){
+  pgRoot = NIL5;
+  var pool = [], i, v;
+  for(i=1;i<=99;i++) pool.push(i);
+  var picked = [];
+  for(i=0;i<15;i++){ var j = Math.floor(Math.random()*pool.length); picked.push(pool.splice(j,1)[0]); }
+  picked.forEach(function(k){ pgInsert(k); });
+  pgLast = picked[picked.length-1];
+  var a = pgAudit();
+  pgRender("<strong>Random tree built</strong> from 15 keys: "+picked.join(", ")+"."+(a.ok?" <strong>Audit: all five invariants hold.</strong>":""));
+});
+$("fig5ShowBH").addEventListener("change", function(){ pgRender(); });
+$("fig5ShowNIL").addEventListener("change", function(){ pgRender(); });
+pgRender();
+
+/* ================= Figure 6: height bound ================= */
+function fmt(n){ return n.toLocaleString("en-US"); }
+function fig6Render(){
+  var e = parseInt($("fig6E").value, 10);
+  $("fig6EVal").textContent = e;
+  var n = Math.pow(2, e) - 1;
+  var chain = n - 1, rb = 2*e, perf = e - 1;
+  $("fig6Title").textContent = "Figure 6: With n = "+fmt(n)+" keys, the height is guaranteed at most "+rb;
+  $("fig6N").textContent = fmt(n);
+  $("fig6Chain").textContent = fmt(chain);
+  $("fig6RB").textContent = rb;
+  $("fig6Perf").textContent = perf;
+  var rows = [
+    {label:"Degenerate BST (chain)", val:chain, disp:fmt(chain), fill:"var(--math-red)"},
+    {label:"Red-black guarantee", val:rb, disp:""+rb, fill:"var(--math-teal)"},
+    {label:"Perfect tree", val:perf, disp:""+perf, fill:"var(--math-blue)"}
+  ];
+  var maxLog = Math.log10(chain + 1) || 1;
+  var out = "";
+  rows.forEach(function(r, i){
+    var y = 26 + i*62;
+    var w = Math.max(3, 560 * (Math.log10(r.val + 1) / maxLog));
+    out += '<text x="10" y="'+(y+17)+'" font-size="13.5" font-weight="600">'+r.label+'</text>';
+    out += '<rect x="240" y="'+y+'" width="'+w+'" height="20" rx="3" fill="'+r.fill+'"/>';
+    out += '<text x="'+(252+w)+'" y="'+(y+15)+'" font-size="13.5" class="mono-t">'+r.disp+'</text>';
+  });
+  out += '<text x="240" y="206" font-size="12" class="sub-t">bar length proportional to log of height; labels are exact heights in edges</text>';
+  $("fig6Svg").innerHTML = out;
+  $("fig6Out").innerHTML = "<p>With <strong>"+fmt(n)+" keys</strong> (e = "+e+"), a degenerate BST can reach height <strong>"+fmt(chain)+"</strong>, while the red-black invariants guarantee height at most <strong>"+rb+"</strong>, against a perfect tree&rsquo;s "+perf+". The guarantee is exactly 2e because log<sub>2</sub>(n + 1) = log<sub>2</sub>(2<sup>"+e+"</sup>) = "+e+", doubled.</p>";
+}
+$("fig6E").addEventListener("input", fig6Render);
+fig6Render();
+`} />

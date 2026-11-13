@@ -1,0 +1,596 @@
+---
+title: "Elliptic Curve Cryptography: the group law on a curve"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the ECC note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:32px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:18px;line-height:1.25;color:var(--math-ink)}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px .eqscroll {overflow-x:auto}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px .two {display:grid;grid-template-columns: 1fr;gap:16px}
+
+@media(max-width:760px) {
+.px .two {grid-template-columns:1fr}
+
+}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .sw {width:22px;height:4px;border-radius:2px;display:inline-block}
+
+.px .dotsw {width:10px;height:10px;border-radius:50%;display:inline-block}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Public-key cryptography — the geometry underneath</div>
+<p class="lede">Take a smooth cubic curve. Its points can be <strong>added</strong> with nothing more than a ruler: draw a line, find where it meets the curve again, reflect. That one geometric rule, repeated, builds a group where multiplication is easy but undoing it — finding <em>how many times</em> a point was added to itself — is computationally hopeless. Every TLS handshake, Bitcoin signature, and passkey login rests on that asymmetry.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> A private key is just a number d. The public key is the point Q = dG, computed by adding a fixed generator point G to itself d times. Going forward takes microseconds even for a 256-bit d; going backward, recovering d from Q, is the elliptic curve discrete logarithm problem, and no known algorithm does it in feasible time.</p></div>
+</header>
+</div>
+
+## 1 — The curve: a cubic with a symmetry
+
+<div class="px">
+<p>An elliptic curve over the real numbers is the set of points satisfying a short Weierstrass equation, plus one extra point at infinity that will act as the identity. Two things matter about the shape: it is symmetric about the x-axis (if (x, y) is on the curve, so is (x, −y)), and it must be <em>smooth</em> — no cusps or self-crossings — which is exactly what the discriminant condition below guarantees.</p>
+<table class="formulas">
+<tr><th>The curve</th><td><math display="block"><mrow><msup><mi>y</mi><mn>2</mn></msup><mo>=</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></mrow></math></td></tr>
+<tr><th>Smoothness condition</th><td><math display="block"><mrow><mn>4</mn><msup><mi>a</mi><mn>3</mn></msup><mo>+</mo><mn>27</mn><msup><mi>b</mi><mn>2</mn></msup><mo>≠</mo><mn>0</mn></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">When this quantity is 0 the curve pinches into a cusp or a node, the chord-and-tangent rule breaks down there, and the cryptography fails with it — singular curves have easy discrete logs.</span></td></tr>
+<tr><th>The curve used in this step</th><td><math display="block"><mrow><msup><mi>y</mi><mn>2</mn></msup><mo>=</mo><msup><mi>x</mi><mn>3</mn></msup><mo>−</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn></mrow></math><math display="block"><mrow><mn>4</mn><msup><mi>a</mi><mn>3</mn></msup><mo>+</mo><mn>27</mn><msup><mi>b</mi><mn>2</mn></msup><mo>=</mo><mn>4</mn><mo>(</mo><mo>−</mo><mn>8</mn><mo>)</mo><mo>+</mo><mn>27</mn><mo>(</mo><mn>4</mn><mo>)</mo><mo>=</mo><mo>−</mo><mn>32</mn><mo>+</mo><mn>108</mn><mo>=</mo><mn>76</mn><mo>≠</mo><mn>0</mn></mrow></math></td></tr>
+</table>
+<div class="diagram">
+<svg id="fig1" viewBox="0 0 560 400" role="img" aria-label="Elliptic curve over the real numbers with adjustable coefficients"></svg>
+<div class="legend"><span><span class="sw" style="background:var(--math-teal)"></span> the curve</span><span><span class="sw" style="background:var(--math-ink3)"></span> x-axis: mirror line of the symmetry</span></div>
+<p class="figcap"><strong>Figure 1.</strong> Drag the sliders below: the curve reshapes live. With a discriminant above zero the cubic has one real root and the curve is a single connected loop-with-a-tail; push it negative and a separate oval splits off on the left. Find a combination where the discriminant hits exactly 0 and watch the curve pinch — that is a singular curve, and it is excluded.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig1Title">Figure 1: a = −2.0, b = 2.0 (smooth, one component)</h3>
+<div class="sliderrow"><label for="aSlider">Coefficient a</label><input type="range" id="aSlider" min="-3" max="3" step="0.1" value="-2" /></div>
+<div class="sliderrow"><label for="bSlider">Coefficient b</label><input type="range" id="bSlider" min="-2" max="4" step="0.1" value="2" /></div>
+<div class="readouts">
+<div class="ro"><b id="roDisc">76.0</b><span>4a³ + 27b²</span></div>
+<div class="ro"><b id="roSmooth">Smooth</b><span>Curve status</span></div>
+<div class="ro"><b id="roComp">1</b><span>Connected components</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Symmetry:</strong> the upper and lower halves are mirror images. Reflection across the x-axis will become negation in the group.</li>
+<li><strong>The point at infinity,</strong> written 𝒪, is not drawn — it sits "at the end of every vertical line" and acts as zero: P + 𝒪 = P.</li>
+<li><strong>Real curves are for intuition only.</strong> Real cryptography uses the same equation over a finite field, where the curve becomes a scatter of discrete points (Step 3) — but the addition rule is identical.</li>
+</ul></div>
+</div>
+
+## 2 — Point addition: the chord-and-tangent rule
+
+<div class="px">
+<p>Here is the whole group law in one picture. A line meets a cubic in at most three points. So: draw the line through P and Q; it must hit the curve at a third point, call it R′; reflect R′ across the x-axis and define that to be P + Q. Reflection is what makes the operation associative and gives every point an inverse — the reflected point is −P, and P + (−P) is the vertical-line case, defined to be 𝒪.</p>
+<table class="formulas">
+<tr><th>Slope of the chord</th><td><math display="block"><mrow><mi>m</mi><mo>=</mo><mfrac><mrow><msub><mi>y</mi><mi>Q</mi></msub><mo>−</mo><msub><mi>y</mi><mi>P</mi></msub></mrow><mrow><msub><mi>x</mi><mi>Q</mi></msub><mo>−</mo><msub><mi>x</mi><mi>P</mi></msub></mrow></mfrac></mrow></math></td></tr>
+<tr><th>Sum, x-coordinate</th><td><math display="block"><mrow><msub><mi>x</mi><mi>R</mi></msub><mo>=</mo><msup><mi>m</mi><mn>2</mn></msup><mo>−</mo><msub><mi>x</mi><mi>P</mi></msub><mo>−</mo><msub><mi>x</mi><mi>Q</mi></msub></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">This comes from substituting the line into the cubic: the three roots of the resulting equation sum to m², and two of them are already known.</span></td></tr>
+<tr><th>Sum, y-coordinate</th><td><math display="block"><mrow><msub><mi>y</mi><mi>R</mi></msub><mo>=</mo><mi>m</mi><mo>(</mo><msub><mi>x</mi><mi>P</mi></msub><mo>−</mo><msub><mi>x</mi><mi>R</mi></msub><mo>)</mo><mo>−</mo><msub><mi>y</mi><mi>P</mi></msub></mrow></math></td></tr>
+<tr><th>Doubling (P = Q): tangent slope</th><td><math display="block"><mrow><mi>m</mi><mo>=</mo><mfrac><mrow><mn>3</mn><msubsup><mi>x</mi><mi>P</mi><mn>2</mn></msubsup><mo>+</mo><mi>a</mi></mrow><mrow><mn>2</mn><msub><mi>y</mi><mi>P</mi></msub></mrow></mfrac></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">When the two points merge, the chord becomes the tangent — implicit differentiation of the curve equation. Everything else is unchanged.</span></td></tr>
+</table>
+<div class="diagram">
+<svg id="fig2" viewBox="0 0 560 400" role="img" aria-label="Chord and tangent point addition on the curve"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> P</span><span><span class="dotsw" style="background:var(--math-blue)"></span> Q</span><span><span class="dotsw" style="background:var(--math-ink3)"></span> R′: third intersection</span><span><span class="dotsw" style="background:var(--math-teal)"></span> R = P + Q: reflection of R′</span><span><span class="sw" style="background:var(--math-gold)"></span> chord through P and Q</span></div>
+<p class="figcap"><strong>Figure 2.</strong> Slide P and Q along the upper half of the curve. The gold chord always meets the curve a third time at R′, and the dashed vertical drops from R′ to its mirror image R = P + Q. Push Q onto P and the chord swings into the tangent — that limiting case is point doubling, 2P. Note that R lands on the lower half here: sums wander all over the curve, which is exactly what makes repeated addition look random.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig2Title">Figure 2: P = (−1.20, 1.63), Q = (1.00, 1.00)</h3>
+<div class="sliderrow"><label for="pxSlider">Position of P (its x-coordinate)</label><input type="range" id="pxSlider" min="-1.5" max="2.4" step="0.05" value="-1.2" /></div>
+<div class="sliderrow"><label for="qxSlider">Position of Q (its x-coordinate)</label><input type="range" id="qxSlider" min="-1.5" max="2.4" step="0.05" value="1" /></div>
+<div class="readouts">
+<div class="ro"><b id="roSlope">−0.29</b><span>Slope m of chord or tangent</span></div>
+<div class="ro"><b id="roRprime">(0.28, 1.21)</b><span>R′: third intersection</span></div>
+<div class="ro"><b id="roR">(0.28, −1.21)</b><span>R = P + Q</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Closure:</strong> the sum of two curve points is always another curve point — the reflection step is what guarantees it.</li>
+<li><strong>Inverses:</strong> reflect P to get −P. The line through them is vertical, never meets the curve a third time in the plane, and the sum is defined as 𝒪.</li>
+<li><strong>Why a group matters:</strong> closure, identity, inverses, and associativity mean we can do arithmetic with points exactly as with numbers — the next step exploits this.</li>
+</ul></div>
+</div>
+
+## 3 — Scalar multiplication: the one-way street
+
+<div class="px">
+<p>Now move the same equation to a finite field, where real cryptography lives. Work modulo the prime p = 17 on the curve below. The "curve" is now just 18 scattered points plus 𝒪, a group of order n = 19, which is prime, so every non-identity point generates the whole group. Fix the generator G = (5, 1). Scalar multiplication means adding G to itself k times, and the efficient way is <em>double-and-add</em>: read k in binary, double the running point for each bit, and add G whenever a bit is 1. A 256-bit private key needs only about 256 doublings and at most 256 additions — never 2<sup>256</sup> additions.</p>
+<table class="formulas">
+<tr><th>The finite-field curve</th><td><math display="block"><mrow><msup><mi>y</mi><mn>2</mn></msup><mo>≡</mo><msup><mi>x</mi><mn>3</mn></msup><mo>+</mo><mn>2</mn><mi>x</mi><mo>+</mo><mn>2</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+<tr><th>Scalar multiplication</th><td><math display="block"><mrow><mi>k</mi><mi>G</mi><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><mi>G</mi></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Addition is the chord-and-tangent rule of Step 2, with every coordinate reduced mod 17 and divisions replaced by modular inverses.</span></td></tr>
+<tr><th>Worked check: G really is on the curve</th><td><math display="block"><mrow><msup><mn>1</mn><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow></math><math display="block"><mrow><msup><mn>5</mn><mn>3</mn></msup><mo>+</mo><mn>2</mn><mo>·</mo><mn>5</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>137</mn><mo>≡</mo><mn>1</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>17</mn><mo>)</mo></mrow></math></td></tr>
+</table>
+<div class="diagram">
+<svg id="fig3" viewBox="0 0 560 400" role="img" aria-label="Scalar multiplication hops on the finite field curve"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-ink3)"></span> curve points mod 17</span><span><span class="dotsw" style="background:var(--math-orange)"></span> G = (5, 1)</span><span><span class="dotsw" style="background:var(--math-teal)"></span> kG: current multiple</span><span><span class="sw" style="background:var(--math-gold)"></span> hop from (j−1)G to jG</span></div>
+<label class="basetoggle"><input type="checkbox" id="fig3Hops" checked /> Show the hop lines between successive multiples</label>
+<p class="figcap"><strong>Figure 3.</strong> Each hop adds one more G. The landing points jump around the grid with no visible pattern: 2G = (6, 3) sits next to G, but 7G = (0, 6) is across the plot and 13G = (16, 4) is in the far corner. At k = 19 the walk returns to the point at infinity, and the cycle restarts: 19G = 𝒪, 20G = G. Given only the final point, nothing about the path is recoverable by looking.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig3Title">Figure 3: k = 13, kG = (16, 4)</h3>
+<div class="sliderrow"><label for="kSlider">Scalar k</label><input type="range" id="kSlider" min="1" max="19" step="1" value="13" /></div>
+<div class="readouts">
+<div class="ro"><b id="roKG">(16, 4)</b><span>kG</span></div>
+<div class="ro"><b id="roBin">1101</b><span>k in binary</span></div>
+<div class="ro"><b id="roOps">3 doubles, 2 adds</b><span>Double-and-add cost</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Forward is cheap:</strong> double-and-add costs about one doubling per bit of k, roughly 256 point operations for a real 256-bit key.</li>
+<li><strong>The walk fills the group:</strong> because 19 is prime, the multiples of G visit all 18 affine points before reaching 𝒪. Real curves are chosen the same way, with a large prime-order subgroup.</li>
+<li><strong>No shortcuts in the picture:</strong> consecutive multiples are unrelated as positions. That visual randomness is the discrete logarithm problem, coming in Step 6.</li>
+</ul></div>
+</div>
+
+## 4 — Key exchange: ECDH
+
+<div class="px">
+<p>Diffie–Hellman needs an operation that commutes: a(bG) must equal b(aG). Scalar multiplication does exactly that, because both are just (ab)G. Alice picks a secret a and publishes A = aG; Bob picks a secret b and publishes B = bG. Alice computes aB, Bob computes bA, and both hold the same point — while an eavesdropper who sees G, A, and B cannot combine them without solving a discrete log.</p>
+<table class="formulas">
+<tr><th>The shared point, both ways</th><td><math display="block"><mrow><mi>a</mi><mi>B</mi><mo>=</mo><mi>a</mi><mo>(</mo><mi>b</mi><mi>G</mi><mo>)</mo><mo>=</mo><mo>(</mo><mi>a</mi><mi>b</mi><mo>)</mo><mi>G</mi><mo>=</mo><mi>b</mi><mo>(</mo><mi>a</mi><mi>G</mi><mo>)</mo><mo>=</mo><mi>b</mi><mi>A</mi></mrow></math></td></tr>
+<tr><th>Default values, checked</th><td><math display="block"><mrow><mi>a</mi><mo>=</mo><mn>3</mn></mrow></math><math display="block"><mrow><mi>A</mi><mo>=</mo><mn>3</mn><mi>G</mi><mo>=</mo><mo>(</mo><mn>10</mn><mo>,</mo><mn>6</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>b</mi><mo>=</mo><mn>5</mn></mrow></math><math display="block"><mrow><mi>B</mi><mo>=</mo><mn>5</mn><mi>G</mi><mo>=</mo><mo>(</mo><mn>9</mn><mo>,</mo><mn>16</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>a</mi><mi>B</mi><mo>=</mo><mn>15</mn><mi>G</mi><mo>=</mo><mo>(</mo><mn>3</mn><mo>,</mo><mn>16</mn><mo>)</mo><mo>=</mo><mi>b</mi><mi>A</mi></mrow></math></td></tr>
+</table>
+<div class="diagram">
+<svg id="fig4" viewBox="0 0 560 400" role="img" aria-label="Elliptic curve Diffie Hellman shared point"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> A = aG: Alice's public key</span><span><span class="dotsw" style="background:var(--math-blue)"></span> B = bG: Bob's public key</span><span><span class="dotsw" style="background:var(--math-teal)"></span> shared point abG</span></div>
+<p class="figcap"><strong>Figure 4.</strong> Only A and B ever travel over the wire. Each side privately multiplies the other's public point by its own secret and lands on the same teal point. In practice the x-coordinate of that point (here 3) is hashed into a symmetric session key — the point itself is never used as the key directly.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig4Title">Figure 4: a = 3, b = 5, shared point (3, 16)</h3>
+<div class="sliderrow"><label for="aliceSlider">Alice's secret a</label><input type="range" id="aliceSlider" min="1" max="18" step="1" value="3" /></div>
+<div class="sliderrow"><label for="bobSlider">Bob's secret b</label><input type="range" id="bobSlider" min="1" max="18" step="1" value="5" /></div>
+<div class="readouts">
+<div class="ro"><b id="roA">(10, 6)</b><span>A = aG (public)</span></div>
+<div class="ro"><b id="roB">(9, 16)</b><span>B = bG (public)</span></div>
+<div class="ro"><b id="roShared">(3, 16)</b><span>Shared point abG</span></div>
+<div class="ro"><b id="roSharedX">3</b><span>Shared x: fed to a key derivation hash</span></div>
+</div>
+</div>
+<div class="callout"><p><strong>Why the eavesdropper loses.</strong> From A = aG alone, recovering a is a discrete log. Combining A and B directly into abG without knowing either secret is the computational Diffie–Hellman problem — believed just as hard on a well-chosen curve.</p></div>
+</div>
+
+## 5 — Signatures: ECDSA
+
+<div class="px">
+<p>A signature proves "the holder of d signed this message" without revealing d. The signer commits to a one-time secret k by publishing the x-coordinate of kG, then mixes that commitment with the message hash and the private key. Verification recombines the public key Q = dG with the signature in a way that reconstructs the commitment point — but only if the signature really was built from d.</p>
+<table class="formulas">
+<tr><th>Setup</th><td><math display="block"><mrow><mi>Q</mi><mo>=</mo><mi>d</mi><mi>G</mi></mrow></math><math display="block"><mrow><mi>e</mi><mo>=</mo><mtext>hash of the message, reduced mod </mtext><mi>n</mi></mrow></math></td></tr>
+<tr><th>Sign</th><td><math display="block"><mrow><mi>r</mi><mo>=</mo><msub><mi>x</mi><mrow><mi>k</mi><mi>G</mi></mrow></msub><mo>mod</mo><mi>n</mi></mrow></math><math display="block"><mrow><mi>s</mi><mo>=</mo><msup><mi>k</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>(</mo><mi>e</mi><mo>+</mo><mi>d</mi><mi>r</mi><mo>)</mo><mo>mod</mo><mi>n</mi></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">The signature is the pair (r, s). If k is ever reused for two different messages, d can be solved for algebraically — this exact failure emptied wallets and once broke a games console's signing key.</span></td></tr>
+<tr><th>Verify</th><td><math display="block"><mrow><mi>w</mi><mo>=</mo><msup><mi>s</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>mod</mo><mi>n</mi></mrow></math><math display="block"><mrow><msub><mi>u</mi><mn>1</mn></msub><mo>=</mo><mi>e</mi><mi>w</mi><mo>mod</mo><mi>n</mi></mrow></math><math display="block"><mrow><msub><mi>u</mi><mn>2</mn></msub><mo>=</mo><mi>r</mi><mi>w</mi><mo>mod</mo><mi>n</mi></mrow></math><math display="block"><mrow><mi>X</mi><mo>=</mo><msub><mi>u</mi><mn>1</mn></msub><mi>G</mi><mo>+</mo><msub><mi>u</mi><mn>2</mn></msub><mi>Q</mi></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Accept exactly when the x-coordinate of X, reduced mod n, equals r. Substituting the signing equation shows X = kG, so an honest signature always passes — and producing one that passes, without d, requires forging that reconstruction.</span></td></tr>
+<tr><th>Default signature, fully checked</th><td><math display="block"><mrow><mi>d</mi><mo>=</mo><mn>4</mn></mrow></math><math display="block"><mrow><mi>Q</mi><mo>=</mo><mn>4</mn><mi>G</mi><mo>=</mo><mo>(</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>k</mi><mo>=</mo><mn>6</mn></mrow></math><math display="block"><mrow><mi>k</mi><mi>G</mi><mo>=</mo><mo>(</mo><mn>16</mn><mo>,</mo><mn>13</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>r</mi><mo>=</mo><mn>16</mn></mrow></math><math display="block"><mrow><mi>e</mi><mo>+</mo><mi>d</mi><mi>r</mi><mo>=</mo><mn>13</mn><mo>+</mo><mn>4</mn><mo>·</mo><mn>16</mn><mo>=</mo><mn>77</mn><mo>≡</mo><mn>1</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>19</mn><mo>)</mo></mrow></math><math display="block"><mrow><msup><mi>k</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>16</mn><mspace width="0.4em"/><mtext>since</mtext><mspace width="0.4em"/><mn>6</mn><mo>·</mo><mn>16</mn><mo>=</mo><mn>96</mn><mo>≡</mo><mn>1</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>19</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>s</mi><mo>=</mo><mn>16</mn><mo>·</mo><mn>1</mn><mo>=</mo><mn>16</mn></mrow></math><math display="block"><mrow><mi>w</mi><mo>=</mo><msup><mi>s</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>6</mn><mspace width="0.4em"/><mtext>since</mtext><mspace width="0.4em"/><mn>16</mn><mo>·</mo><mn>6</mn><mo>=</mo><mn>96</mn><mo>≡</mo><mn>1</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>19</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi>u</mi><mn>1</mn></msub><mo>=</mo><mn>13</mn><mo>·</mo><mn>6</mn><mo>=</mo><mn>78</mn><mo>≡</mo><mn>2</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>19</mn><mo>)</mo></mrow></math><math display="block"><mrow><msub><mi>u</mi><mn>2</mn></msub><mo>=</mo><mn>16</mn><mo>·</mo><mn>6</mn><mo>=</mo><mn>96</mn><mo>≡</mo><mn>1</mn><mspace width="0.4em"/><mo>(</mo><mi>mod</mi><mspace width="0.3em"/><mn>19</mn><mo>)</mo></mrow></math><math display="block"><mrow><mi>X</mi><mo>=</mo><mn>2</mn><mi>G</mi><mo>+</mo><mn>1</mn><mi>Q</mi><mo>=</mo><mo>(</mo><mn>16</mn><mo>,</mo><mn>13</mn><mo>)</mo><mo>=</mo><mi>k</mi><mi>G</mi></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">The x-coordinate of X is 16, which equals r: the signature verifies.</span></td></tr>
+</table>
+<div class="diagram">
+<svg id="fig5" viewBox="0 0 560 400" role="img" aria-label="ECDSA commitment and verification points"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-teal)"></span> Q = dG: public key</span><span><span class="dotsw" style="background:var(--math-orange)"></span> kG: signer's commitment</span><span><span class="dotsw" style="background:var(--math-blue)"></span> X = u₁G + u₂Q: verifier's reconstruction</span></div>
+<p class="figcap"><strong>Figure 5.</strong> At the defaults the blue reconstruction lands exactly on the orange commitment point — the two markers coincide, drawn slightly offset so both stay visible. Change any of d, k, or the message hash and the algebra re-runs live: X tracks kG every time, because verification is the signing equation rearranged. What the verifier never learns is d or k themselves.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig5Title">Figure 5: d = 4, k = 6, e = 13, signature (r, s) = (16, 16), valid</h3>
+<div class="sliderrow"><label for="dSlider">Private key d</label><input type="range" id="dSlider" min="1" max="18" step="1" value="4" /></div>
+<div class="sliderrow"><label for="nonceSlider">One-time secret k</label><input type="range" id="nonceSlider" min="1" max="18" step="1" value="6" /></div>
+<div class="sliderrow"><label for="hashSlider">Message hash e (mod 19)</label><input type="range" id="hashSlider" min="0" max="18" step="1" value="13" /></div>
+<div class="readouts">
+<div class="ro"><b id="roQ">(3, 1)</b><span>Q = dG (public key)</span></div>
+<div class="ro"><b id="roSig">(16, 16)</b><span>Signature (r, s)</span></div>
+<div class="ro"><b id="roU">u₁ = 2, u₂ = 1</b><span>Verification scalars</span></div>
+<div class="ro"><b id="roX">(16, 13)</b><span>X: x mod 19 = r, valid</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>r binds the signature to k,</strong> s binds it to both the message (through e) and the key (through d). Tampering with the message changes e, the reconstruction X moves, and the check fails.</li>
+<li><strong>Some slider settings are invalid by design:</strong> if r or s comes out 0 the signature must be discarded and a fresh k chosen — the readouts say so when it happens.</li>
+<li><strong>Deterministic nonces</strong> (RFC 6979) derive k from the message and key, removing the reuse failure mode entirely; Ed25519 builds this in.</li>
+</ul></div>
+</div>
+
+## 6 — Why the discrete log is hard
+
+<div class="px">
+<p>Everything above is public except one problem: given G and Q = dG, find d. On the toy curve an attacker can simply walk the multiples of G until the target appears — try it below; on average the target turns up halfway through the group. The devastating fact is how that walk scales. The best known generic attack, Pollard's rho method, needs about the <em>square root</em> of the group order — for a 256-bit curve that is still roughly 2<sup>128</sup> point operations, and unlike factoring there is no subexponential index-calculus attack: elliptic curves offer no smooth structure for it to exploit. Quantum computers are the exception — Shor's algorithm solves this problem in polynomial time, which is why post-quantum schemes exist — but classically, the gap below is the whole story.</p>
+<div class="diagram">
+<svg id="fig6" viewBox="0 0 560 400" role="img" aria-label="Brute force search through multiples of G"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-gold)"></span> multiples already tried</span><span><span class="dotsw" style="background:var(--math-red)"></span> target point Q</span><span><span class="dotsw" style="background:var(--math-teal)"></span> match found</span></div>
+<p class="figcap"><strong>Figure 6.</strong> The attacker computes G, 2G, 3G, … and compares each against the target. On this 19-point group the search ends within 18 tries — and is utterly hopeless as a method once the group has 2<sup>256</sup> points, because the same walk would need about 2<sup>255</sup> tries by brute force, or 2<sup>128</sup> with the best generic shortcut.</p>
+</div>
+<div class="sliderbox">
+<h3 id="fig6Title">Figure 6: secret d = 11, attacker has tried 6 guesses: not found</h3>
+<div class="sliderrow"><label for="secretSlider">Secret d (the target multiple)</label><input type="range" id="secretSlider" min="2" max="18" step="1" value="11" /></div>
+<div class="sliderrow"><label for="guessSlider">Attacker's guesses tried</label><input type="range" id="guessSlider" min="1" max="18" step="1" value="6" /></div>
+<div class="readouts">
+<div class="ro"><b id="roTried">6 of 18</b><span>Multiples checked</span></div>
+<div class="ro"><b id="roFound">Not yet</b><span>Target found?</span></div>
+<div class="ro"><b id="roToyTime">6 ns</b><span>Time at a billion guesses per second</span></div>
+</div>
+</div>
+<table class="data">
+<tr><th>Security level</th><th>ECC key size</th><th>Comparable RSA key size</th><th>Best generic attack on ECC</th></tr>
+<tr><td>80 bits</td><td>160 bits</td><td>1024 bits</td><td>about 2⁸⁰ point operations</td></tr>
+<tr><td>112 bits</td><td>224 bits</td><td>2048 bits</td><td>about 2¹¹² point operations</td></tr>
+<tr><td>128 bits</td><td>256 bits</td><td>3072 bits</td><td>about 2¹²⁸ point operations</td></tr>
+<tr><td>192 bits</td><td>384 bits</td><td>7680 bits</td><td>about 2¹⁹² point operations</td></tr>
+<tr><td>256 bits</td><td>521 bits</td><td>15360 bits</td><td>about 2²⁵⁶ point operations</td></tr>
+</table>
+<p>Put the 128-bit row in time units: 2<sup>128</sup> is about 3.4 × 10<sup>38</sup>. At a trillion point operations per second — far beyond any single machine — the search runs about 3.4 × 10<sup>26</sup> seconds, roughly 1.1 × 10<sup>19</sup> years, against a universe about 1.4 × 10<sup>10</sup> years old. That is why a 256-bit elliptic curve key, small enough to fit in a sentence, protects traffic that a 3072-bit RSA key is needed to match.</p>
+<div class="callout"><p><strong>The honest caveats.</strong> The hardness is a well-tested belief, not a proof — no one has proven the discrete logarithm is hard on any curve. It holds only for carefully chosen curves (large prime-order group, no special structure), correct implementations, and secret scalars that stay secret. And a large fault-tolerant quantum computer running Shor's algorithm would end it — the one attack that does not care how big the group is.</p></div>
+
+<p>Curves used here: y² = x³ − 2x + 2 over the reals for the geometry, and y² = x³ + 2x + 2 over the field mod 17 (group order 19, generator G = (5, 1)) for everything cryptographic. Real deployments use standardized curves such as P-256 and Curve25519 with group orders near 2²⁵⁶, identical rules, vastly larger groups. Key-size comparisons follow NIST SP 800-57.</p>
+
+</div>
+
+
+<script set:html={`
+"use strict";
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function colors(){return{teal:cssVar('--math-teal'),orange:cssVar('--math-orange'),blue:cssVar('--math-blue'),gold:cssVar('--math-gold'),red:cssVar('--math-red'),ink:cssVar('--math-ink'),ink2:cssVar('--math-ink2'),ink3:cssVar('--math-ink3'),line:cssVar('--math-line'),surface:cssVar('--color-bg')};}
+var NS='http://www.w3.org/2000/svg';
+function el(name,attrs,parent){var e=document.createElementNS(NS,name);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function txt(parent,x,y,str,attrs){var t=el('text',attrs||{},parent);t.setAttribute('x',x);t.setAttribute('y',y);t.textContent=str;return t;}
+function fmt(v){var s=(Math.round(v*100)/100).toFixed(2);return s.replace('-','−');}
+function ptStr(P){return P?('('+P[0]+', '+P[1]+')'):'𝒪';}
+
+/* ---------- real-plane axes helpers ---------- */
+function realFrame(svg,W,H,xmin,xmax,ymin,ymax){
+  var C=colors(),sc=Math.min(W/(xmax-xmin),H/(ymax-ymin));
+  var ox=-xmin*sc+(W-(xmax-xmin)*sc)/2, oy=ymax*sc+(H-(ymax-ymin)*sc)/2;
+  function X(x){return ox+x*sc;} function Y(y){return oy-y*sc;}
+  for(var gx=Math.ceil(xmin);gx<=Math.floor(xmax);gx++){ if(gx===0)continue; el('line',{x1:X(gx),y1:0,x2:X(gx),y2:H,stroke:C.line,'stroke-width':0.7},svg); }
+  for(var gy=Math.ceil(ymin);gy<=Math.floor(ymax);gy++){ if(gy===0)continue; el('line',{x1:0,y1:Y(gy),x2:W,y2:Y(gy),stroke:C.line,'stroke-width':0.7},svg); }
+  el('line',{x1:0,y1:Y(0),x2:W,y2:Y(0),stroke:C.ink3,'stroke-width':1.2},svg);
+  el('line',{x1:X(0),y1:0,x2:X(0),y2:H,stroke:C.ink3,'stroke-width':1.2},svg);
+  txt(svg,W-16,Y(0)-8,'x',{'font-size':13,'font-style':'italic',fill:C.ink2});
+  txt(svg,X(0)+8,16,'y',{'font-size':13,'font-style':'italic',fill:C.ink2});
+  return {X:X,Y:Y,sc:sc};
+}
+function curvePath(svg,a,b,F){
+  var C=colors(),dUp='',dDn='',inUp=false,inDn=false;
+  for(var x=-3.3;x<=3.91;x+=0.02){
+    var f=x*x*x+a*x+b;
+    if(f<0){inUp=false;inDn=false;continue;}
+    var y=Math.sqrt(f);
+    if(y<=3.5){ var px=F.X(x).toFixed(1),py=F.Y(y).toFixed(1); dUp+=(inUp?'L':'M')+px+' '+py+' '; inUp=true; } else inUp=false;
+    if(y<=3.5){ var qx=F.X(x).toFixed(1),qy=F.Y(-y).toFixed(1); dDn+=(inDn?'L':'M')+qx+' '+qy+' '; inDn=true; } else inDn=false;
+  }
+  if(dUp)el('path',{d:dUp,fill:'none',stroke:C.teal,'stroke-width':2.6,'stroke-linejoin':'round'},svg);
+  if(dDn)el('path',{d:dDn,fill:'none',stroke:C.teal,'stroke-width':2.6,'stroke-linejoin':'round'},svg);
+}
+
+/* ---------- Figure 1: curve explorer ---------- */
+var fig1=document.getElementById('fig1');
+function drawFig1(){
+  var a=parseFloat(document.getElementById('aSlider').value), b=parseFloat(document.getElementById('bSlider').value);
+  fig1.innerHTML='';
+  var F=realFrame(fig1,560,400,-3.3,3.9,-3.5,3.5);
+  curvePath(fig1,a,b,F);
+  var D=4*a*a*a+27*b*b, smooth=Math.abs(D)>0.05;
+  var comps=(D>0.05)?1:(D<-0.05?2:1);
+  document.getElementById('roDisc').textContent=fmt(D);
+  var st=document.getElementById('roSmooth');
+  st.textContent=smooth?'Smooth':'Singular (excluded)';
+  st.style.color=smooth?'':'var(--math-red)';
+  document.getElementById('roComp').textContent=smooth?comps:'n/a';
+  document.getElementById('fig1Title').textContent='Figure 1: a = '+fmt(a)+', b = '+fmt(b)+' ('+(smooth?(comps===1?'smooth, one component':'smooth, two components'):'singular curve, discriminant ≈ 0')+')';
+}
+document.getElementById('aSlider').addEventListener('input',drawFig1);
+document.getElementById('bSlider').addEventListener('input',drawFig1);
+
+/* ---------- Figure 2: point addition over the reals ---------- */
+var fig2=document.getElementById('fig2'), A2=-2, B2=2;
+function drawFig2(){
+  var C=colors();
+  var xp=parseFloat(document.getElementById('pxSlider').value), xq=parseFloat(document.getElementById('qxSlider').value);
+  var doubling=Math.abs(xp-xq)<0.001;
+  if(doubling) xq=xp;
+  function onCurve(x){return Math.sqrt(Math.max(0,x*x*x+A2*x+B2));}
+  var P=[xp,onCurve(xp)], Q=[xq,onCurve(xq)];
+  var m= doubling ? (3*xp*xp+A2)/(2*P[1]) : (Q[1]-P[1])/(Q[0]-P[0]);
+  var xr=m*m-P[0]-Q[0], yrp=m*(xr-P[0])+P[1], R=[xr,-yrp];
+  fig2.innerHTML='';
+  var F=realFrame(fig2,560,400,-3.3,3.9,-3.5,3.5);
+  curvePath(fig2,A2,B2,F);
+  /* chord, clipped to plot box in x */
+  var xa=-3.3, xb=3.9;
+  var ya=m*(xa-P[0])+P[1], yb=m*(xb-P[0])+P[1];
+  el('line',{x1:F.X(xa),y1:F.Y(Math.max(-3.5,Math.min(3.5,ya))),x2:F.X(xb),y2:F.Y(Math.max(-3.5,Math.min(3.5,yb))),stroke:C.gold,'stroke-width':2.2},fig2);
+  if(Math.abs(yrp)<=3.5 && Math.abs(R[1])<=3.5 && xr>=-3.3 && xr<=3.9){
+    el('line',{x1:F.X(xr),y1:F.Y(yrp),x2:F.X(xr),y2:F.Y(R[1]),stroke:C.ink3,'stroke-width':1.4,'stroke-dasharray':'4 3'},fig2);
+    el('circle',{cx:F.X(xr),cy:F.Y(yrp),r:6,fill:C.ink3},fig2);
+    txt(fig2,F.X(xr)+10,F.Y(yrp)-8,"R′",{'font-size':14,'font-weight':600,fill:C.ink2});
+    el('circle',{cx:F.X(xr),cy:F.Y(R[1]),r:7,fill:C.teal,stroke:C.surface,'stroke-width':2},fig2);
+    txt(fig2,F.X(xr)+11,F.Y(R[1])+18,'R = P + Q',{'font-size':14,'font-weight':700,fill:C.teal});
+  }
+  el('circle',{cx:F.X(P[0]),cy:F.Y(P[1]),r:7,fill:C.orange,stroke:C.surface,'stroke-width':2},fig2);
+  txt(fig2,F.X(P[0])-8,F.Y(P[1])-12,'P',{'font-size':15,'font-weight':700,fill:C.orange,'text-anchor':'end'});
+  el('circle',{cx:F.X(Q[0]),cy:F.Y(Q[1]),r:7,fill:C.blue,stroke:C.surface,'stroke-width':2},fig2);
+  txt(fig2,F.X(Q[0])+11,F.Y(Q[1])-10,'Q',{'font-size':15,'font-weight':700,fill:C.blue});
+  document.getElementById('roSlope').textContent=fmt(m);
+  document.getElementById('roRprime').textContent='('+fmt(xr)+', '+fmt(yrp)+')';
+  document.getElementById('roR').textContent='('+fmt(R[0])+', '+fmt(R[1])+')';
+  document.getElementById('fig2Title').textContent='Figure 2: P = ('+fmt(P[0])+', '+fmt(P[1])+'), Q = ('+fmt(Q[0])+', '+fmt(Q[1])+')'+(doubling?' (P = Q: doubling, tangent line)':'');
+}
+document.getElementById('pxSlider').addEventListener('input',drawFig2);
+document.getElementById('qxSlider').addEventListener('input',drawFig2);
+
+/* ---------- finite field arithmetic, p = 17 ---------- */
+var P17=17, A17=2, N19=19, G=[5,1];
+function mod(x){return ((x%P17)+P17)%P17;}
+function invMod(x,m){ x=((x%m)+m)%m; for(var i=1;i<m;i++) if(x*i%m===1) return i; return null; }
+function ecAdd(P,Q){
+  if(!P) return Q; if(!Q) return P;
+  if(P[0]===Q[0] && mod(P[1]+Q[1])===0) return null;
+  var m;
+  if(P[0]===Q[0] && P[1]===Q[1]) m=mod((3*P[0]*P[0]+A17)*invMod(mod(2*P[1]),P17));
+  else m=mod((Q[1]-P[1])*invMod(mod(Q[0]-P[0]),P17));
+  var x=mod(m*m-P[0]-Q[0]), y=mod(m*(P[0]-x)-P[1]);
+  return [x,y];
+}
+function ecMul(k,P){ var R=null; for(var i=0;i<k;i++) R=ecAdd(R,P); return R; }
+var ALLPTS=[];
+for(var gx2=0;gx2<17;gx2++) for(var gy2=0;gy2<17;gy2++) if(mod(gy2*gy2)===mod(gx2*gx2*gx2+2*gx2+2)) ALLPTS.push([gx2,gy2]);
+
+function ffFrame(svg){
+  var C=colors();
+  for(var i=0;i<=16;i++){
+    el('line',{x1:40+i*31,y1:16,x2:40+i*31,y2:368,stroke:C.line,'stroke-width':0.7},svg);
+    el('line',{x1:40,y1:368-i*22,x2:536,y2:368-i*22,stroke:C.line,'stroke-width':0.7},svg);
+  }
+  el('line',{x1:40,y1:368,x2:536,y2:368,stroke:C.ink3,'stroke-width':1.2},svg);
+  el('line',{x1:40,y1:16,x2:40,y2:368,stroke:C.ink3,'stroke-width':1.2},svg);
+  txt(svg,528,388,'x',{'font-size':13,'font-style':'italic',fill:C.ink2});
+  txt(svg,14,28,'y',{'font-size':13,'font-style':'italic',fill:C.ink2});
+  txt(svg,40,388,'0',{'font-size':11,fill:C.ink2,'text-anchor':'middle'});
+  txt(svg,536,388,'16',{'font-size':11,fill:C.ink2,'text-anchor':'middle'});
+  txt(svg,26,372,'0',{'font-size':11,fill:C.ink2,'text-anchor':'end'});
+  txt(svg,26,20,'16',{'font-size':11,fill:C.ink2,'text-anchor':'end'});
+  ALLPTS.forEach(function(P){ el('circle',{cx:40+P[0]*31,cy:368-P[1]*22,r:4,fill:C.ink3,opacity:0.45},svg); });
+}
+function fx(x){return 40+x*31;} function fy(y){return 368-y*22;}
+function bigDot(svg,P,r,fill,label,dx,dy,labelColor){
+  var C=colors();
+  el('circle',{cx:fx(P[0]),cy:fy(P[1]),r:r,fill:fill,stroke:C.surface,'stroke-width':2},svg);
+  if(label) txt(svg,fx(P[0])+dx,fy(P[1])+dy,label,{'font-size':14,'font-weight':700,fill:labelColor||fill});
+}
+
+/* ---------- Figure 3: scalar multiplication ---------- */
+var fig3=document.getElementById('fig3');
+function drawFig3(){
+  var C=colors(), k=parseInt(document.getElementById('kSlider').value,10);
+  fig3.innerHTML=''; ffFrame(fig3);
+  var showHops=document.getElementById('fig3Hops').checked;
+  var prev=G, path=[G];
+  for(var i=2;i<=k;i++){ var nxt=ecMul(i,G); path.push(nxt); }
+  if(showHops && k>=2 && k<19){
+    for(var j=1;j<path.length;j++){
+      var u=path[j-1], v=path[j]; if(!u||!v) continue;
+      el('line',{x1:fx(u[0]),y1:fy(u[1]),x2:fx(v[0]),y2:fy(v[1]),stroke:C.gold,'stroke-width':1.6,opacity:0.75},fig3);
+    }
+  }
+  if(k>1 && k<19) for(var t=1;t<path.length-1;t++){ var P=path[t]; if(P) el('circle',{cx:fx(P[0]),cy:fy(P[1]),r:5,fill:C.gold,stroke:C.surface,'stroke-width':1.5},fig3); }
+  bigDot(fig3,G,7,C.orange,'G',10,-10);
+  var KG=ecMul(k,G);
+  if(KG) bigDot(fig3,KG,8,C.teal,k+'G',11,5);
+  else txt(fig3,300,200,'kG = 𝒪 (the point at infinity, not drawn)',{'font-size':15,'font-weight':700,fill:C.teal,'text-anchor':'middle'});
+  var bits=k.toString(2), ones=bits.split('1').length-1;
+  document.getElementById('roKG').textContent=ptStr(KG);
+  document.getElementById('roBin').textContent=bits;
+  document.getElementById('roOps').textContent=(bits.length-1)+' doubles, '+(ones-1)+' adds';
+  document.getElementById('fig3Title').textContent='Figure 3: k = '+k+', kG = '+ptStr(KG);
+}
+document.getElementById('kSlider').addEventListener('input',drawFig3);
+document.getElementById('fig3Hops').addEventListener('change',drawFig3);
+
+/* ---------- Figure 4: ECDH ---------- */
+var fig4=document.getElementById('fig4');
+function drawFig4(){
+  var C=colors();
+  var a=parseInt(document.getElementById('aliceSlider').value,10), b=parseInt(document.getElementById('bobSlider').value,10);
+  var A=ecMul(a,G), B=ecMul(b,G), S=ecMul(a,B);
+  fig4.innerHTML=''; ffFrame(fig4);
+  bigDot(fig4,A,8,C.orange,'A',11,-9);
+  bigDot(fig4,B,8,C.blue,'B',11,16);
+  if(S){ el('rect',{x:fx(S[0])-9,y:fy(S[1])-9,width:18,height:18,fill:C.teal,stroke:C.surface,'stroke-width':2,transform:'rotate(45 '+fx(S[0])+' '+fy(S[1])+')'},fig4);
+    txt(fig4,fx(S[0])+14,fy(S[1])+5,'abG',{'font-size':14,'font-weight':700,fill:C.teal}); }
+  document.getElementById('roA').textContent=ptStr(A);
+  document.getElementById('roB').textContent=ptStr(B);
+  document.getElementById('roShared').textContent=ptStr(S);
+  document.getElementById('roSharedX').textContent=S?S[0]:'n/a';
+  document.getElementById('fig4Title').textContent='Figure 4: a = '+a+', b = '+b+', shared point '+ptStr(S);
+}
+document.getElementById('aliceSlider').addEventListener('input',drawFig4);
+document.getElementById('bobSlider').addEventListener('input',drawFig4);
+
+/* ---------- Figure 5: ECDSA ---------- */
+var fig5=document.getElementById('fig5');
+function drawFig5(){
+  var C=colors();
+  var d=parseInt(document.getElementById('dSlider').value,10), k=parseInt(document.getElementById('nonceSlider').value,10), e=parseInt(document.getElementById('hashSlider').value,10);
+  var Q=ecMul(d,G), KG=ecMul(k,G);
+  var r=KG?KG[0]%N19:0, s=null, u1=null, u2=null, X=null, valid=false;
+  if(r!==0){ var ki=invMod(k,N19); var sv=(ki*((e+d*r)%N19))%N19; if(sv!==0){ s=sv; var w=invMod(s,N19); u1=(e*w)%N19; u2=(r*w)%N19; X=ecAdd(ecMul(u1,G), ecMul(u2,Q)); valid=!!(X && X[0]%N19===r); } }
+  fig5.innerHTML=''; ffFrame(fig5);
+  bigDot(fig5,Q,8,C.teal,'Q',11,-9);
+  if(KG){ el('circle',{cx:fx(KG[0]),cy:fy(KG[1]),r:9,fill:C.orange,stroke:C.surface,'stroke-width':2},fig5); txt(fig5,fx(KG[0])+13,fy(KG[1])-10,'kG',{'font-size':14,'font-weight':700,fill:C.orange}); }
+  if(X){ el('circle',{cx:fx(X[0])+7,cy:fy(X[1])+7,r:6,fill:C.blue,stroke:C.surface,'stroke-width':2},fig5); txt(fig5,fx(X[0])+16,fy(X[1])+22,'X',{'font-size':14,'font-weight':700,fill:C.blue}); }
+  document.getElementById('roQ').textContent=ptStr(Q);
+  document.getElementById('roSig').textContent=(r===0||s===null)?'invalid: r or s is 0':'('+r+', '+s+')';
+  document.getElementById('roU').textContent=(u1===null)?'n/a':('u₁ = '+u1+', u₂ = '+u2);
+  document.getElementById('roX').textContent=X?(ptStr(X)+': x mod 19 = '+(X[0]%N19)+(valid?', valid':', INVALID')):'𝒪: invalid';
+  document.getElementById('fig5Title').textContent='Figure 5: d = '+d+', k = '+k+', e = '+e+', signature (r, s) = '+((r===0||s===null)?'invalid (r or s is 0, choose another k)':'('+r+', '+s+')'+(valid?', valid':'')) ;
+}
+document.getElementById('dSlider').addEventListener('input',drawFig5);
+document.getElementById('nonceSlider').addEventListener('input',drawFig5);
+document.getElementById('hashSlider').addEventListener('input',drawFig5);
+
+/* ---------- Figure 6: brute-force search ---------- */
+var fig6=document.getElementById('fig6');
+function drawFig6(){
+  var C=colors();
+  var d=parseInt(document.getElementById('secretSlider').value,10), g=parseInt(document.getElementById('guessSlider').value,10);
+  var T=ecMul(d,G);
+  fig6.innerHTML=''; ffFrame(fig6);
+  for(var i=1;i<=g;i++){ var P=ecMul(i,G); if(!P||i===d) continue; el('circle',{cx:fx(P[0]),cy:fy(P[1]),r:6,fill:C.gold,stroke:C.surface,'stroke-width':1.5},fig6); }
+  var found=g>=d;
+  if(found){ el('circle',{cx:fx(T[0]),cy:fy(T[1]),r:9,fill:C.teal,stroke:C.surface,'stroke-width':2},fig6); txt(fig6,fx(T[0])+13,fy(T[1])+5,'found: '+d+'G',{'font-size':14,'font-weight':700,fill:C.teal}); }
+  else { el('circle',{cx:fx(T[0]),cy:fy(T[1]),r:8,fill:'none',stroke:C.red,'stroke-width':2.5},fig6); txt(fig6,fx(T[0])+13,fy(T[1])+5,'Q (target)',{'font-size':14,'font-weight':700,fill:C.red}); }
+  document.getElementById('roTried').textContent=g+' of 18';
+  document.getElementById('roFound').textContent=found?('Yes: d = '+d):'Not yet';
+  document.getElementById('roToyTime').textContent=g+' ns';
+  document.getElementById('fig6Title').textContent='Figure 6: secret d = '+d+', attacker has tried '+g+' guesses: '+(found?'found':'not found');
+}
+document.getElementById('secretSlider').addEventListener('input',drawFig6);
+document.getElementById('guessSlider').addEventListener('input',drawFig6);
+
+drawFig1(); drawFig2(); drawFig3(); drawFig4(); drawFig5(); drawFig6();
+/* Re-bake colors when the user toggles the theme at runtime (site uses data-theme, not prefers-color-scheme) */
+new MutationObserver(function(){
+  [drawFig1, drawFig2, drawFig3, drawFig4, drawFig5, drawFig6].forEach(function(f){ f(); });
+}).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+`} />

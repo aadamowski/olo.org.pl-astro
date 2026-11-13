@@ -1,0 +1,859 @@
+---
+title: "AVL trees: self-balancing binary search"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the AVL note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:36px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px;min-width:0}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:17px;line-height:1.3;color:var(--math-ink);overflow-wrap:anywhere}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer;min-height:36px}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px .eqwrap {overflow-x:auto}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px svg text.sub-t {fill:var(--math-ink2)}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .dotsw {width:10px;height:10px;border-radius:50%;display:inline-block}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+.px .btns {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+
+.px .btn {font-family: var(--font-body);font-size:.9rem;font-weight:600;border:1px solid var(--math-line);background:var(--color-bg);color:var(--math-ink);border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px}
+
+.px .btn:hover {border-color:var(--math-teal);color:var(--math-teal)}
+
+.px .btn:disabled {opacity:.42;cursor:default;color:var(--math-ink)}
+
+.px .btn:disabled:hover {border-color:var(--math-line)}
+
+.px .btn.primary {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .btn.primary:hover {color:#fff;opacity:.9}
+
+.px .btn.danger:hover {border-color:var(--math-red);color:var(--math-red)}
+
+.px .btn[aria-pressed="true"] {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .verdict {border-radius:10px;padding:14px 18px;margin-top:14px;font-size:.97rem;border:1px solid var(--math-line);background:var(--color-code-bg)}
+
+.px .verdict p {margin:0}
+
+.px code {font-family: var(--font-mono);font-size:.88em;background:var(--color-code-bg);border-radius:4px;padding:1px 5px}
+
+.px pre.code {font-family: var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--color-code-bg);border:1px solid var(--math-line);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0}
+
+.px pre.code .cm {color:var(--math-ink3)}
+
+.px .progress {font-family: var(--font-mono);font-size:13px;color:var(--math-ink2)}
+
+.px .note {font-size:.97rem;margin-top:10px;min-height:3.2em}
+
+.px .chips {display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+
+.px .chip {font-family: var(--font-mono);font-weight:600;font-size:14px;border:1.5px solid var(--math-teal);background:var(--math-teal-soft);color:var(--math-ink);border-radius:999px;padding:3px 11px}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Data structures — the self-balancing search tree</div>
+<p class="lede">A binary search tree is only fast while it stays bushy. Insert sorted keys into a plain BST and it quietly degenerates into a linked list: search becomes a walk down a chain of <em>n</em> nodes. The <strong>AVL tree</strong> — named for Adelson-Velsky and Landis, who described it in 1962 — refuses to let that happen. Every node stores the height of its subtree, and after each insert or delete the tree checks one number per node, the <strong>balance factor</strong>. If any factor drifts outside −1, 0, +1, a local rearrangement called a <strong>rotation</strong> restores it on the spot. The payoff is a hard guarantee, proved at the end of this page: the height can never exceed about 1.44 times the height of a perfect tree, so search, insert, and delete are logarithmic — always, not just on average.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> Keep every node&rsquo;s two subtrees within one level of each other in height. That single local rule, repaired by rotations after every update, is enough to force the whole tree&rsquo;s height to stay within a constant factor of optimal.</p></div>
+</header>
+</div>
+
+## 1 — A BST with a second promise: stay balanced
+
+<div class="px">
+<p>An AVL tree is first of all a binary search tree: for every node, all keys in its left subtree are smaller and all keys in its right subtree are larger. On top of that it adds the <strong>AVL invariant</strong>: at every node, the heights of the left and right subtrees differ by at most one. Height here counts <em>edges</em> on the longest downward path — a leaf has height 0, and an empty subtree has height −1. Each node caches its height, so checking the invariant at a node is a single subtraction.</p>
+<table class="formulas">
+<tr><th>Height of a node</th><td><math display="block"><mrow><mi>h</mi><mo>(</mo><mtext>empty</mtext><mo>)</mo><mo>=</mo><mo>−</mo><mn>1</mn></mrow></math><math display="block"><mrow><mi>h</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>1</mn><mo>+</mo><mi>max</mi><mo>(</mo><mi>h</mi><mo>(</mo><mi>left</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>)</mo><mo>,</mo><mi>h</mi><mo>(</mo><mi>right</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>)</mo><mo>)</mo></mrow></math></td></tr>
+<tr><th>Balance factor</th><td><math display="block"><mrow><mi>BF</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mi>h</mi><mo>(</mo><mi>left</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>)</mo><mo>−</mo><mi>h</mi><mo>(</mo><mi>right</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>)</mo></mrow></math><math display="block"><mrow><mi>BF</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>∈</mo><mo>\{</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mo>+</mo><mn>1</mn><mo>\}</mo><mspace width="1.2em"/><mtext>at every node, always</mtext></mrow></math></td></tr>
+<tr><th>Reading the sign</th><td>A positive factor means the left subtree is taller (<em>left-heavy</em>); negative means right-heavy; zero means the two sides are exactly level. The factor says nothing about how many <em>nodes</em> each side holds — only about height, which is what search cost actually depends on.</td></tr>
+</table>
+<p>The tree below satisfies the invariant everywhere. Click any node to see its two subtree heights and its balance factor worked out in full. The badges can be switched off for a cleaner picture.</p>
+<div class="diagram">
+<p class="figtitle" id="fig1Title">Figure 1: An AVL tree: click a node to inspect it</p>
+<svg id="fig1Svg" viewBox="0 0 920 300" role="img" aria-label="AVL tree diagram with selectable nodes"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> selected node</span><span><span class="dotsw" style="background:var(--math-teal)"></span> small badge: balance factor</span><span>label under a node: its height</span></div>
+<label class="basetoggle"><input type="checkbox" id="fig1ShowH" checked /> Show node heights under each node</label>
+<label class="basetoggle"><input type="checkbox" id="fig1ShowBF" checked /> Show balance-factor badges</label>
+<div class="verdict" id="fig1Out" aria-live="polite"></div>
+<div class="figcap"><strong>Figure 1.</strong> Every balance factor in this tree is −1, 0, or +1, so no repair is needed. Node 20 is the most lopsided node here: its left subtree has height 1 and its right subtree has height 0, so BF(20) = 1 − 0 = +1, left-heavy, but legal. Click any node and the readout recomputes its factor from the real subtree heights.</div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>Height is cached, not recomputed.</strong> Each node stores its height; after an update, only the nodes on the path back to the root need their heights refreshed — everyone else&rsquo;s subtree did not change.</li>
+<li><strong>The invariant is local, the guarantee is global.</strong> Nothing in the rule mentions the whole tree, yet Step 7 shows it caps the total height at about 1.44 log<sub>2</sub> n.</li>
+<li><strong>Balance factor 0 is not required.</strong> Factors of ±1 are perfectly legal and extremely common; only ±2 triggers a repair.</li>
+</ul></div>
+</div>
+
+## 2 — Heights and the balance factor, up close
+
+<div class="px">
+<p>Strip a node down to its essentials: a key, and two subtrees whose internal structure does not matter for the factor — only their heights do. The figure below replaces each subtree with a triangle labelled by its height. Move the two sliders and watch the factor respond: it is a plain difference, so every extra level on one side moves it by exactly one. The legal band is just three values wide, which is what makes the AVL rule so strict — a subtree is allowed to outgrow its sibling by <em>one</em> level, never two.</p>
+<div class="diagram">
+<p class="figtitle" id="fig2Title">Figure 2: Balance factor for left height 3 and right height 2</p>
+<svg id="fig2Svg" viewBox="0 0 920 360" role="img" aria-label="One node with two triangular subtrees of adjustable height"></svg>
+<div class="figcap"><strong>Figure 2.</strong> The triangles stand for whole subtrees; their drawn size grows with the height you set. The height labels travel with the triangles as they resize. An empty subtree (height −1) is drawn as a stub and labelled “empty”.</div>
+</div>
+<div class="sliderbox">
+<h3>Set the two subtree heights</h3>
+<div class="sliderrow"><label for="fig2HL">Left subtree height <span id="fig2HLVal">3</span></label><input type="range" id="fig2HL" min="-1" max="6" step="1" value="3" /></div>
+<div class="sliderrow"><label for="fig2HR">Right subtree height <span id="fig2HRVal">2</span></label><input type="range" id="fig2HR" min="-1" max="6" step="1" value="2" /></div>
+<div class="verdict" id="fig2Out" aria-live="polite"></div>
+</div>
+<p style="margin-top:18px">Two consequences are worth internalising before moving on. First, the factor is about <em>height difference</em>, not node counts: a left subtree can hold nearly twice as many nodes as the right and still have the same height, so a factor of 0 does not mean the tree is perfectly filled. Second, because heights only change along the path of an update, a single insert or delete can push a factor from +1 to +2, but never further in one step. The repair therefore always starts from a factor of exactly ±2, and the shape of the offending subtree tells us exactly which repair applies. That shape analysis is the whole content of the next step.</p>
+<table class="formulas">
+<tr><th>What a factor means</th><td><math display="block"><mrow><mi>BF</mi><mo>=</mo><mo>+</mo><mn>1</mn><mspace width="1.2em"/><mtext>left subtree one level taller — legal</mtext></mrow></math><math display="block"><mrow><mi>BF</mi><mo>=</mo><mn>0</mn><mspace width="1.2em"/><mtext>subtrees exactly level — legal</mtext></mrow></math><math display="block"><mrow><mi>BF</mi><mo>=</mo><mo>−</mo><mn>1</mn><mspace width="1.2em"/><mtext>right subtree one level taller — legal</mtext></mrow></math><math display="block"><mrow><mi>BF</mi><mo>=</mo><mo>±</mo><mn>2</mn><mspace width="1.2em"/><mtext>invariant broken — rotate now</mtext></mrow></math></td></tr>
+</table>
+</div>
+
+## 3 — Rotations: the only repair tool
+
+<div class="px">
+<p>When a node reaches factor ±2, the fix never rebuilds the subtree — it <em>rotates</em> it. A rotation is a constant-time rearrangement of two or three nodes that preserves the inorder sequence exactly, so the BST property survives untouched, while pulling the tall side down one level and lifting the short side up. Because the inorder sequence is preserved, a rotation can never break the search-tree ordering; it only redistributes height.</p>
+<p>Which rotation applies depends on the <em>shape</em> of the imbalance, named by the two steps you take from the unbalanced node toward the new growth. If the growth is on the outside — left-left or right-right — the unbalanced node&rsquo;s child is already leaning the same way, and one rotation settles it. If the growth is on the inside — left-right or right-left — the child leans the <em>wrong</em> way, and a single rotation would just move the problem; the child must first be rotated to straighten the bend, then the original node is rotated. Pick a case and step through it.</p>
+<div class="diagram">
+<p class="figtitle" id="fig3Title">Figure 3: Left-left case: a single right rotation</p>
+<svg id="fig3Svg" viewBox="0 0 920 330" role="img" aria-label="Rotation walkthrough diagram"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-red)"></span> unbalanced node (factor ±2)</span><span><span class="dotsw" style="background:var(--math-teal)"></span> node that rotates up</span><span>triangles α, β, γ, δ are whole subtrees, carried along unchanged</span></div>
+<div class="btns" role="group" aria-label="Rotation case">
+<button class="btn" id="caseLL" aria-pressed="true">LL — right rotation</button>
+<button class="btn" id="caseRR" aria-pressed="false">RR — left rotation</button>
+<button class="btn" id="caseLR" aria-pressed="false">LR — double rotation</button>
+<button class="btn" id="caseRL" aria-pressed="false">RL — double rotation</button>
+</div>
+<div class="btns">
+<button class="btn" id="fig3Prev">← Prev</button>
+<button class="btn primary" id="fig3Play">Play</button>
+<button class="btn" id="fig3Next">Next →</button>
+<span class="progress" id="fig3Prog"></span>
+</div>
+<p class="note" id="fig3Note" aria-live="polite"></p>
+<label class="basetoggle"><input type="checkbox" id="fig3ShowBF" checked /> Show balance factors on the lettered nodes</label>
+<div class="figcap"><strong>Figure 3.</strong> In every case the inorder sequence of the whole subtree — read the triangles and letters left to right — is identical before and after. Only the heights change: the subtree that was two levels too tall ends exactly one level shorter.</div>
+</div>
+<table class="formulas">
+<tr><th>Right rotation (fixes LL)</th><td><math display="block"><mrow><mtext>pivot</mtext><mspace width="0.4em"/><mi>y</mi><mo>,</mo><mspace width="0.6em"/><mtext>its left child</mtext><mspace width="0.4em"/><mi>x</mi><mspace width="0.4em"/><mtext>rises to take</mtext><mspace width="0.4em"/><mi>y</mi><mtext>&rsquo;s place</mtext></mrow></math><math display="block"><mrow><mi>x</mi><mtext>&rsquo;s old right subtree</mtext><mspace width="0.4em"/><mi>β</mi><mspace width="0.4em"/><mtext>becomes</mtext><mspace width="0.4em"/><mi>y</mi><mtext>&rsquo;s new left subtree</mtext></mrow></math><math display="block"><mrow><mtext>heights are recomputed for</mtext><mspace width="0.4em"/><mi>y</mi><mspace width="0.4em"/><mtext>first, then for</mtext><mspace width="0.4em"/><mi>x</mi></mrow></math></td></tr>
+<tr><th>Left rotation (fixes RR)</th><td>The exact mirror image: the pivot&rsquo;s right child rises, and that child&rsquo;s old left subtree is handed to the pivot as its new right subtree. Recompute the pivot&rsquo;s height first, then the risen child&rsquo;s.</td></tr>
+<tr><th>Double rotations</th><td>LR is a left rotation on the left child followed by a right rotation on the node itself. RL is the mirror: a right rotation on the right child, then a left rotation on the node. The first rotation converts the bent shape into a straight one; the second fixes it.</td></tr>
+<tr><th>Cost of a rotation</th><td><math display="block"><mrow><mtext>pointer changes</mtext><mo>=</mo><mn>3</mn><mspace width="1.2em"/><mtext>height recomputes</mtext><mo>=</mo><mn>2</mn><mspace width="1.2em"/><mtext>time</mtext><mo>=</mo><mi>O</mi><mo>(</mo><mn>1</mn><mo>)</mo></mrow></math></td></tr>
+</table>
+<div class="callout"><p><strong>Why the middle subtree β is the whole story.</strong> In a right rotation, β is the subtree caught between x and y, larger than x, smaller than y, by the BST property. That is exactly the qualification needed to become y&rsquo;s left subtree, which is why the handover preserves the ordering. Every rotation is this one handover, mirrored or doubled.</p></div>
+</div>
+
+## 4 — Insert: descend, attach, climb back repairing
+
+<div class="px">
+<p>Insertion is an ordinary BST insert — descend comparing keys, attach the new node as a leaf — followed by a walk back up the same path. On the way up, each ancestor gets its height refreshed and its factor checked. The <em>lowest</em> ancestor that reaches ±2 is where the trouble is: one single or double rotation there restores that subtree&rsquo;s height to what it was before the insert, which automatically re-validates every ancestor above it. That is why an insert never needs more than one repair: at most two rotations, total.</p>
+<p>The sequence below inserts 10, 20, 30, 25, 22, 5, 3 into an empty tree. It is deliberately unkind — sorted-ish runs that would chain a plain BST — and it triggers three separate repairs of two different kinds. Step through it.</p>
+<div class="diagram">
+<p class="figtitle" id="fig4Title">Figure 4: Inserting 10, 20, 30, 25, 22, 5, 3</p>
+<svg id="fig4Svg" viewBox="0 0 920 330" role="img" aria-label="Insert walkthrough diagram"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> newly inserted node</span><span><span class="dotsw" style="background:var(--math-red)"></span> factor hit ±2</span><span><span class="dotsw" style="background:var(--math-teal)"></span> node lifted by the rotation</span></div>
+<div class="btns">
+<button class="btn" id="fig4Prev">← Prev</button>
+<button class="btn primary" id="fig4Play">Play</button>
+<button class="btn" id="fig4Next">Next →</button>
+<span class="progress" id="fig4Prog"></span>
+</div>
+<p class="note" id="fig4Note" aria-live="polite"></p>
+<label class="basetoggle"><input type="checkbox" id="fig4ShowBF" checked /> Show balance-factor badges</label>
+<div class="figcap"><strong>Figure 4.</strong> Seven inserts into a plain BST in this order would already lean hard to the right; here every factor stays in \{−1, 0, +1\} after each step, and the final tree has height 2 — the same as a perfectly balanced tree with 7 nodes.</div>
+</div>
+<pre class="code"><span class="cm">// insert(x, key): BST insert, then rebalance on the way back up</span>&#10;if x is empty: return new node(key)          <span class="cm">// attach as a leaf, height 0</span>&#10;if key &lt; x.key: x.left  = insert(x.left, key)&#10;else:           x.right = insert(x.right, key)&#10;updateHeight(x)&#10;if BF(x) = +2:                               <span class="cm">// left-heavy</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;if key &gt; x.left.key: x.left = rotateLeft(x.left)   <span class="cm">// LR: straighten first</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;return rotateRight(x)&#10;if BF(x) = −2:                               <span class="cm">// right-heavy, mirror image</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;if key &lt; x.right.key: x.right = rotateRight(x.right) <span class="cm">// RL</span>&#10;&nbsp;&nbsp;&nbsp;&nbsp;return rotateLeft(x)&#10;return x</pre>
+</div>
+
+## 5 — Delete: three shapes of removal, then a possibly long climb
+
+<div class="px">
+<p>Deletion starts as ordinary BST deletion, which has three shapes. A <strong>leaf</strong> is simply unlinked. A node with <strong>one child</strong> is spliced out and its child takes its place. A node with <strong>two children</strong> cannot be spliced, so its key is overwritten with its <em>inorder successor</em> — the smallest key in its right subtree — and that successor, which has at most one child, is deleted instead. After the structural removal, the walk back to the root refreshes heights and factors exactly as in insert — with one crucial difference: a rotation after a delete can leave the subtree <em>shorter</em> than before, so an ancestor that was fine a moment ago can tip to ±2 as well. Repairs can <strong>cascade</strong> all the way to the root, up to one rotation per level.</p>
+<p>There is also one case that only delete can produce: the child of the unbalanced node has factor 0. A single rotation still fixes it (the subtree keeps its height, so the cascade stops there). The sequence below starts from an 11-node tree and deletes 5, 70, 60, 40 — covering a leaf, another leaf, a one-child splice that forces a rotation at the root, and a two-children delete that ends in a rotation too.</p>
+<div class="diagram">
+<p class="figtitle" id="fig5Title">Figure 5: Deleting 5, 70, 60, 40</p>
+<svg id="fig5Svg" viewBox="0 0 920 360" role="img" aria-label="Delete walkthrough diagram"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> node being deleted (or the successor copied into it)</span><span><span class="dotsw" style="background:var(--math-red)"></span> factor hit ±2</span><span><span class="dotsw" style="background:var(--math-teal)"></span> node lifted by the rotation</span></div>
+<div class="btns">
+<button class="btn" id="fig5Prev">← Prev</button>
+<button class="btn primary" id="fig5Play">Play</button>
+<button class="btn" id="fig5Next">Next →</button>
+<span class="progress" id="fig5Prog"></span>
+</div>
+<p class="note" id="fig5Note" aria-live="polite"></p>
+<label class="basetoggle"><input type="checkbox" id="fig5ShowBF" checked /> Show balance-factor badges</label>
+<div class="figcap"><strong>Figure 5.</strong> Watch the root across the four deletes: 40 holds until the splice of 60 tips it to +2, a right rotation promotes 20, and the tree finishes at height 3 with 7 nodes — still perfectly legal, every factor in \{−1, 0, +1\}.</div>
+</div>
+<div class="readbox">
+<h3>Insert repairs once; delete may repair at every level</h3>
+<ul>
+<li><strong>Insert:</strong> the rotation restores the subtree&rsquo;s pre-insert height, so ancestors see no change. At most one single or double rotation per insert.</li>
+<li><strong>Delete:</strong> the rotation may reduce the subtree&rsquo;s height by one, which can unbalance the parent, whose repair can unbalance <em>its</em> parent. Worst case is one rotation per level — still logarithmic, because the height is.</li>
+<li><strong>The factor-0 child:</strong> unique to delete. If the tall child has BF 0, do the single rotation anyway; the subtree&rsquo;s height is unchanged by it, so the cascade stops immediately.</li>
+</ul></div>
+</div>
+
+## 6 — Playground: run your own updates
+
+<div class="px">
+<p>Everything so far, live. Choose a key, insert or delete it, and the page&rsquo;s own AVL code does the rest — BST update, height refresh, factor checks, rotations — and reports exactly what it did. Try inserting 1 through 15 in order: the pattern a plain BST turns into a 15-node chain stays at height 3 here. The tree is capped at 31 nodes so every node stays readable.</p>
+<div class="diagram">
+<p class="figtitle" id="fig6Title">Figure 6: Playground tree: 0 nodes, height −1</p>
+<svg id="fig6Svg" viewBox="0 0 920 400" role="img" aria-label="Playground AVL tree"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> node touched by the last operation</span><span><span class="dotsw" style="background:var(--math-teal)"></span> node lifted by a rotation</span></div>
+<div class="btns">
+<button class="btn primary" id="pgInsert">Insert key</button>
+<button class="btn danger" id="pgDelete">Delete key</button>
+<button class="btn" id="pgDemo">Insert 1…15 in order</button>
+<button class="btn" id="pgRandom">Random tree (15 keys)</button>
+<button class="btn" id="pgClear">Clear</button>
+</div>
+<label class="basetoggle"><input type="checkbox" id="fig6ShowH" checked /> Show node heights under each node</label>
+<label class="basetoggle"><input type="checkbox" id="fig6ShowBF" checked /> Show balance-factor badges</label>
+<div class="verdict" id="fig6Out" aria-live="polite"><p>Insert a key to begin, or build the sorted-insert worst case with “Insert 1…15 in order” — fifteen keys a plain BST would chain, held here at height 3.</p></div>
+<div class="figcap"><strong>Figure 6.</strong> Duplicate inserts and deletes of missing keys are reported, not silently ignored. After every operation the whole tree is re-checked: if any factor ever left \{−1, 0, +1\}, the readout would say so. It will not.</div>
+</div>
+<div class="sliderbox">
+<h3>Key to insert or delete</h3>
+<div class="sliderrow"><label for="pgKey">Key <span id="pgKeyVal">42</span></label><input type="range" id="pgKey" min="1" max="99" step="1" value="42" /></div>
+</div>
+</div>
+
+## 7 — Why the height stays logarithmic
+
+<div class="px">
+<p>The guarantee does not come from watching the tree grow. It comes from the opposite question: <em>what is the fewest nodes an AVL tree of a given height can possibly have?</em> If even the sparsest legal tree of height h needs exponentially many nodes, then turning the statement around, a tree with n nodes cannot be very tall — its height is forced to be logarithmic in n. So build the sparsest tree: to reach height h as cheaply as possible, the root needs one subtree of height h − 1 (to set the height) and — because the factor may not exceed 1 — the other subtree must be at least height h − 2. Making both as sparse as possible gives the recurrence, where N(h) is the minimum number of nodes in any AVL tree of height h.</p>
+<table class="formulas">
+<tr><th>Base cases</th><td><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>1</mn><mspace width="1.2em"/><mtext>a single node</mtext></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><mn>2</mn><mspace width="1.2em"/><mtext>a root with one child</mtext></mrow></math></td></tr>
+<tr><th>The recurrence</th><td><math display="block"><mrow><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>the</mtext><mspace width="0.4em"/><mo>+</mo><mn>1</mn><mspace width="0.4em"/><mtext>is the root itself</mtext></mrow></math></td></tr>
+<tr><th>Worked values, no step skipped</th><td><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>2</mn><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>4</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>3</mn><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mn>2</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>4</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>7</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>4</mn><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mn>3</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>7</mn><mo>+</mo><mn>4</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>12</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>5</mn><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mn>4</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mn>3</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>12</mn><mo>+</mo><mn>7</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>20</mn></mrow></math></td></tr>
+</table>
+<p>That recurrence should look familiar — it is Fibonacci in disguise. Add 1 to both sides and the trailing +1 is absorbed, step by step:</p>
+<div class="eqwrap">
+<table class="formulas">
+<tr><th>Unmasking Fibonacci</th><td><math display="block"><mrow><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>2</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mo>(</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>)</mo><mo>+</mo><mo>(</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>1</mn><mo>)</mo></mrow></math><math display="block"><mrow><mtext>so with</mtext><mspace width="0.5em"/><mi>M</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>=</mo><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>+</mo><mn>1</mn><mo>:</mo><mspace width="0.6em"/><mi>M</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>=</mo><mi>M</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mi>M</mi><mo>(</mo><mi>h</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>,</mo><mspace width="0.6em"/><mi>M</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>2</mn><mo>,</mo><mspace width="0.4em"/><mi>M</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><mn>3</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mi>h</mi><mo>)</mo><mo>=</mo><mi>Fib</mi><mo>(</mo><mi>h</mi><mo>+</mo><mn>3</mn><mo>)</mo><mo>−</mo><mn>1</mn><mspace width="1.2em"/><mtext>with</mtext><mspace width="0.4em"/><mi>Fib</mi><mo>(</mo><mn>1</mn><mo>)</mo><mo>=</mo><mi>Fib</mi><mo>(</mo><mn>2</mn><mo>)</mo><mo>=</mo><mn>1</mn></mrow></math></td></tr>
+</table></div>
+<p>Fibonacci numbers grow like the golden ratio raised to the index, so N(h) grows exponentially in h: roughly φ<sup>h</sup> divided by √5. Exponential in one direction means logarithmic in the other: solving N(h) ≤ n for h gives the famous bound. The sparsest trees are called <strong>Fibonacci trees</strong>; the figure below draws the exact sparsest tree for heights up to 5 and the recursive schematic beyond that, and pairs it with the capacity of a perfect tree of the same height. One slider drives both halves.</p>
+<div class="diagram">
+<p class="figtitle" id="fig7Title">Figure 7: The sparsest AVL tree of height 4 has 12 nodes</p>
+<svg id="fig7Svg" viewBox="0 0 920 340" role="img" aria-label="Minimum-node AVL tree and growth comparison"></svg>
+<div class="figcap"><strong>Figure 7.</strong> Left: the sparsest legal tree — every root takes the sparsest subtree of height h − 1 on one side and of height h − 2 on the other, so every balance factor is +1 or −1 and nothing can be removed without breaking either the height or the invariant. Right: how the minimum node count grows against the perfect-tree capacity of the same height (bar lengths on a log scale; labels are exact).</div>
+</div>
+<div class="sliderbox">
+<h3>Choose the height</h3>
+<div class="sliderrow"><label for="fig7H">Height h <span id="fig7HVal">4</span></label><input type="range" id="fig7H" min="0" max="20" step="1" value="4" /></div>
+<div class="readouts">
+<div class="ro"><b id="fig7N">12</b><span>minimum nodes N(h)</span></div>
+<div class="ro"><b id="fig7Fib">Fib(7) − 1 = 13 − 1</b><span>Fibonacci check</span></div>
+<div class="ro"><b id="fig7Chain">11</b><span>height of a chain with N(h) nodes</span></div>
+<div class="ro"><b id="fig7Perf">31</b><span>perfect tree capacity, height h</span></div>
+</div>
+<div class="verdict" id="fig7Out" aria-live="polite"></div>
+</div>
+<p style="margin-top:18px">Now invert it, with every step shown, for a million keys. The two Fibonacci values bracketing a million are:</p>
+<table class="formulas">
+<tr><th>A million keys, bounded exactly</th><td><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>27</mn><mo>)</mo><mo>=</mo><mi>Fib</mi><mo>(</mo><mn>30</mn><mo>)</mo><mo>−</mo><mn>1</mn><mo>=</mo><mn>832040</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>832039</mn></mrow></math><math display="block"><mrow><mi>N</mi><mo>(</mo><mn>28</mn><mo>)</mo><mo>=</mo><mi>Fib</mi><mo>(</mo><mn>31</mn><mo>)</mo><mo>−</mo><mn>1</mn><mo>=</mo><mn>1346269</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>1346268</mn></mrow></math><math display="block"><mrow><mn>832039</mn><mo>≤</mo><mn>1000000</mn><mo>&lt;</mo><mn>1346268</mn><mspace width="1.2em"/><mtext>so a height-28 AVL tree needs more nodes than we have</mtext></mrow></math><math display="block"><mrow><mi>h</mi><mo>≤</mo><mn>27</mn><mspace width="1.2em"/><mtext>for any AVL tree with</mtext><mspace width="0.4em"/><mi>n</mi><mo>=</mo><mn>1000000</mn></mrow></math></td></tr>
+<tr><th>The closed form</th><td><math display="block"><mrow><mi>h</mi><mo>≤</mo><mn>1.4405</mn><mo>×</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo>)</mo><mo>−</mo><mn>0.3277</mn><mspace width="1.2em"/><mtext>when height is counted in levels</mtext></mrow></math><math display="block"><mrow><mtext>the constant</mtext><mspace width="0.5em"/><mn>1.4405</mn><mo>=</mo><mfrac><mn>1</mn><mrow><msub><mi>log</mi><mn>2</mn></msub><mi>φ</mi></mrow></mfrac><mspace width="1.2em"/><mtext>is the golden ratio&rsquo;s fingerprint</mtext></mrow></math></td></tr>
+</table>
+<p>Counted in levels (a leaf is level-height 1), the closed form gives at most 28 levels for a million keys — the same answer as the Fibonacci count above, which said 27 edges. A degenerate BST holding the same million keys can be 999,999 edges tall. The AVL invariant buys a factor of about 37,000 in worst-case search length at that size, and the factor itself grows with n.</p>
+<table class="data">
+<tr><th>Keys n</th><th>Degenerate BST, worst height</th><th>Perfect tree height</th><th>AVL worst height</th></tr>
+<tr><td>10</td><td>9</td><td>3</td><td>3</td></tr>
+<tr><td>100</td><td>99</td><td>6</td><td>8</td></tr>
+<tr><td>1,000</td><td>999</td><td>9</td><td>13</td></tr>
+<tr><td>1,000,000</td><td>999,999</td><td>19</td><td>27</td></tr>
+</table>
+<p>Read the last two columns together: the AVL worst case is never more than about 44% taller than the perfect tree, at any size, and that ratio is exactly the 1.4405 constant. That is the entire content of “the height stays logarithmic”: height is Θ(log n), with a small, known constant.</p>
+</div>
+
+## 8 — Costs, comparisons, and where AVL trees earn their keep
+
+<div class="px">
+<table class="data">
+<tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+<tr><td>Search</td><td>O(log n)</td><td>One root-to-leaf path; the height is at most about 1.44 log<sub>2</sub> n.</td></tr>
+<tr><td>Insert</td><td>O(log n)</td><td>Descend O(log n), then at most one single or double rotation on the climb.</td></tr>
+<tr><td>Delete</td><td>O(log n)</td><td>Descend O(log n); repairs may cascade, but at most one rotation per level.</td></tr>
+<tr><td>Rotation</td><td>O(1)</td><td>Three pointer changes and two height recomputes, independent of subtree size.</td></tr>
+<tr><td>Space overhead</td><td>One height (or factor) per node</td><td>The factor fits in two bits; many implementations store it instead of the full height.</td></tr>
+</table>
+<p><strong>AVL versus red-black.</strong> Both guarantee logarithmic height, but they strike the balance bargain differently. AVL&rsquo;s rule is stricter — heights within one level — so its trees are a little shorter (worst case about 1.44 log<sub>2</sub> n against red-black&rsquo;s 2 log<sub>2</sub> n) and lookups a little faster. The price is paid on updates: red-black trees bound the number of rotations per insert and delete by a small constant with a looser invariant, while AVL deletes can rotate at many levels, and AVL inserts rebalance more often in practice. The usual rule of thumb follows: <em>read-heavy</em> workloads favour AVL; <em>write-heavy</em> ones favour red-black — which is why red-black trees sit inside most standard-library maps (C++ <code>std::map</code>, Java <code>TreeMap</code>), while AVL trees show up where lookup latency must be as tight and predictable as possible, and throughout textbooks, because the height-and-factor machinery is the cleanest way to see <em>why</em> balancing works at all.</p>
+<p><strong>Where the pieces recur.</strong> The stored-height trick reappears in B-trees and their variants that index databases and filesystems — there the “rotation” becomes a node split or merge, but the idea is identical: keep a cheap local measure, check it on the path back up, repair locally. Learn AVL and the rest of the balanced-tree family reads as variations on one theme.</p>
+<div class="keybox"><p><strong>The arc, in one breath.</strong> Store heights, subtract to get balance factors, and insist each factor stays in \{−1, 0, +1\}. Repair violations with rotations — single for straight growth, double for bent growth — on the climb back from every insert and delete. The sparsest tree obeying the rule is a Fibonacci tree, its node count grows like φ<sup>h</sup>, and so every AVL tree with n nodes has height O(log n). Balance is not maintained by luck or by rebuilding; it is maintained by arithmetic.</p></div>
+AVL tree: Adelson-Velsky &amp; Landis, 1962. Heights on this page count edges: a leaf has height 0 and an empty subtree height −1. Every tree drawn here is produced by the page&rsquo;s own AVL implementation, and every factor shown is computed from the real subtree heights.
+</div>
+
+
+<script set:html={`
+"use strict";
+/* ================= AVL engine (single source of truth for every figure) ================= */
+var EV = [];
+function mk(v){ return {v:v, l:null, r:null, h:0}; }
+function hh(n){ return n ? n.h : -1; }
+function updH(n){ n.h = 1 + Math.max(hh(n.l), hh(n.r)); }
+function bfOf(n){ return n ? hh(n.l) - hh(n.r) : 0; }
+function clone(t){ return t ? JSON.parse(JSON.stringify(t)) : null; }
+function count(t){ return t ? 1 + count(t.l) + count(t.r) : 0; }
+function find(t, v){ while(t){ if(v === t.v) return t; t = v < t.v ? t.l : t.r; } return null; }
+function allBalanced(t){ if(!t) return true; if(Math.abs(bfOf(t)) > 1) return false; return allBalanced(t.l) && allBalanced(t.r); }
+function rotR(y){ var x = y.l, T = x.r; x.r = y; y.l = T; updH(y); updH(x); EV.push({type:"rot", dir:"right", at:y.v, up:x.v}); return x; }
+function rotL(x){ var y = x.r, T = y.l; y.l = x; x.r = T; updH(x); updH(y); EV.push({type:"rot", dir:"left", at:x.v, up:y.v}); return y; }
+function avlInsert(n, v){
+  if(!n){ EV.push({type:"new", v:v}); return mk(v); }
+  if(v < n.v) n.l = avlInsert(n.l, v);
+  else if(v > n.v) n.r = avlInsert(n.r, v);
+  else { EV.push({type:"dup", v:v}); return n; }
+  updH(n); var b = bfOf(n);
+  if(b > 1){ if(v > n.l.v) n.l = rotL(n.l); return rotR(n); }
+  if(b < -1){ if(v < n.r.v) n.r = rotR(n.r); return rotL(n); }
+  return n;
+}
+function avlDelete(n, v){
+  if(!n) return null;
+  if(v < n.v) n.l = avlDelete(n.l, v);
+  else if(v > n.v) n.r = avlDelete(n.r, v);
+  else {
+    if(!n.l || !n.r){ EV.push({type:"removed", v:v}); return n.l || n.r; }
+    var s = n.r; while(s.l) s = s.l;
+    EV.push({type:"succ", from:v, to:s.v});
+    n.v = s.v; n.r = avlDelete(n.r, s.v);
+  }
+  updH(n); var b = bfOf(n);
+  if(b > 1){ if(bfOf(n.l) < 0) n.l = rotL(n.l); return rotR(n); }
+  if(b < -1){ if(bfOf(n.r) > 0) n.r = rotR(n.r); return rotL(n); }
+  return n;
+}
+function buildFrom(vals){ var t = null; EV = []; for(var i = 0; i < vals.length; i++) t = avlInsert(t, vals[i]); EV = []; return t; }
+/* plain BST ops with heights recomputed but NO rebalancing — for "before the repair" snapshots */
+function recompute(t){ if(!t) return; recompute(t.l); recompute(t.r); updH(t); }
+function bstInsertPlain(t, v){ if(!t) return mk(v); if(v < t.v) t.l = bstInsertPlain(t.l, v); else if(v > t.v) t.r = bstInsertPlain(t.r, v); return t; }
+function bstDeletePlain(t, v){
+  if(!t) return null;
+  if(v < t.v) t.l = bstDeletePlain(t.l, v);
+  else if(v > t.v) t.r = bstDeletePlain(t.r, v);
+  else {
+    if(!t.l || !t.r) return t.l || t.r;
+    var s = t.r; while(s.l) s = s.l; t.v = s.v; t.r = bstDeletePlain(t.r, s.v);
+  }
+  return t;
+}
+function firstUnbalanced(t){ /* lowest node with |bf| = 2, or null */
+  var found = null;
+  (function walk(n, d){ if(!n) return; walk(n.l, d + 1); walk(n.r, d + 1); if(Math.abs(bfOf(n)) > 1 && !found) found = n; })(t, 0);
+  return found;
+}
+/* ================= tree rendering ================= */
+var NSTYLE = {
+  base:{f:"var(--color-bg)", s:"var(--math-line)", w:1.6},
+  cur:{f:"var(--math-orange-soft)", s:"var(--math-orange)", w:2.6},
+  bad:{f:"var(--math-orange-soft)", s:"var(--math-red)", w:2.6},
+  rot:{f:"var(--math-teal-soft)", s:"var(--math-teal)", w:2.6},
+  path:{f:"var(--px-blue-soft)", s:"var(--math-blue)", w:2.2}
+};
+function layoutTree(root){
+  var i = 0, maxD = 0;
+  (function walk(n, d){ if(!n) return; walk(n.l, d + 1); n._x = i++; n._d = d; if(d > maxD) maxD = d; walk(n.r, d + 1); })(root, 0);
+  return {count:i, maxDepth:maxD};
+}
+function renderTree(svg, root, opts){
+  opts = opts || {};
+  var W = 920, R = opts.r || 19;
+  if(!root){
+    svg.setAttribute("viewBox", "0 0 920 84");
+    svg.innerHTML = '<text x="460" y="48" text-anchor="middle" font-size="15" class="sub-t">(empty tree)</text>';
+    return;
+  }
+  var L = layoutTree(root), slot = W / L.count;
+  var cx = function(n){ return slot * (n._x + 0.5); }, cy = function(n){ return 42 + n._d * 68; };
+  var H = 42 + L.maxDepth * 68 + 56;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  var out = "";
+  (function edges(n){ if(!n) return; [n.l, n.r].forEach(function(c){ if(c) out += '<line x1="' + cx(n) + '" y1="' + (cy(n) + R - 2) + '" x2="' + cx(c) + '" y2="' + (cy(c) - R + 2) + '" stroke="var(--math-line)" stroke-width="1.6"/>'; }); edges(n.l); edges(n.r); })(root);
+  (function nodes(n){
+    if(!n) return; nodes(n.l); nodes(n.r);
+    var x = cx(n), y = cy(n);
+    if(n.tri){
+      out += '<polygon points="' + x + ',' + (y - 17) + ' ' + (x - 21) + ',' + (y + 17) + ' ' + (x + 21) + ',' + (y + 17) + '" fill="var(--color-code-bg)" stroke="var(--math-line)" stroke-width="1.5"/>';
+      out += '<text x="' + x + '" y="' + (y + 12) + '" text-anchor="middle" font-size="14">' + n.tri + '</text>';
+      return;
+    }
+    var mark = opts.marks && opts.marks[n.v], st = NSTYLE[mark || "base"];
+    out += '<g' + (opts.onPick ? ' class="tnode" data-v="' + n.v + '" style="cursor:pointer"' : '') + '>';
+    if(opts.onPick) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (R + 7) + '" fill="transparent"/>';
+    out += '<circle cx="' + x + '" cy="' + y + '" r="' + R + '" fill="' + st.f + '" stroke="' + st.s + '" stroke-width="' + st.w + '"/>';
+    out += '<text x="' + x + '" y="' + (y + 5.5) + '" text-anchor="middle" font-size="15" font-weight="600">' + n.v + '</text>';
+    out += '</g>';
+    var bfv = (typeof n.bfv === "number") ? n.bfv : bfOf(n);
+    if(opts.showBF){
+      var bad = Math.abs(bfv) > 1;
+      out += '<circle cx="' + (x + R - 3) + '" cy="' + (y - R + 3) + '" r="10.5" fill="' + (bad ? "var(--math-orange-soft)" : "var(--math-teal-soft)") + '" stroke="' + (bad ? "var(--math-red)" : "var(--math-teal)") + '" stroke-width="1.3"/>';
+      out += '<text x="' + (x + R - 3) + '" y="' + (y - R + 6.5) + '" text-anchor="middle" font-size="10" font-weight="600" class="mono-t" fill="' + (bad ? "var(--math-red)" : "var(--math-teal)") + '">' + (bfv > 0 ? "+" + bfv : "" + bfv) + '</text>';
+    }
+    if(opts.showH) out += '<text x="' + x + '" y="' + (y + R + 15) + '" text-anchor="middle" font-size="11" class="mono-t sub-t">h=' + n.h + '</text>';
+  })(root);
+  svg.innerHTML = out;
+  if(opts.onPick){
+    var gs = svg.querySelectorAll(".tnode");
+    for(var k = 0; k < gs.length; k++){ (function(g){ g.addEventListener("click", function(){ opts.onPick(parseInt(g.getAttribute("data-v"), 10)); }); })(gs[k]); }
+  }
+}
+function stepper(cfg){
+  var idx = 0, timer = null;
+  function stop(){ if(timer){ clearInterval(timer); timer = null; cfg.play.textContent = "Play"; } }
+  function render(){
+    cfg.render(idx);
+    cfg.prog.textContent = "Step " + (idx + 1) + " of " + cfg.count;
+    cfg.note.innerHTML = cfg.notes[idx];
+    cfg.prev.disabled = idx === 0; cfg.next.disabled = idx === cfg.count - 1;
+    if(idx === cfg.count - 1) stop();
+  }
+  cfg.prev.addEventListener("click", function(){ stop(); if(idx > 0) idx--; render(); });
+  cfg.next.addEventListener("click", function(){ stop(); if(idx < cfg.count - 1) idx++; render(); });
+  cfg.play.addEventListener("click", function(){
+    if(timer){ stop(); return; }
+    if(idx === cfg.count - 1) idx = 0;
+    render();
+    cfg.play.textContent = "Pause";
+    timer = setInterval(function(){ if(idx < cfg.count - 1){ idx++; render(); } else stop(); }, 1700);
+  });
+  render();
+  return { refresh: render, stop: stop, setData: function(count, notes){ cfg.count = count; cfg.notes = notes; idx = 0; stop(); render(); } };
+}
+function $(id){ return document.getElementById(id); }
+/* ================= Figure 1: anatomy ================= */
+var fig1Tree = buildFrom([40, 20, 60, 10, 30, 50, 70, 5, 15]);
+var fig1Sel = 20;
+function fig1Render(){
+  renderTree($("fig1Svg"), clone(fig1Tree), { showH: $("fig1ShowH").checked, showBF: $("fig1ShowBF").checked, marks: (function(m){ m[fig1Sel] = "cur"; return m; })({}), onPick: function(v){ fig1Sel = v; fig1Render(); } });
+  var n = find(fig1Tree, fig1Sel), hl = hh(n.l), hr = hh(n.r), b = hl - hr;
+  $("fig1Out").innerHTML = '<p>Node <strong>' + n.v + '</strong>: left subtree height ' + hl + ', right subtree height ' + hr + ', so its own height is 1 + max(' + hl + ', ' + hr + ') = ' + n.h + '.</p>' +
+    '<p style="margin-top:8px"><math><mrow><mi>BF</mi><mo>(</mo><mn>' + n.v + '</mn><mo>)</mo><mo>=</mo><mi>h</mi><mo>(</mo><mtext>left</mtext><mo>)</mo><mo>−</mo><mi>h</mi><mo>(</mo><mtext>right</mtext><mo>)</mo><mo>=</mo><mn>' + hl + '</mn><mo>−</mo><mo>(</mo><mn>' + hr + '</mn><mo>)</mo><mo>=</mo><mn>' + (b > 0 ? '+' + b : b) + '</mn></mrow></math> — ' + (b === 0 ? 'exactly level. Legal.' : (b > 0 ? 'left-heavy by one level. Legal.' : 'right-heavy by one level. Legal.')) + '</p>';
+}
+$("fig1ShowH").addEventListener("change", fig1Render);
+$("fig1ShowBF").addEventListener("change", fig1Render);
+fig1Render();
+/* ================= Figure 2: balance factor explorer ================= */
+function fig2Render(){
+  var hL = parseInt($("fig2HL").value, 10), hR = parseInt($("fig2HR").value, 10);
+  $("fig2HLVal").textContent = hL; $("fig2HRVal").textContent = hR;
+  var b = hL - hR;
+  $("fig2Title").textContent = "Figure 2: Balance factor for left height " + hL + " and right height " + hR + ": BF = " + (b > 0 ? "+" + b : "" + b);
+  function tri(cxTop, h){
+    if(h < 0) return { pts: null, baseY: 118, stub: cxTop };
+    var th = 34 + h * 25, tw = 52 + h * 30;
+    return { pts: cxTop + ",96 " + (cxTop - tw / 2) + "," + (96 + th) + " " + (cxTop + tw / 2) + "," + (96 + th), baseY: 96 + th, stub: null };
+  }
+  var lt = tri(322, hL), rt = tri(598, hR), out = "";
+  out += '<line x1="460" y1="66" x2="322" y2="94" stroke="var(--math-line)" stroke-width="1.8"/>';
+  out += '<line x1="460" y1="66" x2="598" y2="94" stroke="var(--math-line)" stroke-width="1.8"/>';
+  [lt, rt].forEach(function(t){
+    if(t.pts) out += '<polygon points="' + t.pts + '" fill="var(--color-code-bg)" stroke="var(--math-line)" stroke-width="1.6"/>';
+    else out += '<line x1="' + t.stub + '" y1="96" x2="' + t.stub + '" y2="112" stroke="var(--math-ink3)" stroke-width="2.4"/>';
+  });
+  var bad = Math.abs(b) > 1;
+  out += '<circle cx="460" cy="46" r="22" fill="' + (bad ? "var(--math-orange-soft)" : "var(--color-bg)") + '" stroke="' + (bad ? "var(--math-red)" : "var(--math-teal)") + '" stroke-width="2.4"/>';
+  out += '<text x="460" y="52" text-anchor="middle" font-size="16" font-weight="600">x</text>';
+  out += '<text x="322" y="' + (lt.baseY + 24) + '" text-anchor="middle" font-size="13.5" class="mono-t">' + (hL < 0 ? "empty, h = −1" : "h = " + hL) + '</text>';
+  out += '<text x="598" y="' + (rt.baseY + 24) + '" text-anchor="middle" font-size="13.5" class="mono-t">' + (hR < 0 ? "empty, h = −1" : "h = " + hR) + '</text>';
+  var maxBase = Math.max(lt.baseY, rt.baseY);
+  $("fig2Svg").setAttribute("viewBox", "0 0 920 " + (maxBase + 44));
+  $("fig2Svg").innerHTML = out;
+  $("fig2Out").innerHTML = '<p><math><mrow><mi>BF</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mn>' + hL + '</mn><mo>−</mo><mo>(</mo><mn>' + hR + '</mn><mo>)</mo><mo>=</mo><mn>' + (b > 0 ? "+" + b : b) + '</mn></mrow></math> — ' +
+    (bad ? '<span class="warn">outside {−1, 0, +1}: the invariant is broken and this node must be rotated.</span>' :
+     b === 0 ? 'the subtrees are exactly level. Legal — no repair.' :
+     b > 0 ? 'left-heavy by one level. Legal — no repair.' : 'right-heavy by one level. Legal — no repair.') + '</p>';
+}
+$("fig2HL").addEventListener("input", fig2Render);
+$("fig2HR").addEventListener("input", fig2Render);
+fig2Render();
+
+
+
+"use strict";
+/* ================= Figure 3: the four rotations ================= */
+function SN(v, bfv, l, r){ return {v:v, bfv:bfv, l:l || null, r:r || null, h:0}; }
+function ST(name){ return {tri:name, l:null, r:null, h:0}; }
+var ROT = {
+  LL: { title: "Figure 3: Left-left case: a single right rotation", steps: [
+    { tree: SN("y", 2, SN("x", 1, ST("α"), ST("β")), ST("γ")), marks: {y:"bad", x:"rot"},
+      note: "<strong>LL, before.</strong> Growth in α — the left subtree of the left child — has pushed y to BF +2. The child x leans the same way (BF +1): the heavy path y → x → α is straight, so one rotation fixes it." },
+    { tree: SN("x", 0, ST("α"), SN("y", 0, ST("β"), ST("γ"))), marks: {x:"rot"},
+      note: "<strong>Right rotation at y.</strong> x rises into y&rsquo;s place; y drops to become x&rsquo;s right child; and β — x&rsquo;s old right subtree, whose keys sit between x and y — is handed over as y&rsquo;s new left subtree. The subtree is one level shorter and every factor is back in {−1, 0, +1}. Inorder before: α, x, β, y, γ. Inorder after: identical." }
+  ]},
+  RR: { title: "Figure 3: Right-right case: a single left rotation", steps: [
+    { tree: SN("x", -2, ST("α"), SN("y", -1, ST("β"), ST("γ"))), marks: {x:"bad", y:"rot"},
+      note: "<strong>RR, before.</strong> Growth in γ — the right subtree of the right child — has pushed x to BF −2. The child y leans the same way (BF −1): the heavy path is straight, so one rotation fixes it." },
+    { tree: SN("y", 0, SN("x", 0, ST("α"), ST("β")), ST("γ")), marks: {y:"rot"},
+      note: "<strong>Left rotation at x.</strong> The mirror image of LL: y rises, x drops to become y&rsquo;s left child, and β is handed over as x&rsquo;s new right subtree. Inorder before: α, x, β, y, γ. Inorder after: identical." }
+  ]},
+  LR: { title: "Figure 3: Left-right case: a double rotation", steps: [
+    { tree: SN("z", 2, SN("x", -1, ST("α"), SN("y", 0, ST("β"), ST("γ"))), ST("δ")), marks: {z:"bad", y:"rot"},
+      note: "<strong>LR, before.</strong> Growth went into z&rsquo;s left subtree but then turned right — into y, the right child of x. z is at +2, yet its child x leans the <em>wrong</em> way (−1): the heavy path z → x → y is bent. A right rotation at z alone would leave x on top still leaning wrong." },
+    { tree: SN("z", 2, SN("y", 1, SN("x", 0, ST("α"), ST("β")), ST("γ")), ST("δ")), marks: {z:"bad", y:"rot"},
+      note: "<strong>First rotation: left rotation at x.</strong> y rises above x, and β becomes x&rsquo;s right subtree. Nothing is fixed yet — z is still at +2 — but the heavy path z → y → x is now straight: the shape has been converted from LR into LL." },
+    { tree: SN("y", 0, SN("x", 0, ST("α"), ST("β")), SN("z", 0, ST("γ"), ST("δ"))), marks: {y:"rot"},
+      note: "<strong>Second rotation: right rotation at z.</strong> y takes the top, x keeps the left side with α and β, z takes the right side with γ and δ. Every factor is 0 and the subtree is a full level shorter than in the first frame. Inorder throughout: α, x, β, y, γ, z, δ." }
+  ]},
+  RL: { title: "Figure 3: Right-left case: a double rotation", steps: [
+    { tree: SN("x", -2, ST("α"), SN("z", 1, SN("y", 0, ST("β"), ST("γ")), ST("δ"))), marks: {x:"bad", y:"rot"},
+      note: "<strong>RL, before.</strong> Growth went into x&rsquo;s right subtree but then turned left — into y, the left child of z. x is at −2, yet its child z leans the wrong way (+1): the heavy path is bent, so a single rotation cannot fix it." },
+    { tree: SN("x", -2, ST("α"), SN("y", -1, ST("β"), SN("z", 0, ST("γ"), ST("δ")))), marks: {x:"bad", y:"rot"},
+      note: "<strong>First rotation: right rotation at z.</strong> y drops into place above z, and γ becomes z&rsquo;s left subtree. x is still at −2, but the heavy path x → y → z is now straight: the shape has been converted from RL into RR." },
+    { tree: SN("y", 0, SN("x", 0, ST("α"), ST("β")), SN("z", 0, ST("γ"), ST("δ"))), marks: {y:"rot"},
+      note: "<strong>Second rotation: left rotation at x.</strong> y takes the top with x (α, β) on the left and z (γ, δ) on the right. Every factor is 0. Inorder throughout: α, x, β, y, γ, z, δ." }
+  ]}
+};
+var rotCase = "LL", rotStepper = null;
+function rotRender(idx){
+  var st = ROT[rotCase].steps[idx];
+  renderTree($("fig3Svg"), clone(st.tree), { showBF: $("fig3ShowBF").checked, marks: st.marks, r: 20 });
+}
+function rotSetup(){
+  $("fig3Title").textContent = ROT[rotCase].title;
+  var notes = ROT[rotCase].steps.map(function(s){ return s.note; });
+  if(!rotStepper){
+    rotStepper = stepper({ count: ROT[rotCase].steps.length, render: rotRender, notes: notes,
+      prev: $("fig3Prev"), next: $("fig3Next"), play: $("fig3Play"), prog: $("fig3Prog"), note: $("fig3Note") });
+  } else rotStepper.setData(ROT[rotCase].steps.length, notes);
+}
+["LL", "RR", "LR", "RL"].forEach(function(c){
+  $("case" + c).addEventListener("click", function(){
+    rotCase = c;
+    ["LL", "RR", "LR", "RL"].forEach(function(k){ $("case" + k).setAttribute("aria-pressed", k === c ? "true" : "false"); });
+    rotSetup();
+  });
+});
+$("fig3ShowBF").addEventListener("change", function(){ rotStepper.refresh(); });
+rotSetup();
+/* ================= Figure 4: insert stepper ================= */
+var INS_SEQ = [10, 20, 30, 25, 22, 5, 3];
+var INS_NOTES = {
+  "10": "Insert <strong>10</strong> into the empty tree: it becomes the root, height 0, BF 0.",
+  "20": "Insert <strong>20</strong>: larger than 10, so it becomes the right child. BF(10) = −1 — right-heavy by one level, still legal. No repair.",
+  "30u": "Insert <strong>30</strong>: it lands as the right child of 20, making a chain 10 → 20 → 30. On the climb back, BF(10) = −2. The growth is in the right subtree of the right child — the <strong>RR case</strong>.",
+  "30": "<strong>Left rotation at 10.</strong> 20 rises to the root, 10 drops to its left, 30 stays on the right. One rotation, and every factor is 0. The subtree&rsquo;s height is back to what it was before 30 arrived — which is why no ancestor above could ever be affected by an insert repair.",
+  "25": "Insert <strong>25</strong>: descend 20 → 30, turn left, attach as 30&rsquo;s left child. BF(30) = +1, BF(20) = −1. Both legal.",
+  "22u": "Insert <strong>22</strong>: descend 20 → 30 → 25, attach as 25&rsquo;s left child. On the climb, 25 and 20 are fine but BF(30) = +2. Relative to 30 the growth went left, then left again (30 → 25 → 22) — the <strong>LL case</strong> at 30.",
+  "22": "<strong>Right rotation at 30.</strong> 25 rises to head this subtree, taking 22 on its left and 30 on its right. Note that 20, above the repair, never changed: its factor was −1 before and is −1 now.",
+  "5": "Insert <strong>5</strong>: descend 20 → 10, attach as 10&rsquo;s left child. BF(10) = +1, BF(20) = 0. Legal everywhere.",
+  "3u": "Insert <strong>3</strong>: it becomes the left child of 5. On the climb, BF(10) = +2 — growth went left, then left (10 → 5 → 3): the <strong>LL case</strong> at 10.",
+  "3": "<strong>Right rotation at 10.</strong> 5 rises, with 3 on its left and 10 on its right. Final tree: 7 nodes, height 2, every factor in {−1, 0, +1} — as balanced as a 7-node tree can possibly be."
+};
+var insStates = [], insNotes = [], insT = null;
+insStates.push(null); insNotes.push("Start: the empty tree. Each step inserts the next key with a plain BST insert first; if a factor hits ±2 you see that broken state, then the rotation that repairs it.");
+INS_SEQ.forEach(function(v){
+  var plain = bstInsertPlain(clone(insT), v); recompute(plain);
+  var unb = firstUnbalanced(plain);
+  EV = []; insT = avlInsert(insT, v);
+  var rots = EV.filter(function(e){ return e.type === "rot"; });
+  if(unb && rots.length){
+    var m1 = {}; m1[v] = "cur"; m1[unb.v] = "bad";
+    insStates.push({ tree: plain, marks: m1 }); insNotes.push(INS_NOTES[v + "u"]);
+    var m2 = {}; m2[v] = "cur"; rots.forEach(function(r){ m2[r.up] = "rot"; });
+    insStates.push({ tree: clone(insT), marks: m2 }); insNotes.push(INS_NOTES["" + v]);
+  } else {
+    var m3 = {}; m3[v] = "cur";
+    insStates.push({ tree: clone(insT), marks: m3 }); insNotes.push(INS_NOTES["" + v]);
+  }
+});
+var insStepper = stepper({ count: insStates.length,
+  render: function(i){ var s = insStates[i]; renderTree($("fig4Svg"), s ? clone(s.tree) : null, { showBF: $("fig4ShowBF").checked, marks: s ? s.marks : {} }); },
+  notes: insNotes, prev: $("fig4Prev"), next: $("fig4Next"), play: $("fig4Play"), prog: $("fig4Prog"), note: $("fig4Note") });
+$("fig4ShowBF").addEventListener("change", function(){ insStepper.refresh(); });
+/* ================= Figure 5: delete stepper ================= */
+var delBase = buildFrom([40, 20, 60, 10, 30, 50, 70, 5, 15, 25, 35]);
+var delStates = [{ tree: clone(delBase), marks: {} }], delNotes = ["Start: an 11-node AVL tree, height 3, built by inserting 40, 20, 60, 10, 30, 50, 70, 5, 15, 25, 35. Four deletes follow."];
+var delT = clone(delBase);
+[[5, 10], [70, 60]].forEach(function(pair){
+  EV = []; delT = avlDelete(delT, pair[0]);
+  var m = {}; m[pair[1]] = "cur"; /* highlight the parent whose factor changed */
+  delStates.push({ tree: clone(delT), marks: m });
+});
+delNotes.push("Delete <strong>5</strong> — a leaf. It is simply unlinked. On the climb, BF(10) becomes −1: its left subtree is now empty (height −1) and its right child 15 has height 0. Legal, no repair.");
+delNotes.push("Delete <strong>70</strong> — also a leaf. BF(60) becomes +1 (left child 50 remains, right side now empty). Still legal. Two deletes in, no rotation has been needed — most deletes are like this.");
+var plain60 = bstDeletePlain(clone(delT), 60); recompute(plain60);
+delStates.push({ tree: plain60, marks: {50: "cur", 40: "bad"} });
+delNotes.push("Delete <strong>60</strong> — it has exactly one child, 50, so 60 is spliced out and 50 takes its place under 40. But the right side of the tree just got a level shorter: on the climb, BF(40) = +2. The tall child, 20, has BF 0 — the case only delete can produce.");
+EV = []; delT = avlDelete(delT, 60);
+delStates.push({ tree: clone(delT), marks: {20: "rot", 50: "cur"} });
+delNotes.push("<strong>Right rotation at 40</strong> — a single rotation even though the child&rsquo;s factor is 0. 20 rises to the root; 40 drops to become its right child, 30 becomes 40&rsquo;s left child, and 50 stays as 40&rsquo;s right child. This subtree kept its height (3), so the cascade stops here — but note the root of the whole tree changed hands.");
+var plain40 = bstDeletePlain(clone(delT), 40); recompute(plain40);
+delStates.push({ tree: plain40, marks: {50: "bad", 40: "cur"} });
+delNotes.push("Delete <strong>40</strong> — it has two children, so it cannot be spliced. Its inorder successor is 50, the smallest key in its right subtree. The key 50 is copied into 40&rsquo;s node and the original 50 (a leaf) is removed. Now the copied node&rsquo;s factor is +2: its left subtree (rooted at 30) has height 1 and its right side is empty, height −1, and 1 − (−1) = +2.");
+EV = []; delT = avlDelete(delT, 40);
+delStates.push({ tree: clone(delT), marks: {30: "rot"} });
+delNotes.push("<strong>Right rotation at the copied node.</strong> 30 rises, taking 25 on its left; the node holding 50 drops to 30&rsquo;s right, with 35 as its left child. Final tree: 7 nodes, height 3, every factor back in {−1, 0, +1}.");
+var delStepper = stepper({ count: delStates.length,
+  render: function(i){ var s = delStates[i]; renderTree($("fig5Svg"), clone(s.tree), { showBF: $("fig5ShowBF").checked, marks: s.marks }); },
+  notes: delNotes, prev: $("fig5Prev"), next: $("fig5Next"), play: $("fig5Play"), prog: $("fig5Prog"), note: $("fig5Note") });
+$("fig5ShowBF").addEventListener("change", function(){ delStepper.refresh(); });
+
+
+
+"use strict";
+/* ================= Figure 6: playground ================= */
+var pgTree = null, pgMarks = {};
+function pgDescribe(action, v){
+  var rots = EV.filter(function(e){ return e.type === "rot"; });
+  var parts = [];
+  EV.forEach(function(e){
+    if(e.type === "succ") parts.push("Node " + e.from + " had two children, so its key was replaced by its inorder successor " + e.to + ", and the successor node was removed.");
+  });
+  if(action === "insert" && EV.some(function(e){ return e.type === "new"; })) parts.push("Inserted " + v + " as a new leaf, then refreshed heights and factors on the climb back to the root.");
+  if(action === "delete" && EV.some(function(e){ return e.type === "removed"; })) parts.push("Removed " + v + ", then refreshed heights and factors on the climb back to the root.");
+  rots.forEach(function(r){ parts.push((r.dir === "right" ? "Right" : "Left") + " rotation at " + r.at + " lifted " + r.up + "."); });
+  if(!rots.length && (action === "insert" || action === "delete")) parts.push("No factor reached ±2, so no rotation was needed.");
+  var n = count(pgTree), hgt = pgTree ? pgTree.h : -1;
+  parts.push("Tree now holds " + n + " node" + (n === 1 ? "" : "s") + " at height " + hgt + ", and every balance factor is in {−1, 0, +1}: " + (allBalanced(pgTree) ? "verified by re-checking all nodes." : "<span class='warn'>INVARIANT BROKEN — this should never happen.</span>"));
+  return "<p>" + parts.join(" ") + "</p>";
+}
+function pgRender(msg){
+  $("fig6Title").textContent = "Figure 6: Playground tree: " + count(pgTree) + " nodes, height " + (pgTree ? pgTree.h : -1);
+  renderTree($("fig6Svg"), clone(pgTree), { showH: $("fig6ShowH").checked, showBF: $("fig6ShowBF").checked, marks: pgMarks });
+  if(msg) $("fig6Out").innerHTML = msg;
+}
+function pgDo(action){
+  var v = parseInt($("pgKey").value, 10);
+  if(action === "insert"){
+    if(find(pgTree, v)){ pgMarks = {}; pgMarks[v] = "cur"; pgRender("<p><strong>" + v + " is already in the tree.</strong> AVL trees here store distinct keys, so nothing changed.</p>"); return; }
+    if(count(pgTree) >= 31){ pgRender("<p>The tree is at the 31-node display cap. Delete some keys before inserting more.</p>"); return; }
+    EV = []; pgTree = avlInsert(pgTree, v);
+    pgMarks = {}; pgMarks[v] = "cur";
+    EV.forEach(function(e){ if(e.type === "rot") pgMarks[e.up] = "rot"; });
+    pgRender(pgDescribe("insert", v));
+  } else {
+    if(!find(pgTree, v)){ pgMarks = {}; pgRender("<p><strong>" + v + " is not in the tree,</strong> so there is nothing to delete.</p>"); return; }
+    EV = []; pgTree = avlDelete(pgTree, v);
+    pgMarks = {};
+    EV.forEach(function(e){ if(e.type === "rot") pgMarks[e.up] = "rot"; });
+    pgRender(pgDescribe("delete", v));
+  }
+}
+$("pgInsert").addEventListener("click", function(){ pgDo("insert"); });
+$("pgDelete").addEventListener("click", function(){ pgDo("delete"); });
+$("pgKey").addEventListener("input", function(){ $("pgKeyVal").textContent = $("pgKey").value; });
+$("fig6ShowH").addEventListener("change", function(){ pgRender(); });
+$("fig6ShowBF").addEventListener("change", function(){ pgRender(); });
+$("pgClear").addEventListener("click", function(){ pgTree = null; pgMarks = {}; pgRender("<p>Tree cleared. Insert a key to begin again.</p>"); });
+$("pgDemo").addEventListener("click", function(){
+  pgTree = null; EV = [];
+  for(var v = 1; v <= 15; v++) pgTree = avlInsert(pgTree, v);
+  pgMarks = {};
+  pgRender("<p>Inserted 1, 2, 3, …, 15 in sorted order. A plain BST would now be a chain of height 14; rotations kept this tree at height 3 — the height of a perfect 15-node tree. The last rotation lifted 8 to the root.</p>");
+});
+$("pgRandom").addEventListener("click", function(){
+  var pool = [], seen = {}, vals = [];
+  while(vals.length < 15){ var v = 1 + Math.floor(Math.random() * 99); if(!seen[v]){ seen[v] = 1; vals.push(v); } }
+  pgTree = null; EV = [];
+  vals.forEach(function(v){ pgTree = avlInsert(pgTree, v); });
+  pgMarks = {};
+  pgRender("<p>Built a tree from 15 random keys: " + vals.join(", ") + ". Height " + pgTree.h + ", every factor in {−1, 0, +1}.</p>");
+});
+pgTree = buildFrom([40, 20, 60, 10, 30, 50, 70, 5, 15]);
+pgRender("<p>Loaded with the Step 1 tree — 9 keys, height 3. Pick a key below the figure and insert or delete it.</p>");
+/* ================= Figure 7: why the height stays logarithmic ================= */
+var NMIN = [1, 2]; for(var ni = 2; ni <= 21; ni++) NMIN[ni] = NMIN[ni - 1] + NMIN[ni - 2] + 1;
+function fib(k){ var a = 1, b = 1; if(k <= 2) return 1; for(var i = 3; i <= k; i++){ var t = a + b; a = b; b = t; } return b; }
+function fibShape(h){
+  if(h === 0) return mk(0);
+  if(h === 1){ var r = mk(0); r.l = mk(0); return r; }
+  var root = mk(0); root.l = fibShape(h - 1); root.r = fibShape(h - 2); return root;
+}
+function fig7Render(){
+  var h = parseInt($("fig7H").value, 10), N = NMIN[h], perf = Math.pow(2, h + 1) - 1;
+  $("fig7HVal").textContent = h;
+  $("fig7Title").textContent = "Figure 7: The sparsest AVL tree of height " + h + " has " + N + " nodes";
+  $("fig7N").textContent = N;
+  $("fig7Fib").textContent = "Fib(" + (h + 3) + ") − 1 = " + fib(h + 3) + " − 1";
+  $("fig7Chain").textContent = N - 1;
+  $("fig7Perf").textContent = perf;
+  $("fig7Out").innerHTML = "<p>Invert it: an AVL tree with " + N + " nodes can be forced to height " + h + " only by this sparsest shape — and any tree with fewer than " + NMIN[h + 1] + " nodes has height at most " + h + ". A plain BST with the same " + N + " keys could degenerate to a chain of height " + (N - 1) + ".</p>";
+  var svg = $("fig7Svg"), out = "";
+  if(h <= 5){
+    var shape = fibShape(h), c = 0;
+    (function assign(n){ if(!n) return; assign(n.l); n.v = ++c; assign(n.r); })(shape);
+    recompute(shape);
+    var L = layoutTree(shape), slot = 780 / L.count, R = 16;
+    var cx = function(n){ return slot * (n._x + 0.5); }, cy = function(n){ return 36 + n._d * 56; };
+    (function edges(n){ if(!n) return; [n.l, n.r].forEach(function(ch){ if(ch) out += '<line x1="' + cx(n) + '" y1="' + (cy(n) + R - 2) + '" x2="' + cx(ch) + '" y2="' + (cy(ch) - R + 2) + '" stroke="var(--math-line)" stroke-width="1.5"/>'; }); edges(n.l); edges(n.r); })(shape);
+    (function nodes(n){ if(!n) return; nodes(n.l); nodes(n.r);
+      out += '<circle cx="' + cx(n) + '" cy="' + cy(n) + '" r="' + R + '" fill="var(--color-bg)" stroke="var(--math-line)" stroke-width="1.5"/>';
+      out += '<text x="' + cx(n) + '" y="' + (cy(n) + 5) + '" text-anchor="middle" font-size="13.5" font-weight="600">' + n.v + '</text>';
+      var bfv = bfOf(n);
+      out += '<circle cx="' + (cx(n) + R - 2) + '" cy="' + (cy(n) - R + 2) + '" r="9.5" fill="var(--math-teal-soft)" stroke="var(--math-teal)" stroke-width="1.2"/>';
+      out += '<text x="' + (cx(n) + R - 2) + '" y="' + (cy(n) - R + 5.5) + '" text-anchor="middle" font-size="9.5" font-weight="600" class="mono-t" fill="var(--math-teal)">' + (bfv > 0 ? "+" + bfv : "" + bfv) + '</text>';
+    })(shape);
+    var treeH = 36 + L.maxDepth * 56 + 30;
+    out += '<text x="390" y="' + (treeH + 4) + '" text-anchor="middle" font-size="12.5" class="sub-t">the exact sparsest tree: values are inorder ranks, badges are balance factors</text>';
+    var barY = treeH + 34;
+    svg.setAttribute("viewBox", "0 0 920 " + (barY + 74));
+    out += fig7Bars(barY, N, perf, h);
+    svg.innerHTML = out;
+  } else {
+    svg.setAttribute("viewBox", "0 0 920 300");
+    out += '<circle cx="320" cy="40" r="20" fill="var(--color-bg)" stroke="var(--math-teal)" stroke-width="2.2"/>';
+    out += '<text x="320" y="46" text-anchor="middle" font-size="14" font-weight="600">root</text>';
+    out += '<line x1="306" y1="56" x2="196" y2="92" stroke="var(--math-line)" stroke-width="1.6"/>';
+    out += '<line x1="334" y1="56" x2="444" y2="92" stroke="var(--math-line)" stroke-width="1.6"/>';
+    out += '<polygon points="196,92 96,196 296,196" fill="var(--color-code-bg)" stroke="var(--math-line)" stroke-width="1.6"/>';
+    out += '<polygon points="444,92 364,176 524,176" fill="var(--color-code-bg)" stroke="var(--math-line)" stroke-width="1.6"/>';
+    out += '<text x="196" y="150" text-anchor="middle" font-size="13">height ' + (h - 1) + '</text>';
+    out += '<text x="196" y="170" text-anchor="middle" font-size="12.5" class="mono-t sub-t">N(' + (h - 1) + ') = ' + NMIN[h - 1] + ' nodes</text>';
+    out += '<text x="444" y="140" text-anchor="middle" font-size="13">height ' + (h - 2) + '</text>';
+    out += '<text x="444" y="160" text-anchor="middle" font-size="12.5" class="mono-t sub-t">N(' + (h - 2) + ') = ' + NMIN[h - 2] + ' nodes</text>';
+    out += '<text x="320" y="228" text-anchor="middle" font-size="12.5" class="sub-t">recursive schematic: too many nodes to draw, same recipe</text>';
+    out += fig7Bars(248, N, perf, h);
+    svg.innerHTML = out;
+  }
+}
+function fig7Bars(y, N, perf, h){
+  var x0 = 40, maxW = 540, out = "";
+  function bw(val){ return Math.max(6, Math.log10(val + 1) / Math.log10(perf + 1) * maxW); }
+  out += '<text x="' + x0 + '" y="' + (y - 8) + '" font-size="12.5" class="sub-t">nodes needed / held, height ' + h + '</text>';
+  out += '<rect x="' + x0 + '" y="' + y + '" width="' + bw(N) + '" height="17" rx="3" fill="var(--math-teal)"/>';
+  out += '<text x="' + (x0 + bw(N) + 8) + '" y="' + (y + 13) + '" font-size="12.5" class="mono-t">min ' + N + '</text>';
+  out += '<rect x="' + x0 + '" y="' + (y + 26) + '" width="' + bw(perf) + '" height="17" rx="3" fill="var(--math-blue)"/>';
+  out += '<text x="' + (x0 + bw(perf) + 8) + '" y="' + (y + 39) + '" font-size="12.5" class="mono-t">perfect ' + perf + '</text>';
+  return out;
+}
+$("fig7H").addEventListener("input", fig7Render);
+fig7Render();
+`} />

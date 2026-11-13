@@ -1,0 +1,655 @@
+---
+title: "Bloom filters: a probabilistic 'definitely not there'"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Bloom note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:32px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:18px;line-height:1.25;color:var(--math-ink)}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px .eqscroll {overflow-x:auto}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px .two {display:grid;grid-template-columns: 1fr;gap:16px}
+
+@media(max-width:760px) {
+.px .two {grid-template-columns:1fr}
+
+}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .sw {width:22px;height:4px;border-radius:2px;display:inline-block}
+
+.px .dotsw {width:10px;height:10px;border-radius:50%;display:inline-block}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+.px .btns {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+
+.px .btn {font-family: var(--font-body);font-size:.9rem;font-weight:600;border:1px solid var(--math-line);background:var(--color-bg);color:var(--math-ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+
+.px .btn:hover {border-color:var(--math-teal);color:var(--math-teal)}
+
+.px .btn:disabled {opacity:.42;cursor:default;color:var(--math-ink)}
+
+.px .btn:disabled:hover {border-color:var(--math-line)}
+
+.px .btn.primary {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .btn.primary:hover {color:#fff;opacity:.9}
+
+.px .btn.danger:hover {border-color:var(--math-red);color:var(--math-red)}
+
+.px .verdict {border-radius:10px;padding:14px 18px;margin-top:14px;font-size:.97rem;border:1px solid var(--math-line);background:var(--color-code-bg)}
+
+.px .verdict p {margin:0}
+
+.px .appgrid {display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+
+@media(min-width:760px) {
+.px .appgrid {grid-template-columns: 1fr 1fr}
+
+}
+
+.px .appcard {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:18px 20px}
+
+.px .appcard h3 {font-family: var(--font-body);margin-bottom:8px}
+
+.px .appcard p, .px .appcard li {font-size:.95rem}
+
+.px .appcard ul {margin:0;padding-left:18px}
+
+.px .appcard li {margin-bottom:6px}
+
+.px .tag {display:inline-block;font-family: var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-bottom:10px}
+
+.px .tag-teal {background:var(--math-teal-soft);color:var(--math-teal)}
+
+.px .tag-orange {background:var(--math-orange-soft);color:var(--math-orange)}
+
+.px .tag-blue {background:var(--px-blue-soft);color:var(--math-blue)}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Probabilistic data structures — membership in a handful of bits</div>
+<p class="lede">A Bloom filter answers one question — <strong>“have I seen this before?”</strong> — using a bit array far too small to store the items themselves. It never misses an item that was inserted, and it sometimes cries wolf: a false positive. That trade, a tiny memory footprint in exchange for a controllable error rate, makes it one of the most deployed ideas in systems software, from database engines to network routers.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> Hash each item with k different hash functions and set those k bits in an m-bit array. To query, check the same k bits: if any is 0 the item is <em>definitely absent</em>; if all are 1 it is <em>probably present</em> — the bits may have been set by other items. No false negatives, ever; false positives at a rate you choose when you size the filter.</p></div>
+</header>
+</div>
+
+## 1 — How it works: k hashes, m bits, nothing else stored
+
+<div class="px">
+<p>Burton Bloom described the structure in 1970. It has exactly two ingredients: a bit array of m bits, all initially 0, and k hash functions that each map an item to a position in the array. Nothing about the item itself is stored — no key, no pointer, no copy. The array <em>is</em> the whole data structure, which is why it is so small.</p>
+<table class="formulas">
+<tr><th>Insert x</th><td>Compute the k positions and set each of those bits to 1. Setting an already-set bit changes nothing — inserts are idempotent, and bits are shared between items.</td></tr>
+<tr><th>Query x</th><td>Compute the same k positions. If <em>any</em> of them is 0, x was never inserted. If <em>all</em> of them are 1, report “probably present”.</td></tr>
+<tr><th>Positions used here</th><td><math display="block"><mrow><msub><mi>h</mi><mi>i</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>(</mo><msub><mi>h</mi><mn>1</mn></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>+</mo><mi>i</mi><mo>·</mo><msub><mi>h</mi><mn>2</mn></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>)</mo><mo lspace="0.2em" rspace="0.2em">mod</mo><mi>m</mi></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Two base hashes combined by double hashing (Kirsch &amp; Mitzenmacher, 2006) behave like k independent hash functions in practice — real implementations hash once or twice, not k times.</span></td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig1Title">Figure 1: Empty filter. m = 32 bits, k = 3 hashes, 0 items inserted</p>
+<svg id="fig1" viewBox="0 0 640 210" role="img" aria-label="Bloom filter bit array with 32 bits"></svg>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-teal)"></span> bit set to 1</span><span><span class="dotsw" style="background:var(--color-code-bg);border:1px solid var(--math-line)"></span> bit still 0</span><span><span class="dotsw" style="background:var(--math-orange)"></span> bit touched by the current operation</span></div>
+<p class="figcap"><strong>Figure 1.</strong> Insert the five fruits, one at a time, and watch which bits each one sets — banana and the others collide on shared bits, which is normal and harmless. Then query <strong>plum</strong>, which was never inserted. Its three positions (3, 10, 17) were set by date, banana and melon between them, so the filter answers “probably present” — a genuine false positive, produced live by the hash functions on this page.</p>
+</div>
+<div class="sliderbox">
+<h3>Operate the filter</h3>
+<p style="font-size:.93rem;color:var(--math-ink2);margin-bottom:4px">Insert:</p>
+<div class="btns" id="insertBtns"></div>
+<p style="font-size:.93rem;color:var(--math-ink2);margin:12px 0 4px">Query:</p>
+<div class="btns" id="queryBtns"></div>
+<div class="btns" style="margin-top:12px"><button class="btn danger" id="reset1" type="button">Reset filter</button></div>
+<div class="verdict" id="verdict1"><p>Insert an item or run a query — the result and the exact hash positions will appear here.</p></div>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li><strong>A 0 bit is proof.</strong> If a query finds any of its k bits at 0, the item cannot have been inserted — inserting it would have set that bit, and bits are never cleared.</li>
+<li><strong>All 1s is only a hint.</strong> The k bits may belong to k different other items. The filter cannot tell who set a bit.</li>
+<li><strong>Collisions are the mechanism, not a bug.</strong> With 5 items × 3 hashes in 32 bits, the five fruits set 15 distinct bits — nearly half the array — so collisions are already likely. Step 2 quantifies exactly how likely.</li>
+</ul></div>
+</div>
+
+## 2 — False positives: the price, and how it grows
+
+<div class="px">
+<p>Why can there never be a false negative? A query for an inserted item checks bits that its own insertion set to 1, and in a standard Bloom filter bits never go back to 0. The answer for a true member is therefore always “present”. The error is one-sided by construction.</p>
+<p>A false positive needs a conspiracy: every one of the query’s k bits was set by <em>someone else</em>. The more items inserted, the larger the fraction of bits set — the <em>fill</em> — and the easier that conspiracy becomes. After inserting n items, the probability that a given bit is still 0, and the resulting false-positive probability, are:</p>
+<table class="formulas">
+<tr><th>One bit survives one hash</th><td><math display="block"><mrow><mn>1</mn><mo>−</mo><mfrac><mn>1</mn><mi>m</mi></mfrac></mrow></math></td></tr>
+<tr><th>One bit survives all kn hashes</th><td><math display="block"><mrow><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mfrac><mn>1</mn><mi>m</mi></mfrac><mo>)</mo></mrow><mrow><mi>k</mi><mi>n</mi></mrow></msup><mo>≈</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>k</mi><mi>n</mi><mo>/</mo><mi>m</mi></mrow></msup></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">The exponential approximation is excellent for realistic m. Note the intermediate step keeps every hash insertion visible: each of the n items makes k attempts, and the bit must dodge all kn of them.</span></td></tr>
+<tr><th>Fill and false-positive rate</th><td><math display="block"><mrow><mtext>fill</mtext><mo>=</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>k</mi><mi>n</mi><mo>/</mo><mi>m</mi></mrow></msup></mrow></math><math display="block"><mrow><mi>p</mi><mo>≈</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>k</mi><mi>n</mi><mo>/</mo><mi>m</mi></mrow></msup><mo>)</mo></mrow><mi>k</mi></msup></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">A false positive needs all k of the query’s bits inside the filled fraction, hence fill raised to the power k.</span></td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig2Title">Figure 2: m = 1024 bits, k = 7. False-positive rate at n = 100 is 0.73%</p>
+<svg id="fig2" viewBox="0 0 640 380" role="img" aria-label="False positive probability curve as items are inserted"></svg>
+<div class="legend"><span><span class="sw" style="background:var(--math-teal)"></span> false-positive probability p</span><span><span class="sw" style="background:var(--math-orange)"></span> probe point (slider n)</span><span><span class="sw" style="background:var(--math-gold)"></span> fill of the array</span></div>
+<p class="figcap"><strong>Figure 2.</strong> The curve stays near zero, then bends sharply upward once the fill passes about half — a Bloom filter does not degrade gracefully, it falls off a cliff. That cliff is why sizing (Step 3) starts from an honest estimate of n. The gold dashed curve is the fill itself; p is the fill raised to the power k, which is why the teal curve lags below it, then catches up.</p>
+</div>
+<div class="sliderbox">
+<h3>Figure 2 controls</h3>
+<div class="sliderrow"><label for="mSlider2">Array size m (bits)</label><input type="range" id="mSlider2" min="6" max="14" step="1" value="10" /></div>
+<div class="sliderrow"><label for="kSlider2">Hash functions k</label><input type="range" id="kSlider2" min="1" max="14" step="1" value="7" /></div>
+<div class="sliderrow"><label for="nSlider2">Probe at n inserted items</label><input type="range" id="nSlider2" min="0" max="400" step="5" value="100" /></div>
+<div class="readouts">
+<div class="ro"><b id="roFill2">…</b><span>Fill at probe n</span></div>
+<div class="ro"><b id="roP2">…</b><span>False-positive rate at probe n</span></div>
+<div class="ro"><b id="roN2">…</b><span>Items until p reaches 10%</span></div>
+</div>
+</div>
+<div class="callout"><p><strong>More hashes is not always better.</strong> Raising k checks more bits per query, which helps — but it also fills the array k times faster, which hurts. For a fixed m and n there is an optimal k where the two effects balance, derived in Step 3. Push k to 14 in Figure 2 with a small m and watch the cliff arrive <em>earlier</em>, not later.</p></div>
+</div>
+
+## 3 — Sizing math: pick p, get m and k
+
+<div class="px">
+<p>In practice you design backwards: you know roughly how many items n the filter must hold, and the false-positive rate p you can tolerate. Two formulas then fix the array size m and the hash count k. The derivation of the optimal k is short enough to do in full — and the key step is kept explicit, because the result (aim for a half-full array) is the most useful intuition in this whole page.</p>
+<table class="formulas">
+<tr><th>Step A: minimise p over k</th><td><math display="block"><mrow><mi>p</mi><mo>≈</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>k</mi><mi>n</mi><mo>/</mo><mi>m</mi></mrow></msup><mo>)</mo></mrow><mi>k</mi></msup></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Treat m and n as fixed and ask which k makes this smallest.</span></td></tr>
+<tr><th>Step B: the optimum</th><td><math display="block"><mrow><msup><mi>e</mi><mrow><mo>−</mo><mi>k</mi><mi>n</mi><mo>/</mo><mi>m</mi></mrow></msup><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow></math><math display="block"><mrow><mo>−</mo><mfrac><mrow><mi>k</mi><mi>n</mi></mrow><mi>m</mi></mfrac><mo>=</mo><mo>ln</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>=</mo><mo>−</mo><mo>ln</mo><mn>2</mn></mrow></math><math display="block"><mrow><mi>k</mi><mo>=</mo><mfrac><mi>m</mi><mi>n</mi></mfrac><mo>ln</mo><mn>2</mn></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">Read Step B slowly: at the optimum the fill is exactly 1 − 1/2 = 1/2. <strong>An optimally tuned Bloom filter is half full.</strong> Each bit then carries maximum information — it is a fair coin.</span></td></tr>
+<tr><th>Step C: array size for target p</th><td><math display="block"><mrow><mi>p</mi><mo>=</mo><msup><mrow><mo>(</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>)</mo></mrow><mi>k</mi></msup><mo>=</mo><msup><mn>2</mn><mrow><mo>−</mo><mi>k</mi></mrow></msup></mrow></math><math display="block"><mrow><mo>ln</mo><mi>p</mi><mo>=</mo><mo>−</mo><mi>k</mi><mo>ln</mo><mn>2</mn></mrow></math><math display="block"><mrow><mi>m</mi><mo>=</mo><mo>−</mo><mfrac><mrow><mi>n</mi><mo>ln</mo><mi>p</mi></mrow><msup><mrow><mo>(</mo><mo>ln</mo><mn>2</mn><mo>)</mo></mrow><mn>2</mn></msup></mfrac></mrow></math></td></tr>
+<tr><th>Worked example, fully broken down</th><td><span style="font-size:.93rem">Target: n = 1,000,000 items at p = 0.01 (1%).</span><math display="block"><mrow><mi>m</mi><mo>=</mo><mo>−</mo><mfrac><mrow><mn>1000000</mn><mo>×</mo><mo>ln</mo><mo>(</mo><mn>0.01</mn><mo>)</mo></mrow><msup><mrow><mo>(</mo><mo>ln</mo><mn>2</mn><mo>)</mo></mrow><mn>2</mn></msup></mfrac></mrow></math><math display="block"><mrow><mi>m</mi><mo>=</mo><mo>−</mo><mfrac><mrow><mn>1000000</mn><mo>×</mo><mo>(</mo><mo>−</mo><mn>4.6052</mn><mo>)</mo></mrow><mn>0.4805</mn></mfrac><mo>=</mo><mfrac><mn>4605200</mn><mn>0.4805</mn></mfrac></mrow></math><math display="block"><mrow><mi>m</mi><mo>≈</mo><mn>9585058</mn><mtext> bits</mtext><mo>≈</mo><mn>1.20</mn><mtext> MB</mtext></mrow></math><math display="block"><mrow><mi>k</mi><mo>=</mo><mfrac><mi>m</mi><mi>n</mi></mfrac><mo>ln</mo><mn>2</mn><mo>=</mo><mn>9.585</mn><mo>×</mo><mn>0.6931</mn><mo>=</mo><mn>6.64</mn><mo>→</mo><mn>7</mn><mtext> hashes</mtext></mrow></math><span style="font-size:.9rem;color:var(--math-ink2)">About 9.6 bits per item buys a 1% error rate — regardless of how large the items themselves are. A set of one million URLs stored exactly would cost tens of megabytes in hashes alone; the filter needs 1.2 MB and stores no URLs at all.</span></td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig3Title">Figure 3: Sizing for n = 100,000 items at p = 1.0%. m = 958,506 bits, k = 7</p>
+<svg id="fig3" viewBox="0 0 640 240" role="img" aria-label="Bits per element needed for different false positive rates"></svg>
+<div class="legend"><span><span class="sw" style="background:var(--math-teal)"></span> bits per element required</span><span><span class="dotsw" style="background:var(--math-orange)"></span> your target p</span></div>
+<p class="figcap"><strong>Figure 3.</strong> Bits per element depends only on the target error rate, not on n — the curve is the sizing formula with n divided out. Each tenfold improvement in p costs a constant extra slice: going from 1% to 0.1% adds about 4.79 bits per element, and 0.1% to 0.01% adds the same again. Error rate is bought linearly, in bits, for exponentially better accuracy.</p>
+</div>
+<div class="sliderbox">
+<h3>Figure 3 controls: the sizing calculator</h3>
+<div class="sliderrow"><label for="nSlider3">Expected items n</label><input type="range" id="nSlider3" min="3" max="7" step="0.05" value="5" /></div>
+<div class="sliderrow"><label for="pSlider3">Target false-positive rate p</label><input type="range" id="pSlider3" min="-4" max="-0.5" step="0.25" value="-2" /></div>
+<div class="readouts">
+<div class="ro"><b id="roM3">…</b><span>Array size m</span></div>
+<div class="ro"><b id="roK3">…</b><span>Optimal hash count k</span></div>
+<div class="ro"><b id="roMem3">…</b><span>Memory</span></div>
+<div class="ro"><b id="roBpe3">…</b><span>Bits per element</span></div>
+</div>
+</div>
+<table class="data">
+<tr><th>Target p</th><th>Bits per element</th><th>Optimal k</th><th>Rule-of-thumb reading</th></tr>
+<tr><td>10%</td><td>4.79</td><td>3</td><td>Good enough for a cheap pre-filter in front of a fast check</td></tr>
+<tr><td>1%</td><td>9.59</td><td>7</td><td>The common default — database and cache filters usually live here</td></tr>
+<tr><td>0.1%</td><td>14.38</td><td>10</td><td>When a false positive triggers an expensive network round trip</td></tr>
+<tr><td>0.01%</td><td>19.17</td><td>13</td><td>Still under 20 bits — cheaper than storing even a short fingerprint exactly</td></tr>
+</table>
+</div>
+
+## 4 — Counting Bloom filter: buying deletion with counters
+
+<div class="px">
+<p>The standard filter cannot delete: a bit may be shared by several items, so clearing it on one item’s removal could evict others — creating false <em>negatives</em>, the one thing the structure promises never to do. The counting Bloom filter (Fan et al., 2000) replaces each bit with a small counter, typically 4 bits. Insert increments the k counters; delete decrements them; a query asks whether all k counters are above 0. An item can leave when its counters are no longer needed by anyone else.</p>
+<div class="diagram">
+<p class="figtitle" id="fig4Title">Figure 4: Counting filter. m = 16 counters, k = 2, 0 items present</p>
+<svg id="fig4" viewBox="0 0 640 190" role="img" aria-label="Counting Bloom filter counters"></svg>
+<label class="basetoggle"><input type="checkbox" id="shareToggle" checked /> Show which present items hold each counter (sharing view)</label>
+<p class="figcap"><strong>Figure 4.</strong> Insert cat and dog, then bird: notice any counter reaching 2: two items share it, so deleting one of them only drops it to 1 and the other stays findable. That sharing is exactly what the plain bit array in Figure 1 could not express. Untick the checkbox for the cleaner counter-only view.</p>
+</div>
+<div class="sliderbox">
+<h3>Operate the counting filter</h3>
+<div class="btns" id="countBtns"></div>
+<div class="verdict" id="verdict4"><p>Insert or delete an animal — counter changes and sharing will be reported here. Deleting an item that is not present is shown honestly: it corrupts other items’ counters, which is why real systems only delete items they know were inserted.</p></div>
+</div>
+<div class="readbox">
+<h3>What the counters cost, and their limit</h3>
+<ul>
+<li><strong>4× the memory</strong> of a plain filter at the same m (4-bit counters instead of 1-bit flags) — or, at fixed memory, an m four times smaller and a higher p.</li>
+<li><strong>Counters can overflow.</strong> With 4-bit counters the ceiling is 15; Fan et al. showed that for typical sizing the chance any counter overflows is tiny, but implementations must still choose a policy (saturate, or size up) — a saturated counter can no longer be decremented safely.</li>
+<li><strong>Deletion must be truthful.</strong> Decrementing for an item that was never inserted — or was only a false positive — steals counts from real members and can manufacture false negatives.</li>
+</ul></div>
+</div>
+
+## 5 — Variants: one idea, many shapes
+
+<div class="px">
+<p>Almost every limitation of the 1970 design has a named descendant. The table compares the main ones on the axes that actually decide deployments: whether items can leave, whether the set can grow, and what the structure pays for it.</p>
+<table class="data">
+<tr><th>Variant</th><th>Change from the classic filter</th><th>Gains</th><th>Pays</th></tr>
+<tr><td><strong>Counting Bloom</strong> (2000)</td><td>Bits become small counters</td><td>Deletion</td><td>≈4× memory at the same m</td></tr>
+<tr><td><strong>Scalable Bloom</strong> (Almeida et al., 2007)</td><td>A chain of filters with growing m and tightening p; a new filter is appended when one fills</td><td>Set can grow without knowing n in advance; total p stays bounded</td><td>Queries check every filter in the chain</td></tr>
+<tr><td><strong>Compressed Bloom</strong> (Mitzenmacher, 2001)</td><td>Optimised for sending the filter over a network: size it larger than memory-optimal and compress for transmission</td><td>Fewer transmitted bits per query answered at the receiver</td><td>Larger uncompressed array at rest</td></tr>
+<tr><td><strong>Blocked Bloom</strong></td><td>Array split into cache-line-sized blocks; all k hashes of an item land in one block</td><td>One cache miss per lookup instead of k — the variant most large in-memory systems actually run</td><td>Slightly higher p for the same m, because hashes are confined to a block</td></tr>
+<tr><td><strong>Quotient filter</strong> (Bender et al., 2011)</td><td>Stores a compact fingerprint of each hash inside a hash-table-like array, not just presence bits</td><td>Deletion, resizing, and merging; sequential scans are cache-friendly</td><td>More complex bookkeeping; fingerprints, not raw bits, set the error rate</td></tr>
+<tr><td><strong>Cuckoo filter</strong> (Fan et al., 2014)</td><td>Cuckoo hashing over short fingerprints, with partial-key relocation</td><td>Deletion, and better space than Bloom once p drops below roughly 3%; lookups touch two buckets</td><td>Inserts can fail near full load and may need a stash or a rebuild</td></tr>
+</table>
+<div class="callout"><p><strong>Choosing, in one breath.</strong> Fixed known n and no deletion: classic (usually blocked) Bloom. Deletion needed: counting Bloom, or a cuckoo filter when p must be low. Unknown or growing n: scalable Bloom, or a quotient filter if you also need merges and resizes. The classic design remains the default because its query is a handful of bit tests with zero bookkeeping.</p></div>
+</div>
+
+## 6 — Applications: a cheap “no” that saves expensive work
+
+<div class="px">
+<p>Every deployment has the same shape: an expensive operation — a disk read, a decompression, a network round trip — guarded by a filter whose “definitely not” lets the system skip the work entirely. A false positive merely wastes one expensive check; a false negative would lose data, so the one-sided error is exactly the right way round.</p>
+<div class="appgrid">
+<div class="appcard">
+<span class="tag tag-teal">Caching</span><h3>Cache digests &amp; admission</h3>
+<ul>
+<li><strong>Web cache digests:</strong> proxy caches such as Squid exchange Bloom-filter digests of what they hold, so a peer is only queried when the digest says “probably here” — turning an all-peers broadcast into a directed request.</li>
+<li><strong>CDN and browser caches:</strong> a compact summary of a remote cache’s contents avoids fetching objects the edge cache provably does not have.</li>
+<li><strong>Cache admission:</strong> “have we seen this key before?” filters keep one-hit wonders out of the cache — an item is admitted only on its second appearance, which the filter can attest cheaply.</li>
+</ul></div>
+<div class="appcard">
+<span class="tag tag-orange">Databases</span><h3>Skipping disk reads in LSM stores</h3>
+<ul>
+<li><strong>LSM-tree SSTables:</strong> LevelDB, RocksDB, Apache Cassandra and HBase keep a Bloom filter per data file. A point lookup checks the filter first; a “no” skips opening that file at all. With data spread over many files, this is the difference between one disk read and dozens.</li>
+<li><strong>Join and dedup guards:</strong> a filter over the keys already seen cheaply discards duplicates and non-matching rows before heavier join machinery runs.</li>
+<li><strong>Original motivation, still running:</strong> spell-checkers and hyphenation dictionaries were among the earliest uses — a huge word list compressed into RAM-sized bits, with rare false “correct” spellings as the accepted cost.</li>
+</ul></div>
+<div class="appcard">
+<span class="tag tag-blue">Networks</span><h3>Forwarding &amp; light clients</h3>
+<ul>
+<li><strong>Packet forwarding:</strong> routers use Bloom filters to summarise which prefixes or subscribers sit behind an interface, compressing forwarding state that would not fit in fast memory as an exact table.</li>
+<li><strong>Bitcoin light clients (BIP 37):</strong> an SPV client sends its node a Bloom filter of the addresses it cares about; the node forwards only matching transactions. The known weakness is privacy — a loosely tuned filter matches too much and leaks interest — which is itself a lesson in what p means.</li>
+<li><strong>Ethereum block headers:</strong> each header carries a 2048-bit logs bloom aggregating the event-log addresses and topics in the block, so light clients can skip blocks that provably contain no log they follow.</li>
+</ul></div>
+</div>
+<table class="data">
+<tr><th>Setting</th><th>The expensive work avoided</th><th>What a false positive costs</th><th>What a false negative would cost</th></tr>
+<tr><td>LSM database lookup</td><td>Opening and searching an SSTable on disk</td><td>One wasted file check</td><td>A live key reported missing — data loss</td></tr>
+<tr><td>Cache digest lookup</td><td>A query to a peer cache</td><td>One wasted peer request</td><td>A cached object treated as absent and re-fetched from origin</td></tr>
+<tr><td>Bitcoin SPV filtering</td><td>Downloading every transaction in every block</td><td>Some extra transactions downloaded</td><td>A payment to the user never seen</td></tr>
+<tr><td>Ethereum logs bloom</td><td>Scanning a whole block’s receipts</td><td>One block scanned unnecessarily</td><td>A relevant event silently missed</td></tr>
+</table>
+<p style="margin-top:18px">The pattern generalises beyond these three: deduplication in backup systems, safe-browsing URL checks (shipped to browsers as compact prefix filters), and “seen this event ID?” guards in streaming pipelines all use the same move. Whenever a set is huge, the negative answer is the common case, and a rare wasted check is cheap — a Bloom filter is probably already there, quietly saying no.</p>
+Bloom filter — Burton H. Bloom, “Space/Time Trade-offs in Hash Coding with Allowable Errors”, Communications of the ACM, 1970. Counting filters: Fan, Cao, Almeida &amp; Broder, 2000. Double hashing analysis: Kirsch &amp; Mitzenmacher, 2006. All hash positions, probabilities and sizing figures on this page are computed live from the formulas shown.
+</div>
+
+
+<script set:html={`
+function baseHashes(s){
+  var h1=5381;
+  for(var i=0;i<s.length;i++){ h1=(Math.imul(h1,33)+s.charCodeAt(i))>>>0; }
+  var h2=0;
+  for(var j=0;j<s.length;j++){ h2=(Math.imul(h2,131)+s.charCodeAt(j)+7)>>>0; }
+  return [h1,h2];
+}
+function positions(s,m,k){
+  var bh=baseHashes(s), h1=bh[0], h2=bh[1];
+  var step=1+(h2%(m-1));
+  var out=[];
+  for(var i=0;i<k;i++){ out.push(((h1+i*step)%m+m)%m); }
+  return out;
+}
+function el(id){ return document.getElementById(id); }
+function svgEl(tag,attrs){ var e=document.createElementNS("http://www.w3.org/2000/svg",tag); for(var a in attrs){ e.setAttribute(a,attrs[a]); } return e; }
+function txt(x,y,str,attrs){ var t=svgEl("text",attrs||{}); t.setAttribute("x",x); t.setAttribute("y",y); t.textContent=str; return t; }
+
+/* ---------- Figure 1: classic filter lab ---------- */
+var M1=32,K1=3;
+var bits1=new Array(M1).fill(0);
+var inserted1=[];
+var INSERTS=["apple","banana","cherry","date","melon"];
+var QUERIES=["apple","plum","grape","tangerine","melon"];
+var lastTouch1=[];
+function drawFig1(){
+  var svg=el("fig1"); svg.innerHTML="";
+  var W=640,cell=34,gap=4,x0=24,y0=44,rowH=64;
+  svg.appendChild(txt(x0,26,"bit array: index 0 to 31, two rows of 16",{ "font-size":"12.5","fill":"var(--math-ink2)" }));
+  for(var i=0;i<M1;i++){
+    var row=Math.floor(i/16), col=i%16;
+    var x=x0+col*(cell+gap), y=y0+row*rowH;
+    var touched=lastTouch1.indexOf(i)>=0;
+    var fill=bits1[i] ? (touched?"var(--math-orange)":"var(--math-teal)") : "var(--color-code-bg)";
+    svg.appendChild(svgEl("rect",{x:x,y:y,width:cell,height:cell,rx:6,fill:fill,stroke:touched?"var(--math-orange)":"var(--math-line)","stroke-width":touched?2:1}));
+    svg.appendChild(txt(x+cell/2,y+22,bits1[i]?"1":"0",{ "text-anchor":"middle","font-size":"14","font-weight":"600","fill":bits1[i]?"#ffffff":"var(--math-ink3)", "class":"mono-t" }));
+    svg.appendChild(txt(x+cell/2,y+cell+15,String(i),{ "text-anchor":"middle","font-size":"9.5","fill":"var(--math-ink3)", "class":"mono-t" }));
+  }
+  var setCount=bits1.reduce(function(a,b){return a+b;},0);
+  el("fig1Title").textContent="Figure 1: "+(inserted1.length===0?"Empty filter":inserted1.length+" item"+(inserted1.length>1?"s":"")+" inserted ("+inserted1.join(", ")+")")+". m = 32 bits, k = 3 hashes, "+setCount+" of 32 bits set";
+}
+var ib=el("insertBtns");
+INSERTS.forEach(function(w){
+  var b=document.createElement("button"); b.className="btn"; b.type="button"; b.textContent="Insert "+w; b.id="ins-"+w;
+  b.addEventListener("click",function(){
+    var pos=positions(w,M1,K1); lastTouch1=pos;
+    pos.forEach(function(p){ bits1[p]=1; });
+    if(inserted1.indexOf(w)<0) inserted1.push(w);
+    b.disabled=true;
+    drawFig1();
+    el("verdict1").innerHTML="<p><strong>Inserted “"+w+"”</strong> — hash positions <strong>"+pos.join(", ")+"</strong> set to 1. "+inserted1.length+" of 5 fruits now in the filter.</p>";
+  });
+  ib.appendChild(b);
+});
+var qb=el("queryBtns");
+QUERIES.forEach(function(w){
+  var b=document.createElement("button"); b.className="btn"; b.type="button"; b.textContent="Query "+w;
+  b.addEventListener("click",function(){
+    var pos=positions(w,M1,K1); lastTouch1=pos;
+    drawFig1();
+    var allSet=pos.every(function(p){ return bits1[p]===1; });
+    var isMember=inserted1.indexOf(w)>=0;
+    var msg;
+    if(!allSet){
+      var zero=pos.filter(function(p){ return bits1[p]===0; });
+      msg="<p><strong>Query “"+w+"” — definitely NOT present.</strong> Positions "+pos.join(", ")+"; bit"+(zero.length>1?"s":"")+" "+zero.join(", ")+" "+(zero.length>1?"are":"is")+" still 0, and an inserted item would have set all of its bits. This answer is certain.</p>";
+    } else if(isMember){
+      msg="<p><strong>Query “"+w+"” — probably present, and truly present.</strong> Positions "+pos.join(", ")+" are all 1, as its own insertion guaranteed.</p>";
+    } else if(inserted1.length===0){
+      msg="<p><strong>Query “"+w+"” — definitely NOT present.</strong> The filter is empty; every bit is 0.</p>";
+    } else {
+      msg="<p><strong>Query “"+w+"” — the filter says “probably present”, but it was NEVER inserted.</strong> Positions "+pos.join(", ")+" are all 1, set between them by other fruits. This is a <span class=\\"warn\\">false positive</span>, produced by the real hash functions — no trickery.</p>";
+    }
+    el("verdict1").innerHTML=msg;
+  });
+  qb.appendChild(b);
+});
+el("reset1").addEventListener("click",function(){
+  bits1=new Array(M1).fill(0); inserted1=[]; lastTouch1=[];
+  INSERTS.forEach(function(w){ el("ins-"+w).disabled=false; });
+  drawFig1();
+  el("verdict1").innerHTML="<p>Filter reset — all 32 bits are 0 again.</p>";
+});
+drawFig1();
+
+/* ---------- Figure 2: false-positive curve ---------- */
+function fpProb(m,k,n){ var f=1-Math.exp(-k*n/m); return Math.pow(f,k); }
+function fillFrac(m,k,n){ return 1-Math.exp(-k*n/m); }
+function drawFig2(){
+  var m=Math.pow(2,parseInt(el("mSlider2").value,10));
+  var k=parseInt(el("kSlider2").value,10);
+  var nProbe=parseInt(el("nSlider2").value,10);
+  el("nSlider2").max=Math.max(400,Math.round(m*1.2/10)*10);
+  if(nProbe>parseInt(el("nSlider2").max,10)){ nProbe=parseInt(el("nSlider2").max,10); el("nSlider2").value=nProbe; }
+  var svg=el("fig2"); svg.innerHTML="";
+  var x0=58,x1=616,y0=26,y1=322;
+  var nMax=Math.round(m*1.2);
+  function X(n){ return x0+(n/nMax)*(x1-x0); }
+  function Y(p){ return y1-p*(y1-y0); }
+  for(var g=0;g<=4;g++){
+    var p=g/4, y=Y(p);
+    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x1,y2:y,stroke:"var(--math-line)","stroke-width":g===0?1.4:0.7}));
+    svg.appendChild(txt(x0-8,y+4,(p*100)+"%",{ "text-anchor":"end","font-size":"11","fill":"var(--math-ink2)", "class":"mono-t" }));
+  }
+  for(var gx=0;gx<=4;gx++){
+    var nv=Math.round(nMax*gx/4), x=X(nv);
+    svg.appendChild(svgEl("line",{x1:x,y1:y0,x2:x,y2:y1,stroke:"var(--math-line)","stroke-width":0.7}));
+    svg.appendChild(txt(x,y1+20,String(nv),{ "text-anchor":"middle","font-size":"11","fill":"var(--math-ink2)", "class":"mono-t" }));
+  }
+  svg.appendChild(txt((x0+x1)/2,y1+40,"items inserted, n",{ "text-anchor":"middle","font-size":"12","fill":"var(--math-ink2)" }));
+  svg.appendChild(txt(16,(y0+y1)/2,"probability",{ "text-anchor":"middle","font-size":"12","fill":"var(--math-ink2)",transform:"rotate(-90 16 "+((y0+y1)/2)+")" }));
+  function pathFor(fn,color,width,dash){
+    var d="";
+    for(var n=0;n<=nMax;n+=Math.max(1,Math.round(nMax/140))){
+      var px=X(n), py=Y(Math.min(1,fn(n)));
+      d+=(n===0?"M":"L")+px.toFixed(1)+" "+py.toFixed(1)+" ";
+    }
+    var attrs={d:d,fill:"none",stroke:color,"stroke-width":width};
+    if(dash) attrs["stroke-dasharray"]=dash;
+    svg.appendChild(svgEl("path",attrs));
+  }
+  pathFor(function(n){ return fillFrac(m,k,n); },"var(--math-gold)",1.6,"5 4");
+  pathFor(function(n){ return fpProb(m,k,n); },"var(--math-teal)",2.6,null);
+  var pp=fpProb(m,k,nProbe), pf=fillFrac(m,k,nProbe);
+  svg.appendChild(svgEl("line",{x1:X(nProbe),y1:y1,x2:X(nProbe),y2:Y(pp),stroke:"var(--math-orange)","stroke-width":1.4,"stroke-dasharray":"3 3"}));
+  svg.appendChild(svgEl("circle",{cx:X(nProbe),cy:Y(pp),r:5.5,fill:"var(--math-orange)",stroke:"var(--color-bg)","stroke-width":2}));
+  var lx=X(nProbe)>x1-190?X(nProbe)-182:X(nProbe)+10;
+  svg.appendChild(txt(lx,Y(pp)-12,"n = "+nProbe+": p = "+(pp*100).toFixed(2)+"%",{ "font-size":"12.5","font-weight":"600","fill":"var(--math-orange)", "class":"mono-t" }));
+  var lo=0,hi=nMax*3;
+  for(var it=0;it<60;it++){ var mid=(lo+hi)/2; if(fpProb(m,k,mid)<0.10) lo=mid; else hi=mid; }
+  el("fig2Title").textContent="Figure 2: m = "+m+" bits, k = "+k+". False-positive rate at n = "+nProbe+" is "+(pp*100).toFixed(2)+"%";
+  el("roFill2").textContent=(pf*100).toFixed(1)+"%";
+  el("roP2").textContent=(pp*100).toFixed(2)+"%";
+  el("roN2").textContent=Math.round(lo)+" items";
+}
+["mSlider2","kSlider2","nSlider2"].forEach(function(id){ el(id).addEventListener("input",drawFig2); });
+drawFig2();
+
+/* ---------- Figure 3: sizing calculator ---------- */
+function fmtNum(x){
+  if(x>=1e6) return (x/1e6).toFixed(2)+" M";
+  if(x>=1e3) return (x/1e3).toFixed(1)+" K";
+  return String(Math.round(x));
+}
+function fmtBytes(b){
+  if(b>=1e9) return (b/1e9).toFixed(2)+" GB";
+  if(b>=1e6) return (b/1e6).toFixed(2)+" MB";
+  if(b>=1e3) return (b/1e3).toFixed(1)+" KB";
+  return Math.round(b)+" B";
+}
+function drawFig3(){
+  var n=Math.round(Math.pow(10,parseFloat(el("nSlider3").value)));
+  var p=Math.pow(10,parseFloat(el("pSlider3").value));
+  var ln2=Math.log(2);
+  var m=-n*Math.log(p)/(ln2*ln2);
+  var k=(m/n)*ln2;
+  var kRound=Math.max(1,Math.round(k));
+  var bpe=m/n;
+  el("fig3Title").textContent="Figure 3: Sizing for n = "+n.toLocaleString("en-US")+" items at p = "+(p*100).toFixed(p<0.001?3:2)+"%. m = "+Math.ceil(m).toLocaleString("en-US")+" bits, k = "+kRound;
+  el("roM3").textContent=Math.ceil(m).toLocaleString("en-US")+" bits";
+  el("roK3").textContent=kRound+"  ("+k.toFixed(2)+" exact)";
+  el("roMem3").textContent=fmtBytes(m/8);
+  el("roBpe3").textContent=bpe.toFixed(2)+" bits";
+  var svg=el("fig3"); svg.innerHTML="";
+  var x0=58,x1=616,y0=22,y1=178;
+  function bpeFor(pp){ return -Math.log(pp)/(ln2*ln2); }
+  var maxB=bpeFor(0.0001)*1.08;
+  function X(pp){ return x0+((Math.log10(pp)+4)/3.5)*(x1-x0); }
+  function Y(b){ return y1-(b/maxB)*(y1-y0); }
+  [0.1,0.05,0.01,0.001,0.0001].forEach(function(pp){
+    var x=X(pp);
+    svg.appendChild(svgEl("line",{x1:x,y1:y0,x2:x,y2:y1,stroke:"var(--math-line)","stroke-width":0.7}));
+    svg.appendChild(txt(x,y1+20,(pp*100)+"%",{ "text-anchor":"middle","font-size":"11","fill":"var(--math-ink2)", "class":"mono-t" }));
+  });
+  [5,10,15,20].forEach(function(b){
+    var y=Y(b);
+    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x1,y2:y,stroke:"var(--math-line)","stroke-width":0.7}));
+    svg.appendChild(txt(x0-8,y+4,String(b),{ "text-anchor":"end","font-size":"11","fill":"var(--math-ink2)", "class":"mono-t" }));
+  });
+  svg.appendChild(txt((x0+x1)/2,y1+40,"target false-positive rate p (log scale)",{ "text-anchor":"middle","font-size":"12","fill":"var(--math-ink2)" }));
+  svg.appendChild(txt(16,(y0+y1)/2,"bits / element",{ "text-anchor":"middle","font-size":"12","fill":"var(--math-ink2)",transform:"rotate(-90 16 "+((y0+y1)/2)+")" }));
+  var d="";
+  for(var i=0;i<=140;i++){
+    var lp=-0.5-(i/140)*3.5;
+    var pp=Math.pow(10,lp);
+    var px=x0+(i/140)*(x1-x0), py=Y(bpeFor(pp));
+    d+=(i===0?"M":"L")+px.toFixed(1)+" "+py.toFixed(1)+" ";
+  }
+  svg.appendChild(svgEl("path",{d:d,fill:"none",stroke:"var(--math-teal)","stroke-width":2.6}));
+  var tcx=x0+((Math.log10(p)+4)/3.5)*(x1-x0);
+  var clampedX=Math.max(x0,Math.min(x1,tcx));
+  svg.appendChild(svgEl("circle",{cx:clampedX,cy:Y(bpe),r:6,fill:"var(--math-orange)",stroke:"var(--color-bg)","stroke-width":2}));
+  var labX=clampedX>x1-220?clampedX-212:clampedX+10;
+  svg.appendChild(txt(labX,Y(bpe)-12,bpe.toFixed(2)+" bits/elem at p = "+(p*100).toFixed(2)+"%",{ "font-size":"12.5","font-weight":"600","fill":"var(--math-orange)", "class":"mono-t" }));
+}
+["nSlider3","pSlider3"].forEach(function(id){ el(id).addEventListener("input",drawFig3); });
+drawFig3();
+
+/* ---------- Figure 4: counting filter ---------- */
+var M4=16,K4=2;
+var counters4=new Array(M4).fill(0);
+var present4={};
+var ANIMALS=["cat","dog","bird","fish"];
+function holdersOf(idx){
+  var out=[];
+  for(var w in present4){ if(positions(w,M4,K4).indexOf(idx)>=0) out.push(w); }
+  return out;
+}
+function drawFig4(){
+  var svg=el("fig4"); svg.innerHTML="";
+  var showShare=el("shareToggle").checked;
+  var W=640,cell=34,gap=4,x0=24,y0=40;
+  svg.appendChild(txt(x0,24,"counters: index 0 to 15, one row",{ "font-size":"12.5","fill":"var(--math-ink2)" }));
+  for(var i=0;i<M4;i++){
+    var x=x0+i*(cell+gap), y=y0;
+    var v=counters4[i];
+    var hold=holdersOf(i);
+    var fill=v===0?"var(--color-code-bg)":(v===1?"var(--math-teal)":"var(--math-orange)");
+    svg.appendChild(svgEl("rect",{x:x,y:y,width:cell,height:cell,rx:6,fill:fill,stroke:"var(--math-line)","stroke-width":1}));
+    svg.appendChild(txt(x+cell/2,y+22,String(v),{ "text-anchor":"middle","font-size":"14","font-weight":"600","fill":v===0?"var(--math-ink3)":"#ffffff", "class":"mono-t" }));
+    svg.appendChild(txt(x+cell/2,y+cell+15,String(i),{ "text-anchor":"middle","font-size":"9.5","fill":"var(--math-ink3)", "class":"mono-t" }));
+    if(showShare && hold.length){
+      for(var h=0;h<hold.length;h++){
+        svg.appendChild(txt(x+cell/2,y+cell+32+h*14,hold[h],{ "text-anchor":"middle","font-size":"9.5","fill":"var(--math-ink2)", "class":"mono-t" }));
+      }
+    }
+  }
+  var names=Object.keys(present4);
+  el("fig4Title").textContent="Figure 4: Counting filter. m = 16 counters, k = 2, "+names.length+" item"+(names.length===1?"":"s")+" present"+(names.length?" ("+names.join(", ")+")":"");
+}
+var cb=el("countBtns");
+ANIMALS.forEach(function(w){
+  var bi=document.createElement("button"); bi.className="btn"; bi.type="button"; bi.textContent="Insert "+w;
+  bi.addEventListener("click",function(){
+    var pos=positions(w,M4,K4);
+    pos.forEach(function(p){ counters4[p]=Math.min(15,counters4[p]+1); });
+    present4[w]=true; drawFig4();
+    var shared=pos.filter(function(p){ return counters4[p]>1; });
+    el("verdict4").innerHTML="<p><strong>Inserted “"+w+"”</strong> — counters "+pos.join(", ")+" incremented."+(shared.length?" Counter"+(shared.length>1?"s":"")+" "+shared.join(", ")+" now above 1: shared with another item, so this position is jointly held.":" No sharing on this insert.")+"</p>";
+  });
+  cb.appendChild(bi);
+  var bd=document.createElement("button"); bd.className="btn"; bd.type="button"; bd.textContent="Delete "+w;
+  bd.addEventListener("click",function(){
+    var pos=positions(w,M4,K4);
+    var wasPresent=!!present4[w];
+    pos.forEach(function(p){ counters4[p]=Math.max(0,counters4[p]-1); });
+    delete present4[w]; drawFig4();
+    if(wasPresent){
+      var broken=Object.keys(present4).filter(function(o){ return !positions(o,M4,K4).every(function(p){ return counters4[p]>0; }); });
+      el("verdict4").innerHTML="<p><strong>Deleted “"+w+"”</strong> — counters "+pos.join(", ")+" decremented. Items sharing those counters kept their remaining counts and stay findable."+(broken.length?" <span class=\\"warn\\">Warning: "+broken.join(", ")+" now fails its query.</span>":"")+"</p>";
+    } else {
+      var broken2=Object.keys(present4).filter(function(o){ return !positions(o,M4,K4).every(function(p){ return counters4[p]>0; }); });
+      el("verdict4").innerHTML="<p><strong>“"+w+"” was not present</strong>, but its counters "+pos.join(", ")+" were decremented anyway."+(broken2.length?" <span class=\\"warn\\">That stole counts from "+broken2.join(", ")+", which now returns a false negative — the forbidden error.</span> Real systems only delete items known to have been inserted.":" No present item happened to share those counters this time — luck, not safety.")+"</p>";
+    }
+  });
+  cb.appendChild(bd);
+});
+el("shareToggle").addEventListener("change",drawFig4);
+drawFig4();
+`} />

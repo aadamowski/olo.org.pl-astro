@@ -1,0 +1,986 @@
+---
+title: "Heaps: a nearly-sorted tree in an array"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Heap note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:36px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px;min-width:0}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:17px;line-height:1.3;color:var(--math-ink);overflow-wrap:anywhere}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer;min-height:36px}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px svg text.sub-t {fill:var(--math-ink2)}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .sw {width:22px;height:4px;border-radius:2px;display:inline-block}
+
+.px .dotsw {width:10px;height:10px;border-radius:50%;display:inline-block}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+.px .btns {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+
+.px .btn {font-family: var(--font-body);font-size:.9rem;font-weight:600;border:1px solid var(--math-line);background:var(--color-bg);color:var(--math-ink);border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px}
+
+.px .btn:hover {border-color:var(--math-teal);color:var(--math-teal)}
+
+.px .btn:disabled {opacity:.42;cursor:default;color:var(--math-ink)}
+
+.px .btn:disabled:hover {border-color:var(--math-line)}
+
+.px .btn.primary {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .btn.primary:hover {color:#fff;opacity:.9}
+
+.px .btn.danger:hover {border-color:var(--math-red);color:var(--math-red)}
+
+.px .verdict {border-radius:10px;padding:14px 18px;margin-top:14px;font-size:.97rem;border:1px solid var(--math-line);background:var(--color-code-bg)}
+
+.px .verdict p {margin:0}
+
+.px code {font-family: var(--font-mono);font-size:.88em;background:var(--color-code-bg);border-radius:4px;padding:1px 5px}
+
+.px pre.code {font-family: var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--color-code-bg);border:1px solid var(--math-line);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0}
+
+.px pre.code .cm {color:var(--math-ink3)}
+
+.px .arrwrap {padding:2px 6px 4px}
+
+.px .arrlab {font-family: var(--font-mono);font-size:12px;color:var(--math-ink2);letter-spacing:.06em;text-transform:uppercase;margin:8px 0 5px}
+
+.px .arr {display:flex;flex-wrap:nowrap;gap:4px}
+
+.px .arr.dense {flex-wrap:wrap;gap:3px}
+
+.px .arr.dense .cell {flex:1 1 30px}
+
+.px .cell {flex:1 1 0;min-width:0;text-align:center;border:1.5px solid var(--math-line);border-radius:7px;background:var(--color-bg);padding:5px 0 4px;transition:background .25s,border-color .25s}
+
+.px .cell .v {display:block;font-family: var(--font-mono);font-weight:600;font-size:16px;line-height:1.25;color:var(--math-ink)}
+
+.px .cell .i {display:block;font-family: var(--font-mono);font-size:10.5px;color:var(--math-ink3);line-height:1.2}
+
+.px .cell.cur {border-color:var(--math-orange);background:var(--math-orange-soft)}
+
+.px .cell.par {border-color:var(--math-blue);background:var(--px-blue-soft)}
+
+.px .cell.kid {border-color:var(--math-teal);background:var(--math-teal-soft)}
+
+.px .cell.mid {border-color:var(--math-gold);background:var(--math-gold-soft)}
+
+.px .cell.done {border-color:var(--math-teal)}
+
+.px .cell.bad {border-color:var(--math-red);background:var(--math-orange-soft)}
+
+.px .cell.gone {opacity:.32;border-style:dashed}
+
+.px .cell.clickable {cursor:pointer}
+
+.px .binrow {display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family: var(--font-mono);font-size:15px;margin:8px 0}
+
+.px .bit {display:inline-flex;align-items:center;justify-content:center;width:30px;height:36px;border:1.5px solid var(--math-line);border-radius:6px;background:var(--color-bg);font-weight:600}
+
+.px .bit.on {border-color:var(--math-teal);background:var(--math-teal-soft);color:var(--math-teal)}
+
+.px .bit.new {border-color:var(--math-orange);background:var(--math-orange-soft);color:var(--math-orange)}
+
+.px .bitlab {font-size:12px;color:var(--math-ink2);font-family: var(--font-body)}
+
+.px .chips {display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+
+.px .chip {font-family: var(--font-mono);font-weight:600;font-size:14px;border:1.5px solid var(--math-teal);background:var(--math-teal-soft);color:var(--math-ink);border-radius:999px;padding:3px 11px}
+
+.px .progress {font-family: var(--font-mono);font-size:13px;color:var(--math-ink2)}
+
+@media(max-width:560px) {
+ .px .cell .v {font-size:13.5px}
+ .px .bit {width:25px;height:32px}
+ 
+}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Data structures: the priority queue, with no pointers at all</div>
+<p class="lede">A heap is a binary tree with one promise: every parent is smaller than its children (in a <strong>min-heap</strong>), so the minimum always sits at the root, ready in O(1). The surprise is that the tree is never actually built — no nodes, no pointers. A heap is an ordinary <strong>array</strong>, and the tree exists only in the arithmetic of the indices: multiply or divide by two with a binary shift and you walk from any element to its parent or children. This page builds that idea up piece by piece, then runs the three operations that maintain it — heapify, insert, and extract-min — live, step by step.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> Store a complete binary tree level by level in an array. Because the tree is complete, the children of index <em>i</em> are always at <em>2i + 1</em> and <em>2i + 2</em> and the parent is one right-shift away — so “rebalancing” is just swapping an element up or down a single root-to-leaf path, never touching the rest of the array.</p></div>
+</header>
+</div>
+
+## 1 — What a heap is: a complete tree with one ordering rule
+
+<div class="px">
+<p>Two properties define a binary heap, and they are independent. <strong>Shape:</strong> the tree is <em>complete</em> — every level is fully filled except possibly the last, which fills left to right with no gaps. <strong>Order (min-heap):</strong> every parent is less than or equal to both of its children. Note what the order property does <em>not</em> say: nothing relates a node to its siblings, its cousins, or its grandchildren beyond the chain of parents. A heap is only <em>partially</em> ordered — it is not sorted, and it is not a binary search tree. That weakness is exactly what makes it cheap to maintain.</p>
+<table class="formulas">
+<tr><th>Heap-order property (min-heap)</th><td><math display="block"><mrow><mi>A</mi><mo>[</mo><mi>parent</mi><mo>(</mo><mi>i</mi><mo>)</mo><mo>]</mo><mo>≤</mo><mi>A</mi><mo>[</mo><mi>i</mi><mo>]</mo><mspace width="1.2em"/><mtext>for every</mtext><mspace width="0.4em"/><mi>i</mi><mo>&gt;</mo><mn>0</mn></mrow></math><math display="block"><mrow><mi>A</mi><mo>[</mo><mn>0</mn><mo>]</mo><mo>=</mo><mi>min</mi><mo>(</mo><mi>A</mi><mo>)</mo><mspace width="1.2em"/><mtext>the root is the global minimum</mtext></mrow></math></td></tr>
+<tr><th>Max-heap</th><td>Flip every comparison: each parent is <em>greater than or equal to</em> its children and the root is the maximum. Everything on this page works identically with the comparisons reversed; the examples use a min-heap throughout.</td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig1Title">Figure 1: A valid min-heap of 9 elements: tree above, the same heap as an array below</p>
+<svg id="fig1Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram of the min-heap 1, 3, 2, 5, 4, 8, 6, 9, 7"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: level order, left to right</div><div class="arr" id="fig1Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> selected node</span><span><span class="dotsw" style="background:var(--math-blue)"></span> its parent</span><span><span class="dotsw" style="background:var(--math-teal)"></span> its children</span></div>
+<label class="basetoggle"><input type="checkbox" id="fig1Idx" checked /> Show array indices on the tree nodes</label>
+<p class="figcap"><strong>Figure 1.</strong> Click any node (or any array cell) and its family lights up in both views at once. Read the array left to right, top level first: it <em>is</em> the tree, flattened. The heap <span style="font-family:'IBM Plex Mono',monospace">[1, 3, 2, 5, 4, 8, 6, 9, 7]</span> is not sorted (3 sits before 2), yet every parent is smaller than its children, which is all the structure a priority queue needs.</p>
+</div>
+<div class="readbox">
+<h3>How to read this</h3>
+<ul>
+<li>The root, index 0, holds 1, the minimum of all nine values, guaranteed by the order property applied transitively down every path.</li>
+<li>Completeness is what makes the array trick possible: with no gaps, “the next node” is always just “the next index”.</li>
+<li>A sorted array is a valid heap, but most heaps are not sorted — the heap gives up total order to buy O(log n) updates.</li>
+</ul></div>
+</div>
+
+## 2 — The array embedding: parents and children by binary shift
+
+<div class="px">
+<p>Number the tree positions in level order starting at 0, and store position <em>i</em> at <code>A[i]</code>. Then the family of any node is pure arithmetic. Doubling an index moves one level down, halving moves one level up — and doubling and halving integers is precisely what the binary shift operators do: <code>&lt;&lt; 1</code> appends a 0 bit (×2), <code>&gt;&gt; 1</code> drops the last bit (⌊÷2⌋). In the cleaner 1-indexed convention (root at <code>A[1]</code>, slot 0 wasted) the formulas are exact shifts with no corrections: parent is <code>i &gt;&gt; 1</code>, children are <code>i &lt;&lt; 1</code> and <code>(i &lt;&lt; 1) + 1</code>. With the usual 0-indexed array the same shifts appear with +1 and −1 adjustments, shown in the table.</p>
+<table class="formulas">
+<tr><th>Left child of <math><mi>i</mi></math></th><td><math display="block"><mrow><mi>left</mi><mo>(</mo><mi>i</mi><mo>)</mo><mo>=</mo><mn>2</mn><mi>i</mi><mo>+</mo><mn>1</mn><mo>=</mo><mo>(</mo><mi>i</mi><mo>≪</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>1</mn></mrow></math></td></tr>
+<tr><th>Right child of <math><mi>i</mi></math></th><td><math display="block"><mrow><mi>right</mi><mo>(</mo><mi>i</mi><mo>)</mo><mo>=</mo><mn>2</mn><mi>i</mi><mo>+</mo><mn>2</mn><mo>=</mo><mo>(</mo><mi>i</mi><mo>≪</mo><mn>1</mn><mo>)</mo><mo>+</mo><mn>2</mn></mrow></math></td></tr>
+<tr><th>Parent of <math><mi>i</mi></math></th><td><math display="block"><mrow><mi>parent</mi><mo>(</mo><mi>i</mi><mo>)</mo><mo>=</mo><mo>⌊</mo><mfrac><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>⌋</mo><mo>=</mo><mo>(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>≫</mo><mn>1</mn></mrow></math></td></tr>
+</table>
+<p>Why the shift works is visible in binary. An index in binary is a <em>path</em>: read the bits after the leading 1 from the root, 0 for “go left”, 1 for “go right”. Appending a bit (shifting left) walks one step down; dropping the last bit (shifting right) walks one step up. The explorer below does the arithmetic live — drag the index and watch the bits, the family, and the tree all move together.</p>
+<div class="diagram">
+<p class="figtitle" id="fig2Title">Figure 2: Index explorer: node i = 6 in a 15-element heap</p>
+<svg id="fig2Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram highlighting the selected node and its parent and children"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: indices 0 to 14</div><div class="arr" id="fig2Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> selected index i</span><span><span class="dotsw" style="background:var(--math-blue)"></span> parent (i − 1) ≫ 1</span><span><span class="dotsw" style="background:var(--math-teal)"></span> children (i ≪ 1) + 1 and (i ≪ 1) + 2</span></div>
+<p class="figcap"><strong>Figure 2.</strong> The values in this tree are the indices themselves, so the arithmetic is the picture: the children of 6 are 13 and 14 because 6 in binary is 110, shifting left gives 1100 (12), and adding 1 and 2 gives 1101 (13) and 1110 (14). Going up, (13 − 1) ≫ 1 drops 1100 back to 110, which is node 6 again.</p>
+</div>
+<div class="sliderbox">
+<h3>Index explorer controls</h3>
+<div class="sliderrow"><label for="iSlider2">Selected index i</label><input type="range" id="iSlider2" min="0" max="14" step="1" value="6" /></div>
+<div class="binrow" id="binRow2" aria-live="polite"></div>
+<div class="readouts">
+<div class="ro"><b id="roPar2">…</b><span>Parent (i − 1) ≫ 1</span></div>
+<div class="ro"><b id="roLeft2">…</b><span>Left child (i ≪ 1) + 1</span></div>
+<div class="ro"><b id="roRight2">…</b><span>Right child (i ≪ 1) + 2</span></div>
+<div class="ro"><b id="roDepth2">…</b><span>Depth (level)</span></div>
+</div>
+</div>
+<div class="callout"><p><strong>No pointers, no allocation, perfect locality.</strong> A pointer-based tree spends memory on two child pointers per node and scatters nodes across the heap (the memory kind). The array form stores <em>n</em> values and nothing else, and a sift walks a path whose elements sit at doubling — cache-friendly — strides. This is why essentially every production heap (C++ <code>std::priority_queue</code>, Java <code>PriorityQueue</code>, Python <code>heapq</code>) is an array underneath.</p></div>
+</div>
+
+## 3 — The midpoint: where the parents end and the leaves begin
+
+<div class="px">
+<p>In a complete tree of <em>n</em> nodes, exactly the first ⌊n/2⌋ indices have children; the rest are leaves. The boundary — the <strong>midpoint</strong> of the array — is the last index that is a parent. One right shift finds it:</p>
+<table class="formulas">
+<tr><th>Last parent (the midpoint)</th><td><math display="block"><mrow><mi>m</mi><mo>=</mo><mo>⌊</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>⌋</mo><mo>−</mo><mn>1</mn><mo>=</mo><mo>(</mo><mi>n</mi><mo>≫</mo><mn>1</mn><mo>)</mo><mo>−</mo><mn>1</mn></mrow></math><math display="block"><mrow><mtext>worked example, </mtext><mi>n</mi><mo>=</mo><mn>9</mn><mo>:</mo><mspace width="0.6em"/><mi>m</mi><mo>=</mo><mo>(</mo><mn>9</mn><mo>≫</mo><mn>1</mn><mo>)</mo><mo>−</mo><mn>1</mn></mrow></math><math display="block"><mrow><mi>m</mi><mo>=</mo><mn>4</mn><mo>−</mo><mn>1</mn></mrow></math><math display="block"><mrow><mi>m</mi><mo>=</mo><mn>3</mn></mrow></math></td></tr>
+<tr><th>Leaf test</th><td><math display="block"><mrow><mi>i</mi><mtext> is a leaf </mtext><mo>⟺</mo><mi>left</mi><mo>(</mo><mi>i</mi><mo>)</mo><mo>≥</mo><mi>n</mi><mo>⟺</mo><mi>i</mi><mo>&gt;</mo><mi>m</mi></mrow></math>A leaf is trivially a valid one-element heap — there is nothing below it that it could violate. That single fact is what makes the O(n) build in Step 4 possible.</td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig3Title">Figure 3: n = 15 elements: midpoint at index 6, 7 parents and 8 leaves</p>
+<svg id="fig3Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram showing internal nodes and leaves split at the midpoint"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: gold marks the midpoint, the last parent</div><div class="arr" id="fig3Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-gold)"></span> midpoint m = (n ≫ 1) − 1, last parent</span><span><span class="dotsw" style="background:var(--math-blue)"></span> other parents (indices 0 to m)</span><span><span class="dotsw" style="background:var(--color-code-bg);border:1px solid var(--math-line)"></span> leaves (indices m + 1 to n − 1)</span></div>
+<p class="figcap"><strong>Figure 3.</strong> Half the array — roughly — is leaves. For n = 15 the split is 7 parents to 8 leaves, and it stays near half for every n: a complete tree packs about as many leaves as internal nodes. Heapify only has work to do on the left half; every leaf is already a correct heap of size one.</p>
+</div>
+<div class="sliderbox">
+<h3>Midpoint controls</h3>
+<div class="sliderrow"><label for="nSlider3">Heap size n</label><input type="range" id="nSlider3" min="5" max="31" step="1" value="15" /></div>
+<div class="readouts">
+<div class="ro"><b id="roMid3">…</b><span>Midpoint m = (n ≫ 1) − 1</span></div>
+<div class="ro"><b id="roPar3">…</b><span>Parents (indices 0 to m)</span></div>
+<div class="ro"><b id="roLeaf3">…</b><span>Leaves (indices m + 1 to n − 1)</span></div>
+<div class="ro"><b id="roH3">…</b><span>Height ⌊log₂ n⌋</span></div>
+</div>
+</div>
+</div>
+
+## 4 — Heapify: building a heap in place, from the midpoint down
+
+<div class="px">
+<p>Given an arbitrary array, the naive build inserts elements one at a time: O(n log n). Floyd's heapify is smarter and does it <em>in place</em>, in O(n). The idea follows directly from Step 3: leaves are already heaps, so start at the midpoint — the last parent — and work <em>backwards</em> to the root, <strong>sifting down</strong> each element: compare it with its smaller child and swap if the child is smaller, then keep sifting from the child's position until the element is no larger than both children, or reaches a leaf. Going bottom-up guarantees that when index <em>i</em> is processed, both of its subtrees are already valid heaps, so one sift-down makes the whole subtree rooted at <em>i</em> valid. When the root finishes, the array is a heap.</p>
+<pre class="code">heapify(A):  <span class="cm">// in place, O(n)</span>&#10;&nbsp;&nbsp;n = A.length&#10;&nbsp;&nbsp;<span class="cm">// start at the midpoint</span>&#10;&nbsp;&nbsp;for i = (n &gt;&gt; 1) - 1 down to 0:&#10;&nbsp;&nbsp;&nbsp;&nbsp;siftDown(A, n, i)&#10;&#10;siftDown(A, n, i):&#10;&nbsp;&nbsp;loop:&#10;&nbsp;&nbsp;&nbsp;&nbsp;l = (i &lt;&lt; 1) + 1&#10;&nbsp;&nbsp;&nbsp;&nbsp;r = l + 1&#10;&nbsp;&nbsp;&nbsp;&nbsp;smallest = i&#10;&nbsp;&nbsp;&nbsp;&nbsp;if l &lt; n and A[l] &lt; A[smallest]:&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;smallest = l&#10;&nbsp;&nbsp;&nbsp;&nbsp;if r &lt; n and A[r] &lt; A[smallest]:&#10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;smallest = r&#10;&nbsp;&nbsp;&nbsp;&nbsp;if smallest == i: break&#10;&nbsp;&nbsp;&nbsp;&nbsp;swap A[i], A[smallest]&#10;&nbsp;&nbsp;&nbsp;&nbsp;i = smallest</pre>
+<div class="diagram">
+<p class="figtitle" id="fig4Title">Figure 4: Heapify step 0 of 10</p>
+<svg id="fig4Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram animating the heapify process step by step"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: heapified in place, no second array</div><div class="arr" id="fig4Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> element being sifted</span><span><span class="dotsw" style="background:var(--math-teal)"></span> smaller child</span><span><span class="dotsw" style="background:var(--math-gold)"></span> midpoint, where the scan starts</span></div>
+<p class="figcap"><strong>Figure 4.</strong> The unsorted array [9, 4, 7, 1, 8, 3, 6, 2, 5] has n = 9, so the midpoint is (9 ≫ 1) − 1 = 3. Step through it: index 3 (value 1) is already fine, index 2 swaps once, index 1 sinks two levels, and the root 9 sinks three levels to a leaf — six swaps total, and notice that roughly half the swaps happen at the bottom of the tree, where paths are short. That asymmetry is the whole O(n) argument, below.</p>
+</div>
+<div class="sliderbox">
+<h3>Heapify stepper</h3>
+<div class="btns">
+<button class="btn" id="hPrev" type="button">← Previous step</button>
+<button class="btn primary" id="hPlay" type="button">Play</button>
+<button class="btn" id="hNext" type="button">Next step →</button>
+<button class="btn danger" id="hReset" type="button">Restart</button>
+<span class="progress" id="hProg" style="align-self:center"></span>
+</div>
+<div class="verdict" id="hMsg"><p>Press Play or step forward to heapify [9, 4, 7, 1, 8, 3, 6, 2, 5] in place.</p></div>
+</div>
+<div class="callout"><p><strong>Why bottom-up is O(n), not O(n log n).</strong> Most nodes sit near the leaves, where a sift-down has almost nowhere to go: half the nodes sift 0 levels, a quarter sift at most 1, an eighth at most 2. Summing swaps over all nodes: n/2 × 0 + n/4 × 1 + n/8 × 2 + …, converges to at most n swaps in total. Building by repeated insertion pays a full log n climb for the large elements near the leaves instead, which is where the extra log factor comes from.</p></div>
+</div>
+
+## 5 — Insert: append at the end, then sift up
+
+<div class="px">
+<p>Adding an element must preserve completeness, and there is exactly one slot that does: the next free position at the end of the array, <code>A[n]</code>, the leftmost gap on the last level. Placed there, the new element can break the order property in only one way: it may be smaller than its parent. So <strong>sift up</strong>: while the element is smaller than its parent (found with one right shift, <code>(i − 1) ≫ 1</code>), swap them, and repeat from the parent's position. The element climbs at most one root-to-leaf path, so insert is O(log n), and the rest of the heap is never touched. This is precisely a targeted rebalance: the damage from an insertion is confined to a single path, and sift-up is the repair walk along it.</p>
+<pre class="code">push(A, x):  <span class="cm">// O(log n)</span>&#10;&nbsp;&nbsp;A.append(x)&#10;&nbsp;&nbsp;i = A.length - 1&#10;&nbsp;&nbsp;<span class="cm">// sift up, parent(i) = (i - 1) &gt;&gt; 1</span>&#10;&nbsp;&nbsp;while i &gt; 0 and A[parent(i)] &gt; A[i]:&#10;&nbsp;&nbsp;&nbsp;&nbsp;swap A[i], A[parent(i)]&#10;&nbsp;&nbsp;&nbsp;&nbsp;i = parent(i)</pre>
+<div class="diagram">
+<p class="figtitle" id="fig5Title">Figure 5: Insert step 0 of 4: ready to insert</p>
+<svg id="fig5Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram animating insertion with sift-up"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: the new element enters at index n</div><div class="arr" id="fig5Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> inserted element, climbing</span><span><span class="dotsw" style="background:var(--math-blue)"></span> its parent</span></div>
+<p class="figcap"><strong>Figure 5.</strong> Choose a value below and step through its insertion into the heap [1, 3, 2, 5, 4, 8, 6]. The default, 0, is smaller than everything, so it climbs all three levels to the root. Try 4 instead: it swaps once with 5 and stops under 3: sift-up ends the moment the parent is no larger, often well before the root.</p>
+</div>
+<div class="sliderbox">
+<h3>Insert controls</h3>
+<div class="sliderrow"><label for="vSlider5">Value to insert <span id="v5Val">0</span></label><input type="range" id="vSlider5" min="0" max="9" step="1" value="0" /></div>
+<div class="btns">
+<button class="btn" id="iPrev" type="button">← Previous step</button>
+<button class="btn primary" id="iPlay" type="button">Play</button>
+<button class="btn" id="iNext" type="button">Next step →</button>
+<button class="btn danger" id="iReset" type="button">Reset heap</button>
+<span class="progress" id="iProg" style="align-self:center"></span>
+</div>
+<div class="verdict" id="iMsg"><p>Press Play or step forward to insert the chosen value.</p></div>
+</div>
+</div>
+
+## 6 — Extract-min: take the root, move the last element up, sift down
+
+<div class="px">
+<p>Reading the minimum is O(1): it is <code>A[0]</code>. Removing it is the interesting part. Deleting the root outright would split the tree, so instead: save <code>A[0]</code>, move the <em>last</em> element <code>A[n − 1]</code> into the root slot, shrink the heap by one, and repair. The moved element is almost surely too big for the root, but it can only violate order against its children — so <strong>sift down</strong>, exactly the repair used by heapify: swap with the <em>smaller</em> child (choosing the smaller child is essential — swapping with the larger one would put that larger child above the smaller one and break their order), repeating until the element settles. One path down, O(log n), and the heap is whole again with the new minimum at the root.</p>
+<pre class="code">popMin(A):  <span class="cm">// O(log n)</span>&#10;&nbsp;&nbsp;top = A[0]&#10;&nbsp;&nbsp;<span class="cm">// last element moves to the root</span>&#10;&nbsp;&nbsp;A[0] = A.pop()&#10;&nbsp;&nbsp;if A not empty:&#10;&nbsp;&nbsp;&nbsp;&nbsp;siftDown(A, A.length, 0)&#10;&nbsp;&nbsp;return top</pre>
+<div class="diagram">
+<p class="figtitle" id="fig6Title">Figure 6: Extract-min: ready</p>
+<svg id="fig6Svg" viewBox="0 0 920 300" role="img" aria-label="Tree diagram animating extract-min with sift-down"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: the greyed cell has left the heap</div><div class="arr" id="fig6Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> element being sifted down</span><span><span class="dotsw" style="background:var(--math-teal)"></span> smaller child it swaps with</span></div>
+<p class="figcap"><strong>Figure 6.</strong> Extract from [1, 3, 2, 5, 4, 8, 6, 9, 7]: the 1 leaves, the last element 7 takes the root, then sifts down swapping with 2 and then 6, leaving [2, 3, 6, 5, 4, 8, 7, 9]. Keep extracting — the minima come out in sorted order, which is exactly how <strong>heapsort</strong> works: heapify an array once, then repeatedly extract the minimum (in practice in place, from the back, to sort descending with a max-heap).</p>
+</div>
+<div class="sliderbox">
+<h3>Extract-min controls</h3>
+<div class="btns">
+<button class="btn" id="ePrev" type="button">← Previous step</button>
+<button class="btn primary" id="ePlay" type="button">Play</button>
+<button class="btn" id="eNext" type="button">Next step →</button>
+<button class="btn primary" id="eAgain" type="button">Extract next minimum</button>
+<button class="btn danger" id="eReset" type="button">Reset heap</button>
+<span class="progress" id="eProg" style="align-self:center"></span>
+</div>
+<div class="verdict" id="eMsg"><p>Press Play or step forward to extract the minimum.</p></div>
+<div class="arrlab" style="margin-top:14px">Extracted so far, in order</div>
+<div class="chips" id="eChips"><span style="color:var(--math-ink2);font-size:.9rem">Nothing extracted yet.</span></div>
+</div>
+</div>
+
+## 7 — Rebalancing: when it is needed, and why it is always one path
+
+<div class="px">
+<p>A heap never needs the global rebalancing a search tree does — there is no rotation, no re-coloring, no restructuring pass. The order property can only break <em>locally</em>, along the single path touched by a change, and each operation repairs exactly that path. The complete list of triggers:</p>
+<table class="data">
+<tr><th style="width:26%">What changed</th><th style="width:30%">What can break</th><th>Repair</th></tr>
+<tr><td>Element appended (insert)</td><td>New element may be smaller than its parent</td><td><strong>Sift up</strong> from the last index: swap with parent while smaller</td></tr>
+<tr><td>Root removed (extract-min)</td><td>Last element, moved to the root, may be larger than a child</td><td><strong>Sift down</strong> from index 0: swap with the smaller child while larger</td></tr>
+<tr><td>A key <em>decreases</em> (priority raised)</td><td>Element may now be smaller than its parent</td><td><strong>Sift up</strong> from that index: the core of Dijkstra's decrease-key</td></tr>
+<tr><td>A key <em>increases</em> (priority lowered)</td><td>Element may now be larger than a child</td><td><strong>Sift down</strong> from that index</td></tr>
+<tr><td>Arbitrary array, or many keys changed</td><td>Order may be violated everywhere</td><td><strong>Heapify</strong> from the midpoint: rebuild in O(n) rather than repairing pair by pair</td></tr>
+</table>
+<p>The direction rule is the whole decision procedure: an element that got <em>smaller</em> (or arrived from below) can only be wrong against its parent, so it can only need to go <em>up</em>; an element that got <em>larger</em> (or arrived from above) can only be wrong against its children, so it can only need to go <em>down</em>. Try all of it in the playground: insert and extract animate their repair paths, decreasing or increasing a selected element triggers the matching sift, and “Shuffle” breaks the heap so you can watch heapify restore it from the midpoint.</p>
+<div class="diagram">
+<p class="figtitle" id="fig7Title">Figure 7: Playground heap: valid min-heap, n = 7</p>
+<svg id="fig7Svg" viewBox="0 0 920 300" role="img" aria-label="Interactive heap playground tree"></svg>
+<div class="arrwrap"><div class="arrlab">Array A: click a node or cell to select it</div><div class="arr" id="fig7Arr"></div></div>
+<div class="legend"><span><span class="dotsw" style="background:var(--math-orange)"></span> selected / moving element</span><span><span class="dotsw" style="background:var(--math-red)"></span> order violation (parent larger than child)</span></div>
+<p class="figcap"><strong>Figure 7.</strong> A free heap to experiment on. The status line under the controls checks the heap property across the whole array after every operation — shuffle the values and it names the first violating parent-child pair; heapify and it goes green again.</p>
+</div>
+<div class="sliderbox">
+<h3>Playground controls</h3>
+<div class="sliderrow"><label for="vSlider7">Value to insert <span id="v7Val">4</span></label><input type="range" id="vSlider7" min="0" max="15" step="1" value="4" /></div>
+<div class="btns">
+<button class="btn primary" id="pInsert" type="button">Insert value</button>
+<button class="btn primary" id="pExtract" type="button">Extract min</button>
+<button class="btn" id="pDec" type="button">Decrease selected by 3</button>
+<button class="btn" id="pInc" type="button">Increase selected by 3</button>
+</div>
+<div class="btns">
+<button class="btn" id="pShuffle" type="button">Shuffle (break the heap)</button>
+<button class="btn" id="pHeapify" type="button">Heapify</button>
+<button class="btn danger" id="pReset" type="button">Reset</button>
+</div>
+<div class="verdict" id="pMsg"><p>Valid min-heap. Insert, extract, edit a selected element, or shuffle and heapify.</p></div>
+</div>
+<div class="readbox">
+<h3>The one caveat: arbitrary deletion and decrease-key need a map</h3>
+<ul>
+<li>Sift-up after a key change is O(log n) <em>if you know the index</em>. Finding an arbitrary element in a heap is O(n) (heaps are not searchable), so real priority queues keep a side table from element to current index and update it on every swap.</li>
+<li>Deleting an arbitrary element combines both repairs: overwrite it with the last element, then sift up <em>or</em> down depending on how the replacement compares with its new parent and children.</li>
+</ul></div>
+</div>
+
+## 8 — Costs at a glance, and where heaps earn their keep
+
+<div class="px">
+<table class="data">
+<tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+<tr><td>Peek minimum, <code>A[0]</code></td><td>O(1)</td><td>The minimum is the root by definition</td></tr>
+<tr><td>Insert (push)</td><td>O(log n)</td><td>Append, then sift up one path of height ⌊log₂ n⌋</td></tr>
+<tr><td>Extract-min (pop)</td><td>O(log n)</td><td>Move last to root, sift down one path</td></tr>
+<tr><td>Decrease / increase key</td><td>O(log n)</td><td>One sift, up or down, from the element's index</td></tr>
+<tr><td>Build (heapify)</td><td>O(n)</td><td>Bottom-up sift-downs from the midpoint; most paths are short</td></tr>
+<tr><td>Search for a value</td><td>O(n)</td><td>No ordering between subtrees to prune by — the heap's one real weakness</td></tr>
+<tr><td>Extra memory</td><td>O(1)</td><td>In place in the array; no pointers, no node objects</td></tr>
+</table>
+<p>That cost profile — cheapest possible access to the extremum, logarithmic updates, linear build, zero overhead — makes the heap the default engine wherever work is consumed in priority order: operating-system and event-loop schedulers, Dijkstra's and A* shortest paths (with decrease-key), Huffman coding, streaming medians with paired min- and max-heaps, top-k queries, and heapsort, which is just heapify followed by n extract-mins for an O(n log n) sort with O(1) extra space. Whenever a problem asks for “the smallest (or largest) thing, repeatedly, while new things keep arriving”, it is asking for a heap — and underneath, it is asking for an array, two shifts, and a midpoint.</p>
+Heap Data Structure: a visual explainer. All diagrams are drawn live from the arrays they show; every animation step is computed by the same sift-up, sift-down and heapify code printed on this page.
+</div>
+
+
+<script set:html={`
+"use strict";
+/* ---------- shared helpers ---------- */
+function parent(i){ return (i - 1) >> 1; }
+function left(i){ return (i << 1) + 1; }
+function right(i){ return (i << 1) + 2; }
+function esc(s){ return String(s); }
+function nodePos(i, W){
+  var L = Math.floor(Math.log2(i + 1));
+  var pos = i - ((1 << L) - 1);
+  var x = (pos + 0.5) * W / (1 << L);
+  var y = 42 + L * 78;
+  return {x:x, y:y, L:L};
+}
+function treeHeight(n){
+  if(n <= 0) return 90;
+  var levels = Math.floor(Math.log2(n)) + 1;
+  return 42 + (levels - 1) * 78 + 48;
+}
+/* highlights: map index -> class key: cur, par, kid, mid, parOther, leaf, done, bad, sel */
+var FILL = {
+  cur:  {f:"var(--math-orange-soft)", s:"var(--math-orange)", w:2.6},
+  par:  {f:"var(--px-blue-soft)",   s:"var(--math-blue)",   w:2.4},
+  kid:  {f:"var(--math-teal-soft)",   s:"var(--math-teal)",   w:2.4},
+  mid:  {f:"var(--math-gold-soft)",   s:"var(--math-gold)",   w:2.6},
+  parO: {f:"var(--px-blue-soft)",   s:"var(--math-blue)",   w:1.6},
+  leaf: {f:"var(--color-code-bg)",    s:"var(--math-line)",   w:1.4},
+  done: {f:"var(--color-bg)",     s:"var(--math-teal)",   w:1.8},
+  bad:  {f:"var(--math-orange-soft)", s:"var(--math-red)",    w:2.6},
+  base: {f:"var(--color-bg)",     s:"var(--math-line)",   w:1.6}
+};
+function drawTree(svg, arr, opts){
+  opts = opts || {};
+  var hl = opts.hl || {};
+  var showIdx = opts.showIdx !== false;
+  var W = 920;
+  var n = arr.length;
+  var H = treeHeight(opts.fullN || n);
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  var out = "";
+  var i, p, a, b;
+  for(i = 1; i < n; i++){
+    p = parent(i); a = nodePos(i, W); b = nodePos(p, W);
+    var badEdge = opts.badEdges && opts.badEdges[i];
+    out += '<line x1="' + b.x + '" y1="' + b.y + '" x2="' + a.x + '" y2="' + a.y + '" stroke="' + (badEdge ? "var(--math-red)" : "var(--math-line)") + '" stroke-width="' + (badEdge ? 2.6 : 1.6) + '"/>';
+  }
+  for(i = 0; i < n; i++){
+    var pt = nodePos(i, W);
+    var st = FILL[hl[i] || "base"];
+    var click = opts.onPick ? ' data-pick="' + i + '" style="cursor:pointer"' : "";
+    out += '<g' + click + '><circle cx="' + pt.x + '" cy="' + pt.y + '" r="21" fill="' + st.f + '" stroke="' + st.s + '" stroke-width="' + st.w + '"/>';
+    out += '<text x="' + pt.x + '" y="' + (pt.y + 5.5) + '" text-anchor="middle" font-size="16.5" font-weight="600">' + esc(arr[i]) + '</text>';
+    if(showIdx) out += '<text class="sub-t mono-t" x="' + pt.x + '" y="' + (pt.y - 28) + '" text-anchor="middle" font-size="10.5">i=' + i + '</text>';
+    out += '</g>';
+  }
+  if(opts.ghost !== undefined && opts.ghost !== null){
+    var gn = opts.fullN || n + 1;
+    var gp = nodePos(n, W);
+    out += '<circle cx="' + gp.x + '" cy="' + gp.y + '" r="21" fill="none" stroke="var(--math-orange)" stroke-width="2" stroke-dasharray="5 4"/>';
+    out += '<text x="' + gp.x + '" y="' + (gp.y + 5.5) + '" text-anchor="middle" font-size="16.5" font-weight="600" fill="var(--math-orange)">' + esc(opts.ghost) + '</text>';
+  }
+  svg.innerHTML = out;
+  if(opts.onPick){
+    var gs = svg.querySelectorAll("[data-pick]");
+    for(var k = 0; k < gs.length; k++){
+      gs[k].addEventListener("click", function(){ opts.onPick(+this.getAttribute("data-pick")); });
+    }
+  }
+}
+function drawArray(el, arr, opts){
+  opts = opts || {};
+  var hl = opts.hl || {};
+  var total = opts.total || arr.length;
+  el.classList.toggle("dense", total >= 20);
+  var out = "";
+  for(var i = 0; i < total; i++){
+    var cls = "cell";
+    if(i >= arr.length) cls += " gone";
+    else if(hl[i]) cls += " " + ({cur:"cur", par:"par", kid:"kid", mid:"mid", done:"done", bad:"bad", sel:"cur", parO:"par"})[hl[i]] || "";
+    if(opts.onPick && i < arr.length) cls += " clickable";
+    var v = i < arr.length ? esc(arr[i]) : "…";
+    out += '<div class="' + cls + '"' + (opts.onPick && i < arr.length ? ' data-pick="' + i + '"' : "") + '><span class="v">' + v + '</span><span class="i">' + i + '</span></div>';
+  }
+  el.innerHTML = out;
+  if(opts.onPick){
+    var cs = el.querySelectorAll("[data-pick]");
+    for(var k = 0; k < cs.length; k++){
+      cs[k].addEventListener("click", function(){ opts.onPick(+this.getAttribute("data-pick")); });
+    }
+  }
+}
+function isHeap(a){
+  for(var i = 1; i < a.length; i++){ if(a[parent(i)] > a[i]) return i; }
+  return -1;
+}
+/* snapshot stepper engine */
+function makeStepper(cfg){
+  var idx = 0, timer = null;
+  function stop(){ if(timer){ clearInterval(timer); timer = null; cfg.playBtn.textContent = "Play"; } }
+  function render(){
+    var s = cfg.steps[idx];
+    cfg.render(s, idx, cfg.steps.length);
+    cfg.prevBtn.disabled = idx <= 0;
+    cfg.nextBtn.disabled = idx >= cfg.steps.length - 1;
+    if(idx >= cfg.steps.length - 1) stop();
+  }
+  cfg.prevBtn.addEventListener("click", function(){ stop(); if(idx > 0) idx--; render(); });
+  cfg.nextBtn.addEventListener("click", function(){ stop(); if(idx < cfg.steps.length - 1) idx++; render(); });
+  cfg.playBtn.addEventListener("click", function(){
+    if(timer){ stop(); return; }
+    if(idx >= cfg.steps.length - 1) idx = 0;
+    render();
+    timer = setInterval(function(){ if(idx < cfg.steps.length - 1){ idx++; render(); } else stop(); }, cfg.speed || 1200);
+  });
+  if(cfg.resetBtn) cfg.resetBtn.addEventListener("click", function(){ stop(); idx = 0; if(cfg.onReset) cfg.onReset(); render(); });
+  return {
+    render: render, stop: stop,
+    setSteps: function(steps){ stop(); cfg.steps = steps; idx = 0; render(); },
+    getIdx: function(){ return idx; }
+  };
+}
+
+/* ---------- Figure 1: correspondence ---------- */
+(function(){
+  var A = [1, 3, 2, 5, 4, 8, 6, 9, 7];
+  var sel = 4;
+  var svg = document.getElementById("fig1Svg");
+  var arrEl = document.getElementById("fig1Arr");
+  var chk = document.getElementById("fig1Idx");
+  function render(){
+    var hl = {}; hl[sel] = "cur";
+    if(sel > 0) hl[parent(sel)] = "par";
+    if(left(sel) < A.length) hl[left(sel)] = "kid";
+    if(right(sel) < A.length) hl[right(sel)] = "kid";
+    drawTree(svg, A, {hl: hl, showIdx: chk.checked, onPick: pick});
+    drawArray(arrEl, A, {hl: hl, onPick: pick});
+    var parts = ["index " + sel + " (value " + A[sel] + ")"];
+    if(sel > 0) parts.push("parent index " + parent(sel) + " (value " + A[parent(sel)] + ")");
+    if(left(sel) < A.length) parts.push("children indices " + left(sel) + (right(sel) < A.length ? " and " + right(sel) : ""));
+    else parts.push("no children — a leaf");
+    document.getElementById("fig1Title").textContent = "Figure 1: Selected: " + parts.join(", ");
+  }
+  function pick(i){ sel = i; render(); }
+  chk.addEventListener("change", render);
+  render();
+})();
+
+/* ---------- Figure 2: index explorer ---------- */
+(function(){
+  var A = []; for(var j = 0; j < 15; j++) A.push(j);
+  var svg = document.getElementById("fig2Svg");
+  var arrEl = document.getElementById("fig2Arr");
+  var slider = document.getElementById("iSlider2");
+  function bits(num, width){
+    var s = num.toString(2);
+    while(s.length < width) s = "0" + s;
+    return s;
+  }
+  function bitSpans(s, newLast){
+    var out = "";
+    for(var k = 0; k < s.length; k++){
+      var cls = "bit" + (s[k] === "1" ? " on" : "") + (newLast && k === s.length - 1 ? " new" : "");
+      out += '<span class="' + cls + '">' + s[k] + '</span>';
+    }
+    return out;
+  }
+  function render(){
+    var i = +slider.value;
+    var hl = {}; hl[i] = "cur";
+    if(i > 0) hl[parent(i)] = "par";
+    if(left(i) < 15) hl[left(i)] = "kid";
+    if(right(i) < 15) hl[right(i)] = "kid";
+    drawTree(svg, A, {hl: hl, showIdx: true});
+    drawArray(arrEl, A, {hl: hl});
+    document.getElementById("fig2Title").textContent = "Figure 2: Index explorer: node i = " + i + " in a 15-element heap";
+    document.getElementById("roPar2").textContent = i === 0 ? "none (root)" : parent(i) + "  =  (" + i + " − 1) ≫ 1";
+    document.getElementById("roLeft2").textContent = left(i) < 15 ? left(i) + "  =  (" + i + " ≪ 1) + 1" : left(i) + " (outside n = 15)";
+    document.getElementById("roRight2").textContent = right(i) < 15 ? right(i) + "  =  (" + i + " ≪ 1) + 2" : right(i) + " (outside n = 15)";
+    document.getElementById("roDepth2").textContent = Math.floor(Math.log2(i + 1));
+    var b = bits(i, 4), bl = bits(left(i), 5);
+    var html = '<span class="bitlab">i = ' + i + ' in binary:</span>' + bitSpans(b, false);
+    if(left(i) < 15){
+      html += '<span class="bitlab">shift left, +1 → left child ' + left(i) + ':</span>' + bitSpans(bl, true);
+    } else {
+      html += '<span class="bitlab">left child would be ' + left(i) + ' ≥ 15, so node ' + i + ' is a leaf</span>';
+    }
+    document.getElementById("binRow2").innerHTML = html;
+  }
+  slider.addEventListener("input", render);
+  render();
+})();
+
+/* ---------- Figure 3: midpoint ---------- */
+(function(){
+  var svg = document.getElementById("fig3Svg");
+  var arrEl = document.getElementById("fig3Arr");
+  var slider = document.getElementById("nSlider3");
+  function render(){
+    var n = +slider.value;
+    var A = []; for(var j = 0; j < n; j++) A.push(j);
+    var m = (n >> 1) - 1;
+    var hl = {};
+    for(var i = 0; i < n; i++){ hl[i] = i === m ? "mid" : (i < m ? "parO" : "leaf"); }
+    drawTree(svg, A, {hl: hl, showIdx: true, fullN: n});
+    drawArray(arrEl, A, {hl: hl});
+    document.getElementById("fig3Title").textContent = "Figure 3: n = " + n + " elements: midpoint at index " + m + ", " + (m + 1) + " parents and " + (n - m - 1) + " leaves";
+    document.getElementById("roMid3").textContent = m + "  =  (" + n + " ≫ 1) − 1 = " + (n >> 1) + " − 1";
+    document.getElementById("roPar3").textContent = (m + 1) + " parents";
+    document.getElementById("roLeaf3").textContent = (n - m - 1) + " leaves";
+    document.getElementById("roH3").textContent = Math.floor(Math.log2(n));
+  }
+  slider.addEventListener("input", render);
+  render();
+})();
+
+/* ---------- Figure 4: heapify stepper ---------- */
+function buildHeapifySteps(start){
+  var a = start.slice(), n = a.length, m = (n >> 1) - 1;
+  var steps = [{arr: a.slice(), hl: (function(){ var h = {}; h[m] = "mid"; return h; })(),
+    msg: "Start: [" + a.join(", ") + "], n = " + n + ". The midpoint is (" + n + " ≫ 1) − 1 = " + m + " (gold). The scan runs from index " + m + " down to 0; indices above " + m + " are leaves and already valid one-element heaps."}];
+  for(var i = m; i >= 0; i--){
+    var cur = i;
+    var first = true;
+    while(true){
+      var l = left(cur), r = right(cur), smallest = cur;
+      if(l < n && a[l] < a[smallest]) smallest = l;
+      if(r < n && a[r] < a[smallest]) smallest = r;
+      if(smallest === cur){
+        var h1 = {}; h1[cur] = "cur"; if(l < n) h1[l] = "kid"; if(r < n) h1[r] = "kid";
+        steps.push({arr: a.slice(), hl: h1, msg: (first ? "Sift down from index " + i + " (value " + a[cur] + "): " : "Now at index " + cur + " (value " + a[cur] + "): ") + "it is no larger than " + (l < n ? "its children (" + a[l] + (r < n ? " and " + a[r] : "") + ")" : "anything — it is a leaf") + ", so it stays. Subtree rooted at " + i + " is now a valid heap."});
+        break;
+      }
+      var h2 = {}; h2[cur] = "cur"; h2[smallest] = "kid";
+      var before = a[cur], childVal = a[smallest];
+      steps.push({arr: a.slice(), hl: h2, msg: "Sift down from index " + cur + ": value " + before + " is larger than its " + (smallest === l ? "left" : "right") + " child " + childVal + " at index " + smallest + ": swap them."});
+      var t = a[cur]; a[cur] = a[smallest]; a[smallest] = t;
+      cur = smallest; first = false;
+    }
+  }
+  var done = {}; for(var k = 0; k < n; k++) done[k] = "done";
+  steps.push({arr: a.slice(), hl: done, msg: "Done: [" + a.join(", ") + "] is a valid min-heap — every parent is no larger than its children, and the minimum " + a[0] + " is at the root. The array was rearranged in place; no second array was used."});
+  return steps;
+}
+(function(){
+  var start = [9, 4, 7, 1, 8, 3, 6, 2, 5];
+  var svg = document.getElementById("fig4Svg"), arrEl = document.getElementById("fig4Arr");
+  var stepper = makeStepper({
+    steps: buildHeapifySteps(start),
+    prevBtn: document.getElementById("hPrev"), nextBtn: document.getElementById("hNext"),
+    playBtn: document.getElementById("hPlay"), resetBtn: document.getElementById("hReset"), speed: 1300,
+    render: function(s, idx, total){
+      drawTree(svg, s.arr, {hl: s.hl, showIdx: true});
+      drawArray(arrEl, s.arr, {hl: s.hl});
+      document.getElementById("fig4Title").textContent = "Figure 4: Heapify step " + idx + " of " + (total - 1);
+      document.getElementById("hProg").textContent = "Step " + idx + " of " + (total - 1);
+      document.getElementById("hMsg").innerHTML = "<p>" + s.msg + "</p>";
+    }
+  });
+  stepper.render();
+})();
+
+/* ---------- Figure 5: insert stepper ---------- */
+function buildInsertSteps(heap, v){
+  var a = heap.slice();
+  var steps = [{arr: a.slice(), hl: {}, ghost: v, msg: "Ready to insert " + v + " into the heap [" + a.join(", ") + "]. It must go in the next free slot, index " + a.length + ", to keep the tree complete."}];
+  a.push(v);
+  var i = a.length - 1;
+  var hl0 = {}; hl0[i] = "cur";
+  steps.push({arr: a.slice(), hl: hl0, msg: "Placed " + v + " at index " + i + ". Now check the parent at index " + parent(i) + " and sift up while the parent is larger."});
+  while(i > 0){
+    var p = parent(i);
+    var hl = {}; hl[i] = "cur"; hl[p] = "par";
+    if(a[p] > a[i]){
+      steps.push({arr: a.slice(), hl: hl, msg: "Parent A[" + p + "] = " + a[p] + " is larger than " + a[i] + ": swap. The element climbs to index " + p + "."});
+      var t = a[i]; a[i] = a[p]; a[p] = t; i = p;
+    } else {
+      steps.push({arr: a.slice(), hl: hl, msg: "Parent A[" + p + "] = " + a[p] + " is no larger than " + a[i] + ": the order property holds here, so sift-up stops at index " + i + "."});
+      break;
+    }
+  }
+  if(i === 0){
+    var hlR = {}; hlR[0] = "cur";
+    steps.push({arr: a.slice(), hl: hlR, msg: v + " has climbed all the way to the root — it is the new minimum. Final heap: [" + a.join(", ") + "]."});
+  }
+  var done = {}; for(var k = 0; k < a.length; k++) done[k] = "done";
+  steps.push({arr: a.slice(), hl: done, msg: "Done: [" + a.join(", ") + "] is a valid min-heap with " + a.length + " elements. Only the path from the old last slot to index " + i + " was touched."});
+  return steps;
+}
+(function(){
+  var heap0 = [1, 3, 2, 5, 4, 8, 6];
+  var svg = document.getElementById("fig5Svg"), arrEl = document.getElementById("fig5Arr");
+  var slider = document.getElementById("vSlider5");
+  var stepper = makeStepper({
+    steps: buildInsertSteps(heap0, 0),
+    prevBtn: document.getElementById("iPrev"), nextBtn: document.getElementById("iNext"),
+    playBtn: document.getElementById("iPlay"), resetBtn: document.getElementById("iReset"), speed: 1200,
+    render: function(s, idx, total){
+      drawTree(svg, s.arr, {hl: s.hl, showIdx: true, ghost: s.ghost !== undefined && idx === 0 ? s.ghost : null, fullN: heap0.length + 1});
+      drawArray(arrEl, s.arr, {hl: s.hl, total: idx === 0 ? heap0.length + 1 : s.arr.length});
+      document.getElementById("fig5Title").textContent = "Figure 5: Insert step " + idx + " of " + (total - 1) + ": inserting " + slider.value + " into [" + heap0.join(", ") + "]";
+      document.getElementById("iProg").textContent = "Step " + idx + " of " + (total - 1);
+      document.getElementById("iMsg").innerHTML = "<p>" + s.msg + "</p>";
+    }
+  });
+  slider.addEventListener("input", function(){ document.getElementById("v5Val").textContent = slider.value; stepper.setSteps(buildInsertSteps(heap0, +slider.value)); });
+  stepper.render();
+})();
+
+/* ---------- Figure 6: extract stepper ---------- */
+function buildExtractSteps(heap){
+  var a = heap.slice(), n = a.length;
+  var steps = [], total = n;
+  var top = a[0];
+  steps.push({arr: a.slice(), hl: {0: "cur"}, total: total, msg: "The minimum is the root: A[0] = " + top + ". It will be removed; the last element, A[" + (n - 1) + "] = " + a[n - 1] + ", will move into its place."});
+  var last = a.pop();
+  if(a.length === 0){
+    steps.push({arr: [], hl: {}, total: total, msg: "That was the only element — the heap is now empty."});
+    return {steps: steps, extracted: top, result: []};
+  }
+  a[0] = last;
+  steps.push({arr: a.slice(), hl: {0: "cur"}, total: total, msg: "Moved " + last + " to the root and shrank the heap to " + a.length + " elements (the greyed cell is out). " + last + " is larger than a child, so sift down to repair."});
+  var cur = 0;
+  while(true){
+    var l = left(cur), r = right(cur), smallest = cur;
+    if(l < a.length && a[l] < a[smallest]) smallest = l;
+    if(r < a.length && a[r] < a[smallest]) smallest = r;
+    if(smallest === cur){
+      var h = {}; h[cur] = "cur"; if(l < a.length) h[l] = "kid"; if(r < a.length) h[r] = "kid";
+      steps.push({arr: a.slice(), hl: h, total: total, msg: "At index " + cur + ", " + a[cur] + " is no larger than its children — sift-down stops. The heap is valid again."});
+      break;
+    }
+    var h2 = {}; h2[cur] = "cur"; h2[smallest] = "kid";
+    steps.push({arr: a.slice(), hl: h2, total: total, msg: "At index " + cur + ": " + a[cur] + " is larger than its smaller child " + a[smallest] + " at index " + smallest + ": swap, and keep sifting from index " + smallest + "."});
+    var t = a[cur]; a[cur] = a[smallest]; a[smallest] = t; cur = smallest;
+  }
+  var done = {}; for(var k = 0; k < a.length; k++) done[k] = "done";
+  steps.push({arr: a.slice(), hl: done, total: total, msg: "Done: extracted " + top + ". The remaining heap is [" + a.join(", ") + "] and the new minimum, " + a[0] + ", is at the root."});
+  return {steps: steps, extracted: top, result: a.slice()};
+}
+(function(){
+  var heap0 = [1, 3, 2, 5, 4, 8, 6, 9, 7];
+  var current = heap0.slice(), extracted = [];
+  var svg = document.getElementById("fig6Svg"), arrEl = document.getElementById("fig6Arr");
+  var built = buildExtractSteps(current);
+  var stepper = makeStepper({
+    steps: built.steps,
+    prevBtn: document.getElementById("ePrev"), nextBtn: document.getElementById("eNext"),
+    playBtn: document.getElementById("ePlay"), resetBtn: null, speed: 1200,
+    render: function(s, idx, total){
+      drawTree(svg, s.arr, {hl: s.hl, showIdx: true, fullN: s.total || s.arr.length});
+      drawArray(arrEl, s.arr, {hl: s.hl, total: s.total || s.arr.length});
+      document.getElementById("fig6Title").textContent = "Figure 6: Extract-min step " + idx + " of " + (total - 1) + (extracted.length ? " (already extracted: " + extracted.join(", ") + ")" : "");
+      document.getElementById("eProg").textContent = "Step " + idx + " of " + (total - 1);
+      document.getElementById("eMsg").innerHTML = "<p>" + s.msg + "</p>";
+      document.getElementById("eAgain").disabled = !(idx === total - 1 && current.length > 0);
+    }
+  });
+  function showChips(){
+    var el = document.getElementById("eChips");
+    el.innerHTML = extracted.length ? extracted.map(function(x){ return '<span class="chip">' + x + '</span>'; }).join("") : '<span style="color:var(--math-ink2);font-size:.9rem">Nothing extracted yet.</span>';
+  }
+  document.getElementById("eAgain").addEventListener("click", function(){
+    if(current.length === 0) return;
+    built = buildExtractSteps(current);
+    extracted.push(built.extracted);
+    current = built.result;
+    showChips();
+    stepper.setSteps(built.steps);
+  });
+  document.getElementById("eReset").addEventListener("click", function(){
+    current = heap0.slice(); extracted = [];
+    built = buildExtractSteps(current);
+    showChips();
+    stepper.setSteps(built.steps);
+  });
+  stepper.render();
+})();
+
+/* ---------- Figure 7: playground ---------- */
+(function(){
+  var start = [2, 5, 3, 8, 7, 6, 9];
+  var A = start.slice(), sel = 0, timer = null;
+  var svg = document.getElementById("fig7Svg"), arrEl = document.getElementById("fig7Arr");
+  var msgEl = document.getElementById("pMsg");
+  var btns = ["pInsert", "pExtract", "pDec", "pInc", "pShuffle", "pHeapify", "pReset"].map(function(id){ return document.getElementById(id); });
+  function setBusy(b){ btns.forEach(function(x){ x.disabled = b; }); }
+  function statusText(extra){
+    var bad = isHeap(A);
+    var t;
+    if(A.length === 0) t = "The heap is empty.";
+    else if(bad === -1) t = "Valid min-heap, n = " + A.length + ", minimum " + A[0] + " at the root.";
+    else t = "Not a heap: A[" + parent(bad) + "] = " + A[parent(bad)] + " is larger than its child A[" + bad + "] = " + A[bad] + ": the order property is broken at index " + bad + ". Heapify will repair it.";
+    return (extra ? extra + " " : "") + t;
+  }
+  function render(hl, badEdges){
+    drawTree(svg, A, {hl: hl || defaultHl(), showIdx: true, onPick: pick, badEdges: badEdges});
+    drawArray(arrEl, A, {hl: hl || defaultHl(), onPick: pick});
+    var bad = isHeap(A);
+    document.getElementById("fig7Title").textContent = "Figure 7: Playground heap: " + (A.length === 0 ? "empty" : (bad === -1 ? "valid min-heap, n = " + A.length : "order broken at index " + bad + ", n = " + A.length));
+  }
+  function defaultHl(){
+    var hl = {}, bad = isHeap(A);
+    if(sel !== null && sel < A.length) hl[sel] = "cur";
+    if(bad !== -1){ hl[bad] = "bad"; hl[parent(bad)] = "bad"; }
+    return hl;
+  }
+  function badEdgeMap(){
+    var map = {}, bad = isHeap(A);
+    if(bad !== -1) map[bad] = true;
+    return map;
+  }
+  function pick(i){ if(timer) return; sel = i; render(null, badEdgeMap()); msgEl.innerHTML = "<p>Selected index " + i + " (value " + A[i] + "). Decrease it to sift up, or increase it to sift down.</p>"; }
+  function animate(snaps, doneMsg){
+    if(!snaps.length){ render(null, badEdgeMap()); msgEl.innerHTML = "<p>" + statusText(doneMsg) + "</p>"; return; }
+    setBusy(true);
+    var k = 0;
+    render(snaps[0].hl, null);
+    msgEl.innerHTML = "<p>" + snaps[0].msg + "</p>";
+    timer = setInterval(function(){
+      k++;
+      if(k >= snaps.length){
+        clearInterval(timer); timer = null; setBusy(false);
+        render(null, badEdgeMap());
+        msgEl.innerHTML = "<p>" + statusText(doneMsg) + "</p>";
+        return;
+      }
+      render(snaps[k].hl, null);
+      msgEl.innerHTML = "<p>" + snaps[k].msg + "</p>";
+    }, 850);
+  }
+  function siftUpSnaps(a, i, snaps, label){
+    while(i > 0){
+      var p = parent(i);
+      if(a[p] > a[i]){
+        var hl = {}; hl[i] = "cur"; hl[p] = "par";
+        snaps.push({hl: hl, msg: label + ": A[" + p + "] = " + a[p] + " > " + a[i] + ": swap up."});
+        var t = a[i]; a[i] = a[p]; a[p] = t; i = p;
+      } else break;
+    }
+    return i;
+  }
+  function siftDownSnaps(a, i, snaps, label){
+    while(true){
+      var l = left(i), r = right(i), smallest = i;
+      if(l < a.length && a[l] < a[smallest]) smallest = l;
+      if(r < a.length && a[r] < a[smallest]) smallest = r;
+      if(smallest === i) break;
+      var hl = {}; hl[i] = "cur"; hl[smallest] = "kid";
+      snaps.push({hl: hl, msg: label + ": A[" + i + "] = " + a[i] + " > smaller child " + a[smallest] + ": swap down."});
+      var t = a[i]; a[i] = a[smallest]; a[smallest] = t; i = smallest;
+    }
+    return i;
+  }
+  document.getElementById("vSlider7").addEventListener("input", function(){ document.getElementById("v7Val").textContent = document.getElementById("vSlider7").value; });
+  document.getElementById("pInsert").addEventListener("click", function(){
+    var v = +document.getElementById("vSlider7").value;
+    var snaps = [];
+    A.push(v);
+    var i = A.length - 1;
+    var hl = {}; hl[i] = "cur";
+    snaps.push({hl: hl, msg: "Inserted " + v + " at index " + i + " (the next free slot). Sifting up to repair."});
+    sel = siftUpSnaps(A, i, snaps, "Sift up");
+    animate(snaps, "Inserted " + v + ".");
+  });
+  document.getElementById("pExtract").addEventListener("click", function(){
+    if(A.length === 0){ msgEl.innerHTML = "<p>Nothing to extract — the heap is empty.</p>"; return; }
+    var top = A[0], snaps = [];
+    var last = A.pop();
+    if(A.length){ A[0] = last; snaps.push({hl: {0: "cur"}, msg: "Extracted " + top + ". Moved last element " + last + " to the root; sifting down."}); sel = siftDownSnaps(A, 0, snaps, "Sift down"); }
+    else { sel = 0; snaps.push({hl: {}, msg: "Extracted " + top + ". The heap is now empty."}); }
+    animate(snaps, "Extracted minimum " + top + ".");
+  });
+  document.getElementById("pDec").addEventListener("click", function(){
+    if(sel === null || sel >= A.length) return;
+    var snaps = [], old = A[sel];
+    A[sel] = Math.max(0, A[sel] - 3);
+    var hl = {}; hl[sel] = "cur";
+    snaps.push({hl: hl, msg: "Decreased A[" + sel + "] from " + old + " to " + A[sel] + ". A smaller key can only violate order against its parent — sift up."});
+    sel = siftUpSnaps(A, sel, snaps, "Sift up");
+    animate(snaps, "Decrease-key complete.");
+  });
+  document.getElementById("pInc").addEventListener("click", function(){
+    if(sel === null || sel >= A.length) return;
+    var snaps = [], old = A[sel];
+    A[sel] = A[sel] + 3;
+    var hl = {}; hl[sel] = "cur";
+    snaps.push({hl: hl, msg: "Increased A[" + sel + "] from " + old + " to " + A[sel] + ". A larger key can only violate order against its children — sift down."});
+    sel = siftDownSnaps(A, sel, snaps, "Sift down");
+    animate(snaps, "Increase-key complete.");
+  });
+  document.getElementById("pShuffle").addEventListener("click", function(){
+    for(var i = A.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = A[i]; A[i] = A[j]; A[j] = t; }
+    sel = 0;
+    render(null, badEdgeMap());
+    msgEl.innerHTML = "<p>" + statusText("Shuffled to [" + A.join(", ") + "].") + "</p>";
+  });
+  document.getElementById("pHeapify").addEventListener("click", function(){
+    var snaps = [], n = A.length, m = (n >> 1) - 1;
+    var hl = {}; if(m >= 0) hl[m] = "mid";
+    snaps.push({hl: hl, msg: "Heapify: starting at the midpoint m = (" + n + " ≫ 1) − 1 = " + m + ", sifting down each parent back to the root."});
+    for(var i = m; i >= 0; i--){
+      var h0 = {}; h0[i] = "cur";
+      snaps.push({hl: h0, msg: "Sift down from index " + i + " (value " + A[i] + ")."});
+      siftDownSnaps(A, i, snaps, "Sift down");
+    }
+    animate(snaps, "Heapify complete.");
+  });
+  document.getElementById("pReset").addEventListener("click", function(){
+    if(timer){ clearInterval(timer); timer = null; }
+    setBusy(false);
+    A = start.slice(); sel = 0;
+    render(null, badEdgeMap());
+    msgEl.innerHTML = "<p>Reset. " + statusText("") + "</p>";
+  });
+  render(null, badEdgeMap());
+})();
+`} />

@@ -1,0 +1,956 @@
+---
+title: "Concurrency problems: races, deadlocks, and the fixes"
+tocDepth: 2
+---
+
+<style is:global>{`
+/* ===== Palette for the Concurrency note =====
+   Accent + neutral tokens come from /styles/math.css (--math-*), chosen by
+   perceptual distance (CIELAB dE 0-13.8, the harmonization tolerance the other
+   notes use): teal/orange/blue/gold/red -> --math-* and their -soft fills,
+   ink/ink2/ink3/line -> the shared neutrals. Dark mode is handled there.
+   Only the theme-invariant fills (blk / blk-ink / rbred-soft), the cool-soft
+   fill (blue-soft) and the surface aliases are note-local. */
+:root {
+  --px-surface: var(--color-bg);
+  --px-surface2: var(--color-code-bg);
+  --px-blue-soft: #e3ecfd;
+  --px-rbred-soft: #3a1a16;
+  --px-blk: #04070a;
+  --px-blk-ink: #eef4f7;
+}
+:root[data-theme="dark"] {
+  --px-blue-soft: #1a2a47;
+}
+
+
+
+
+
+
+.px .wrap {max-width:1020px;margin:0 auto;padding:0 20px 80px}
+
+
+
+
+
+
+
+.px .lede {font-size:clamp(1.08rem,2.4vw,1.28rem);color:var(--math-ink2);line-height:1.55;max-width:46em}
+
+.px .hero {padding:52px 0 8px}
+
+.px .kicker {font-family: var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--math-teal);font-weight:600;margin-bottom:16px}
+
+.px .keybox {margin:28px 0 8px;background:var(--math-teal-soft);border:1px solid var(--math-line);border-radius:10px;padding:20px 22px}
+
+.px .keybox strong {color:var(--math-teal)}
+
+.px .keybox p {margin:0}
+
+.px .toc {display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
+
+.px .toc a {display:inline-block;text-decoration:none;color:var(--math-ink2);border:1px solid var(--math-line);background:var(--color-bg);border-radius:999px;padding:6px 13px;font-size:.86rem;font-weight:500}
+
+.px .toc a:hover {color:var(--math-teal);border-color:var(--math-teal)}
+
+.px section.step {margin-top:64px;scroll-margin-top:20px}
+
+.px .stepnum {font-family: var(--font-mono);font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--math-orange);margin-bottom:8px}
+
+.px .diagram {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:14px 12px 8px;margin-top:18px}
+
+.px .diagram svg {width:100%;height:auto;display:block}
+
+.px .figcap {font-size:.85rem;color:var(--math-ink2);padding:8px 6px 6px;line-height:1.5}
+
+.px .figcap strong {color:var(--math-ink)}
+
+.px .figtitle {font-family: var(--font-body);font-weight:700;font-size:15.5px;margin:0 0 8px;color:var(--math-ink)}
+
+.px .readbox {background:var(--color-code-bg);border-radius:10px;padding:16px 18px;margin-top:16px}
+
+.px .readbox h3 {margin-bottom:8px;font-family: var(--font-body);font-size:.95rem}
+
+.px .readbox ul {margin:0;padding-left:20px}
+
+.px .readbox li {margin-bottom:6px;font-size:.96rem}
+
+.px .callout {border:1px solid var(--math-line);background:var(--math-gold-soft);border-radius:8px;padding:14px 18px;margin:18px 0;font-size:.97rem}
+
+.px .callout p {margin:0}
+
+.px .sliderbox {background:var(--color-bg);border:1px solid var(--math-line);border-radius:12px;padding:20px 22px;margin-top:18px}
+
+.px .sliderbox h3 {font-family: var(--font-body);margin-bottom:4px}
+
+.px .sliderrow {display:grid;grid-template-columns:1fr;gap:6px;margin:16px 0 4px}
+
+@media(min-width:640px) {
+.px .sliderrow {grid-template-columns:max-content 1fr;align-items:center;gap:14px}
+
+}
+
+.px .sliderrow label {font-weight:600;font-size:.95rem}
+
+.px input[type=range] {width:100%;min-width:0;height:36px;accent-color:var(--math-teal);cursor:pointer}
+
+@media(min-width:640px) {
+.px input[type=range] {min-width:0}
+
+}
+
+.px .readouts {display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+
+.px .ro {background:var(--color-code-bg);border-radius:8px;padding:10px 12px;min-width:0}
+
+.px .ro b {display:block;font-family: var(--font-mono);font-size:17px;line-height:1.3;color:var(--math-ink);overflow-wrap:anywhere}
+
+.px .ro span {font-size:12.5px;color:var(--math-ink2);text-transform:uppercase;letter-spacing:.04em}
+
+.px .basetoggle {display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--math-ink2);padding:8px 6px 2px;cursor:pointer;min-height:36px}
+
+.px .basetoggle input {width:17px;height:17px;accent-color:var(--math-teal);cursor:pointer;flex:none;margin:0}
+
+.px table.formulas {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15.5px}
+
+.px table.formulas th, .px table.formulas td {border:1px solid var(--math-line);padding:11px 13px;text-align:left;vertical-align:top}
+
+.px table.formulas th {background:var(--color-code-bg);font-weight:600;width:32%}
+
+.px table.data {width:100%;border-collapse:collapse;margin:16px 0;background:var(--color-bg);font-size:15px}
+
+.px table.data th, .px table.data td {border:1px solid var(--math-line);padding:9px 11px;text-align:left;vertical-align:top}
+
+.px table.data th {background:var(--color-code-bg)}
+
+.px math {font-family: "STIX Two Math","Cambria Math",serif"Cambria Math",serif;font-size:1.06em}
+
+.px table.formulas td {line-height:1.5}
+
+.px table.formulas math[display="block"] {display:block;margin:9px 0;line-height:1.55}
+
+.px table.formulas math[display="block"]:first-child {margin-top:2px}
+
+.px table.formulas math[display="block"]:last-child {margin-bottom:2px}
+
+.px .eqwrap {overflow-x:auto}
+
+.px svg text {font-family: var(--font-body);fill:var(--math-ink)}
+
+.px svg text.mono-t {font-family: var(--font-mono)}
+
+.px svg text.sub-t {fill:var(--math-ink2)}
+
+.px svg text.on-dark {fill:var(--px-blk-ink)}
+
+.px .legend {display:flex;flex-wrap:wrap;gap:14px;font-size:.86rem;color:var(--math-ink2);padding:4px 6px 8px}
+
+.px .legend span {display:inline-flex;align-items:center;gap:6px}
+
+.px .dotsw {width:12px;height:12px;border-radius:50%;display:inline-block;flex:none}
+
+
+.px .warn {color:var(--math-red);font-weight:600}
+
+.px .btns {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+
+.px .btn {font-family: var(--font-body);font-size:.9rem;font-weight:600;border:1px solid var(--math-line);background:var(--color-bg);color:var(--math-ink);border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px}
+
+.px .btn:hover {border-color:var(--math-teal);color:var(--math-teal)}
+
+.px .btn:disabled {opacity:.42;cursor:default;color:var(--math-ink)}
+
+.px .btn:disabled:hover {border-color:var(--math-line)}
+
+.px .btn.primary {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .btn.primary:hover {color:#fff;opacity:.9}
+
+.px .btn.danger:hover {border-color:var(--math-red);color:var(--math-red)}
+
+.px .btn[aria-pressed="true"] {background:var(--math-teal);border-color:var(--math-teal);color:#fff}
+
+.px .verdict {border-radius:10px;padding:14px 18px;margin-top:14px;font-size:.97rem;border:1px solid var(--math-line);background:var(--color-code-bg)}
+
+.px .verdict p {margin:0}
+
+.px code {font-family: var(--font-mono);font-size:.88em;background:var(--color-code-bg);border-radius:4px;padding:1px 5px}
+
+.px pre.code {font-family: var(--font-mono);font-size:12.5px;line-height:1.6;background:var(--color-code-bg);border:1px solid var(--math-line);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0}
+
+.px pre.code .cm {color:var(--math-ink3)}
+
+.px .progress {font-family: var(--font-mono);font-size:13px;color:var(--math-ink2)}
+
+.px .note {font-size:.97rem;margin-top:10px;min-height:3.2em}
+
+.px .invlist {list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+
+.px .invlist li {display:flex;gap:10px;align-items:flex-start;background:var(--color-code-bg);border-radius:8px;padding:10px 12px;font-size:.95rem}
+
+.px .badge {font-family: var(--font-mono);font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 9px;flex:none;margin-top:2px}
+
+.px .badge.ok {background:var(--math-teal-soft);color:var(--math-teal);border:1px solid var(--math-teal)}
+
+.px .badge.bad {background:var(--px-rbred-soft);color:var(--math-red);border:1px solid var(--math-red)}
+
+
+`}</style>
+
+<div class="px">
+<header class="hero">
+<div class="kicker">Algorithms — running many things at once</div>
+<p class="lede">A single-threaded program has one story: each line runs, then the next. Add a second thread and the stories interleave — and almost every classic bug in concurrent code is a bad interleaving. Two increments can lose one update. Two threads can each wait forever for the other. A polite program can dance forever without moving. A low-priority thread can hold up the most important task in the system. This page builds each failure live, in a stepper or simulator you control, then applies the standard fix in the same picture: <strong>mutexes</strong>, <strong>lock ordering</strong>, <strong>fair queues</strong>, <strong>randomised backoff</strong>, <strong>priority inheritance</strong>, <strong>semaphores</strong>, and <strong>lock-free compare-and-swap</strong>.</p>
+<div class="keybox"><p><strong>The one-sentence idea.</strong> Concurrency bugs are rarely about a wrong line of code — they are about a <em>schedule</em> you did not imagine, so every fix works by removing bad schedules: serialising a critical section, ordering lock acquisition, bounding waits, breaking symmetry, or making an update atomic so no schedule can split it.</p></div>
+</header>
+</div>
+
+## 1 — The dining philosophers: every problem at one table
+
+<div class="px">
+<p>Edsger Dijkstra posed this problem in 1965 (Tony Hoare later gave it its familiar form) to make the dangers of shared resources impossible to ignore. Five philosophers sit around a round table. Each alternates between <strong>thinking</strong> and <strong>eating</strong>. In the centre is a bowl of rice; between each pair of neighbours lies a single fork — five forks in total. To eat, a philosopher needs <em>both</em> forks beside their plate: the one on their left and the one on their right. A fork can be held by only one philosopher at a time. When finished eating, a philosopher puts both forks down and goes back to thinking.</p>
+<p>Read the table as code and it is the whole of this page in miniature. A philosopher is a <strong>thread</strong>. A fork is a <strong>lock</strong> guarding a shared resource. Eating is a <strong>critical section</strong> that needs two locks at once. Thinking is work that needs no locks at all. The obvious protocol — <em>pick up your left fork, then pick up your right fork, eat, put both down</em> — looks harmless for one philosopher. Run five copies at once and a schedule exists in which nobody ever eats again.</p>
+<table class="formulas">
+<tr><th>The cast, translated</th><td><strong>Philosopher</strong> → thread or process. <strong>Fork</strong> → lock / shared resource (mutual exclusion: one holder at a time). <strong>Needs both forks to eat</strong> → a critical section that must hold two locks at once. <strong>Waiting with one fork in hand</strong> → hold-and-wait, one of the four Coffman conditions for deadlock in Step 3.</td></tr>
+<tr><th>The naive protocol</th><td><code>think(); take(left fork); take(right fork); eat(); put down both forks;</code>, with <code>take()</code> blocking until the fork is free. Every philosopher runs exactly this code, in exactly this order.</td></tr>
+<tr><th>What can go wrong</th><td><strong>Deadlock</strong> if all five pick up their left fork at once: each holds one fork and waits forever for a neighbour&rsquo;s fork. The same table can also show <strong>starvation</strong> (a philosopher whose neighbours keep alternating so one fork is always taken). That is why a correct solution must guarantee not just that <em>someone</em> can eat, but that <em>everyone</em> eventually does.</td></tr>
+</table>
+<p>Step through the naive protocol below and watch the wait cycle close — each philosopher waiting on the next, all the way around the table and back to the start. Then tick the fix and step again. The fix changes only one philosopher&rsquo;s code: <strong>Philosopher 5 picks up forks in the opposite order</strong> (right fork first). That single asymmetry means Philosopher 5 and Philosopher 1 contend for the <em>same</em> first fork, so one of them starts empty-handed instead of holding a fork hostage — the circle can never close, and the meal works its way around the table.</p>
+<div class="diagram">
+<p class="figtitle" id="fig0Title">Intro figure: Naive protocol, step 0 of 3: all five thinking, all forks on the table</p>
+<svg id="fig0Svg" viewBox="0 0 920 380" role="img" aria-label="Five philosophers around a round table with five forks between them"></svg>
+<label class="basetoggle"><input type="checkbox" id="fig0Fix" /> Fix: Philosopher 5 picks up forks in the opposite order (right fork first)</label>
+<div class="btns">
+<button class="btn" id="fig0Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig0Next" type="button">Next step →</button>
+<button class="btn" id="fig0Play" type="button">▶ Play</button>
+<button class="btn" id="fig0Reset" type="button">Reset</button>
+<span class="progress" id="fig0Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig0Note"></p>
+<div class="figcap"><strong>How to read this.</strong> A solid line means a philosopher <em>holds</em> that fork; a dashed red line means they are <em>waiting for</em> it. A fork chip on the table is gold while it is free and takes its holder&rsquo;s colour once taken. In the panel, &ldquo;holds&rdquo; lists the forks in each philosopher&rsquo;s hands — deadlock is the state where every row reads &ldquo;holds 1 fork, waiting&rdquo; and the waiting lines form a complete ring.</div>
+</div>
+<p>The stepper above runs one fixed schedule. The table below has no script at all — <strong>you</strong> are the scheduler. Click a philosopher to select them, then click one of the two forks beside their plate to pick it up; click a fork they already hold to put it back down. Forks that are not beside the selected philosopher, or are already in someone else&rsquo;s hand, refuse to move — and the box under the diagram explains, after every click, exactly what state the table is in and why. Try to feed everyone. Then try to recreate the deadlock from the scripted run with your own clicks: give every philosopher exactly one fork.</p>
+<div class="diagram">
+<p class="figtitle" id="figDTitle">Try it yourself: no forks held, nobody eating</p>
+<svg id="figDSvg" viewBox="0 0 920 380" role="img" aria-label="A free-play dining philosophers table: click a philosopher, then click a fork beside them to claim or release it"></svg>
+<div class="btns">
+<button class="btn" id="figDReset" type="button">Reset the table</button>
+<span class="progress" id="figDHint" style="align-self:center">Click a philosopher to select them.</span>
+</div>
+<div class="verdict" id="figDOut" aria-live="polite"></div>
+<div class="figcap"><strong>How to read this.</strong> The selected philosopher is ringed in ink, and the two forks they can reach — their left fork and their right fork — are outlined with a dashed border. A solid line means a philosopher <em>holds</em> that fork. A fork chip on the table is gold while it is free and takes its holder&rsquo;s colour once taken. The panel lists what each philosopher holds and how many meals they have begun.</div>
+</div>
+<div class="readbox">
+<h3>Why this one problem previews the whole page</h3>
+<ul>
+<li><strong>Deadlock (Step 3)</strong> is the closed ring of waiting below: all four Coffman conditions hold at once — forks are exclusive, philosophers hold-and-wait, forks cannot be preempted, and the wait is circular.</li>
+<li><strong>The fix is lock ordering in disguise (Step 3 again).</strong> Reversing one philosopher&rsquo;s pickup order is the dining-table version of a resource hierarchy: it breaks circular wait, the one Coffman condition that ordering can remove.</li>
+<li><strong>Other classic fixes exist.</strong> A <em>waiter</em> (arbitrator) who seats at most four philosophers at once guarantees at least one diner can always get both forks. Letting a philosopher pick up both forks only if <em>both</em> are free (and putting the first back otherwise) removes hold-and-wait. Each fix buys progress by removing a different Coffman condition.</li>
+<li><strong>Deadlock-free is not starvation-free.</strong> The asymmetric protocol below cannot deadlock, but an unlucky philosopher can still be repeatedly beaten to a fork — the fairness problem of Step 4 needs its own guarantee on top.</li>
+</ul></div>
+</div>
+
+## 2 — Race conditions: the lost update
+
+<div class="px">
+<p>A <strong>race condition</strong> is any bug whose presence depends on the relative timing of threads. The canonical example fits in three lines. Incrementing a shared counter looks like one operation, but the machine does it in three: <em>read</em> the value into a register, <em>add</em> one, <em>write</em> it back. If two threads interleave inside that window, both read the same starting value, both write the same result — and one increment simply vanishes. No line is wrong. The schedule is wrong.</p>
+<pre class="code"><span class="cm">// executed by both threads, counter starts at 0</span>&#10;reg = counter;   <span class="cm">// READ</span>&#10;reg = reg + 1;   <span class="cm">// ADD</span>&#10;counter = reg;   <span class="cm">// WRITE</span></pre>
+<p>Step through the bad schedule below. Then tick <strong>protect with a mutex</strong> and step again: the same three lines now run inside a critical section, the second thread is forced to wait at the door, and both increments land. Figure titles track the schedule as you step.</p>
+<div class="diagram">
+<p class="figtitle" id="fig1Title">Figure 1: No mutex, step 0 of 5: counter = 0</p>
+<svg id="fig1Svg" viewBox="0 0 920 310" role="img" aria-label="Two threads racing to increment a shared counter"></svg>
+<label class="basetoggle"><input type="checkbox" id="fig1Mutex" /> Protect the increment with a mutex (critical section)</label>
+<div class="btns">
+<button class="btn" id="fig1Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig1Next" type="button">Next step →</button>
+<button class="btn" id="fig1Play" type="button">▶ Play</button>
+<button class="btn" id="fig1Reset" type="button">Reset</button>
+<span class="progress" id="fig1Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig1Note"></p>
+<div class="figcap"><strong>How to read this.</strong> Blue is Thread 1, orange is Thread 2, the centre box is shared memory. A thread&rsquo;s register is private — that privacy is exactly what makes the stale read possible. With the mutex on, the lock badge shows who holds the critical section and who is blocked outside it.</div>
+</div>
+<div class="readbox">
+<h3>Why this generalises</h3>
+<ul>
+<li><strong>Check-then-act</strong> is the same shape: <code>if (x == null) x = make()</code> races when two threads both pass the check.</li>
+<li><strong>The window is tiny but real.</strong> A context switch can land between any two machine instructions, so &ldquo;it never happens in testing&rdquo; means only that the bad schedule is rare.</li>
+<li><strong>A data race is worse than a wrong answer.</strong> In C and C++ a data race is undefined behaviour; in Java it can tear a 64-bit write into two 32-bit halves. The fix is never &ldquo;hope&rdquo; — it is synchronisation or an atomic.</li>
+</ul></div>
+</div>
+
+## 3 — Mutexes: the fix, and its price
+
+<div class="px">
+<p>A <strong>mutex</strong> (mutual exclusion lock) admits exactly one thread into a <strong>critical section</strong> at a time. Everyone else blocks at <code>lock()</code> until <code>unlock()</code>. That one guarantee — the three-line increment can no longer be split — is what repaired Figure 1. But serialising has a price: the critical section is, by definition, work that cannot be parallelised, and it caps your speedup no matter how many cores you buy. That cap is <strong>Amdahl&rsquo;s law</strong>.</p>
+<table class="formulas">
+<tr><th>Amdahl&rsquo;s law: every step shown</th><td><math display="block"><mrow><mtext>total time on 1 core</mtext><mo>=</mo><mi>T</mi></mrow></math><math display="block"><mrow><mtext>serial fraction</mtext><mo>=</mo><mi>s</mi><mspace width="1em"/><mtext>parallel fraction</mtext><mo>=</mo><mn>1</mn><mo>−</mo><mi>s</mi></mrow></math><math display="block"><mrow><mtext>time on</mtext><mspace width="0.4em"/><mi>n</mi><mspace width="0.4em"/><mtext>cores</mtext><mo>=</mo><mi>s</mi><mi>T</mi><mo>+</mo><mfrac><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>s</mi><mo>)</mo><mi>T</mi></mrow><mi>n</mi></mfrac></mrow></math><math display="block"><mrow><mtext>speedup</mtext><mo>=</mo><mfrac><mi>T</mi><mrow><mi>s</mi><mi>T</mi><mo>+</mo><mfrac><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>s</mi><mo>)</mo><mi>T</mi></mrow><mi>n</mi></mfrac></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mi>s</mi><mo>+</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>s</mi></mrow><mi>n</mi></mfrac></mrow></mfrac></mrow></math><math display="block"><mrow><mtext>as</mtext><mspace width="0.4em"/><mi>n</mi><mo>→</mo><mi>∞</mi><mo>:</mo><mspace width="0.6em"/><mtext>speedup</mtext><mo>→</mo><mfrac><mn>1</mn><mi>s</mi></mfrac></mrow></math></td></tr>
+<tr><th>Worked check</th><td><math display="block"><mrow><mi>s</mi><mo>=</mo><mn>0.10</mn><mo>,</mo><mspace width="0.5em"/><mi>n</mi><mo>=</mo><mn>8</mn></mrow></math><math display="block"><mrow><mtext>speedup</mtext><mo>=</mo><mfrac><mn>1</mn><mrow><mn>0.10</mn><mo>+</mo><mfrac><mn>0.90</mn><mn>8</mn></mfrac></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>0.10</mn><mo>+</mo><mn>0.1125</mn></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>0.2125</mn></mfrac><mo>≈</mo><mn>4.71</mn></mrow></math><math display="block"><mrow><mtext>and even with infinitely many cores the ceiling is</mtext><mspace width="0.4em"/><mfrac><mn>1</mn><mn>0.10</mn></mfrac><mo>=</mo><mn>10</mn><mo>×</mo></mrow></math></td></tr>
+</table>
+<p>Drag both sliders and watch the bars. The practical lesson of every profiling session is in this picture: shrinking the critical section (smaller <math><mi>s</mi></math>) beats adding threads, every time. Keep locks <em>fine-grained</em> — one per data structure, or per shard — hold them for the shortest possible region, and never hold one across I/O or a call into code you do not control.</p>
+<div class="diagram">
+<p class="figtitle" id="fig2Title">Figure 2: 8 threads, 10% serial: speedup 4.71× of a 10× ceiling</p>
+<svg id="fig2Svg" viewBox="0 0 920 300" role="img" aria-label="Amdahl speedup bars versus ideal linear speedup"></svg>
+<div class="figcap"><strong>How to read this.</strong> The teal bar is the real speedup from Amdahl&rsquo;s law; the outline bar is the naive hope (one extra core, one extra unit of speed). The gap between them is time threads spend queued at the mutex.</div>
+</div>
+<div class="sliderbox">
+<h3>Contention explorer</h3>
+<div class="sliderrow"><label for="fig2Threads">Threads (cores), <span id="fig2ThreadsVal">8</span></label><input type="range" id="fig2Threads" min="1" max="32" step="1" value="8" /></div>
+<div class="sliderrow"><label for="fig2Serial">Serial fraction under lock, <span id="fig2SerialVal">10%</span></label><input type="range" id="fig2Serial" min="1" max="60" step="1" value="10" /></div>
+<div class="readouts">
+<div class="ro"><b id="fig2Speed">4.71×</b><span>actual speedup</span></div>
+<div class="ro"><b id="fig2Ceil">10.0×</b><span>ceiling as threads → ∞</span></div>
+<div class="ro"><b id="fig2Eff">59%</b><span>core efficiency</span></div>
+</div>
+</div>
+<div class="callout"><p><strong>Rules of thumb that prevent most mutex bugs.</strong> Acquire with RAII / <code>try-finally</code> so an exception cannot leak a held lock. Never call unknown code while holding a lock. If a thread needs two locks, you have just met the next section.</p></div>
+</div>
+
+## 4 — Deadlock: the circular wait
+
+<div class="px">
+<p>A <strong>deadlock</strong> is a set of threads each waiting for a resource held by the next, in a cycle, forever. Nobody is running, nobody will ever run, and no timeout inside the threads themselves can fire because no thread is executing. Coffman&rsquo;s four conditions are each <em>necessary</em> — break any one and deadlock is impossible:</p>
+<table class="formulas">
+<tr><th>1. Mutual exclusion</th><td>A resource can be held by only one thread at a time. (Hard to remove; it is usually the point of the lock.)</td></tr>
+<tr><th>2. Hold and wait</th><td>A thread holds one resource while waiting for another. Removed by acquiring all locks at once, or by try-lock-and-release.</td></tr>
+<tr><th>3. No preemption</th><td>A held resource cannot be forcibly taken away; only the holder releases it.</td></tr>
+<tr><th>4. Circular wait</th><td>A cycle exists in the wait-for graph. Removed by a <strong>global lock order</strong>: every thread acquires locks in the same agreed order, so a cycle can never close.</td></tr>
+</table>
+<p>Step through the classic two-lock tangle, then tick the fix — a global order, <em>lock A before lock B, always</em> — and step again. The second thread now blocks on its very first lock instead of completing the cycle. Tick the wait-for graph layer on or off to see the deadlock as a graph property: a cycle.</p>
+<div class="diagram">
+<p class="figtitle" id="fig3Title">Figure 3: Opposite lock orders, step 0 of 4: no locks held</p>
+<svg id="fig3Svg" viewBox="0 0 920 330" role="img" aria-label="Two threads acquiring two locks in opposite orders"></svg>
+<label class="basetoggle"><input type="checkbox" id="fig3Order" /> Fix: global lock order, everyone takes Lock A before Lock B</label>
+<label class="basetoggle"><input type="checkbox" id="fig3Graph" checked /> Show the wait-for graph layer</label>
+<div class="btns">
+<button class="btn" id="fig3Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig3Next" type="button">Next step →</button>
+<button class="btn" id="fig3Play" type="button">▶ Play</button>
+<button class="btn" id="fig3Reset" type="button">Reset</button>
+<span class="progress" id="fig3Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig3Note"></p>
+<div class="figcap"><strong>How to read this.</strong> Solid arrows mean <em>holds</em>; dashed arrows mean <em>waiting for</em>. In the wait-for graph at the right, an arrow T1 → T2 means &ldquo;T1 waits for a lock T2 holds&rdquo;. A cycle there is a deadlock — this is also exactly how deadlock <em>detectors</em> in databases work: build the graph, look for a cycle, abort one victim transaction and roll it back.</div>
+</div>
+<div class="readbox">
+<h3>Other ways to break the four conditions</h3>
+<ul>
+<li><strong>Timeouts and try-lock:</strong> if a thread cannot get a second lock within a deadline, it releases the first and retries — hold-and-wait is broken because the wait is bounded and the hold is surrendered.</li>
+<li><strong>Lock hierarchy in real systems:</strong> the Linux kernel documents a global locking order and <code>lockdep</code> proves at runtime that no code path violates it.</li>
+<li><strong>One lock to rule them:</strong> a single coarse lock cannot deadlock with itself — you pay Amdahl&rsquo;s price from Step 2 instead. Choosing between deadlock risk and contention is the recurring trade of this whole page.</li>
+</ul></div>
+</div>
+
+## 5 — Starvation: runnable, but never chosen
+
+<div class="px">
+<p><strong>Starvation</strong> is quieter than deadlock: the system as a whole makes progress, most threads make progress — but one thread is perpetually passed over. A reader–writer lock that always prefers readers can starve a single writer under a steady stream of readers. An unfair mutex can re-grant the lock to the thread that just released it, because it is still hot in cache, while a waiting thread never gets scheduled onto the lock at all.</p>
+<p>The simulator below runs 30 scheduling quanta shared by two &ldquo;hog&rdquo; threads and one low-demand thread, Low. Drag the scheduler&rsquo;s bias toward the hogs and watch Low&rsquo;s bar shrink to nothing — that is starvation, no cycle and no bug in Low&rsquo;s code. Then tick the fair FIFO queue: the lock (and the CPU) is granted strictly in arrival order, Low is guaranteed a turn within two quanta, and starvation is impossible by construction.</p>
+<div class="diagram">
+<p class="figtitle" id="fig4Title">Figure 4: Scheduler bias 50%: Low runs 5 of 30 quanta</p>
+<svg id="fig4Svg" viewBox="0 0 920 290" role="img" aria-label="Progress bars showing one thread starved by an unfair scheduler"></svg>
+<div class="figcap"><strong>How to read this.</strong> Each bar is quanta actually run out of 30. Starvation is not &ldquo;slow&rdquo; — it is the limiting case where a runnable thread&rsquo;s share tends to zero while the system looks healthy.</div>
+</div>
+<div class="sliderbox">
+<h3>Starvation simulator</h3>
+<div class="sliderrow"><label for="fig4Bias">Scheduler bias toward hogs, <span id="fig4BiasVal">50%</span></label><input type="range" id="fig4Bias" min="0" max="100" step="5" value="50" /></div>
+<label class="basetoggle"><input type="checkbox" id="fig4Fair" /> Fair FIFO queue (grant strictly in arrival order)</label>
+<div class="readouts">
+<div class="ro"><b id="fig4Low">5</b><span>quanta run by Low</span></div>
+<div class="ro"><b id="fig4Wait">5</b><span>longest wait for Low</span></div>
+<div class="ro"><b id="fig4Verdict">At risk</b><span>starvation verdict</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>The general fixes</h3>
+<ul>
+<li><strong>Fairness queues:</strong> FIFO-ordered locks and schedulers bound every wait by the number of threads ahead of you.</li>
+<li><strong>Ageing:</strong> a waiting thread&rsquo;s effective priority rises with time waited, so even a biased scheduler must eventually pick it — the same idea reappears in Step 6.</li>
+<li><strong>Bounded bypass:</strong> reader–writer locks that stop admitting new readers once a writer is queued cap the writer&rsquo;s wait at the current reader count.</li>
+</ul></div>
+</div>
+
+## 6 — Livelock: busy, polite, and stuck
+
+<div class="px">
+<p>In a <strong>livelock</strong> nobody is blocked — that is what makes it insidious. Two threads keep <em>reacting</em> to each other, changing state constantly, burning CPU, and making zero progress. The everyday picture is two people in a corridor who both step left, then both step right, then both step left, forever. Code does the same thing when two threads each politely release a lock and retry in perfect lockstep, or when two network nodes retransmit in synchronised bursts after every collision.</p>
+<p>Step through the corridor dance: the attempt counter climbs, the progress bar never moves. Then tick <strong>randomised backoff</strong> — each robot waits a <em>random</em> delay before retrying — and step again. Randomness breaks the symmetry: one robot happens to wait longer, the other walks through, and the system escapes. This is precisely why Ethernet, Wi-Fi, and TCP all back off exponentially <em>and randomly</em> after a collision.</p>
+<div class="diagram">
+<p class="figtitle" id="fig5Title">Figure 5: Lockstep retries, attempt 0: progress 0%</p>
+<svg id="fig5Svg" viewBox="0 0 920 300" role="img" aria-label="Two robots in a corridor repeatedly sidestepping in sync"></svg>
+<label class="basetoggle"><input type="checkbox" id="fig5Backoff" /> Fix: randomised backoff before retrying</label>
+<div class="btns">
+<button class="btn" id="fig5Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig5Next" type="button">Next step →</button>
+<button class="btn" id="fig5Play" type="button">▶ Play</button>
+<button class="btn" id="fig5Reset" type="button">Reset</button>
+<span class="progress" id="fig5Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig5Note"></p>
+<div class="figcap"><strong>Deadlock vs livelock vs starvation.</strong> Deadlock: threads <em>blocked</em>, no progress, no CPU burn. Livelock: threads <em>running</em>, no progress, CPU burning. Starvation: the <em>system</em> progresses, one thread does not. The fixes differ accordingly — ordering, symmetry-breaking, and fairness.</div>
+</div>
+</div>
+
+## 7 — Priority inversion: the important thread waits on the wrong one
+
+<div class="px">
+<p>Real-time systems rank threads by priority and always run the highest-priority runnable thread. Now suppose the <em>low</em>-priority thread L holds a lock, and the <em>high</em>-priority thread H wakes and needs that lock. H blocks — correctly — waiting for L. But a <em>medium</em>-priority thread M, which needs nothing, is now the highest-priority <em>runnable</em> thread, so it preempts L. L cannot finish its critical section, so H cannot run. H, the most important thread in the system, is effectively waiting on M — a thread it outranks and that has nothing to do with the lock. Priority has been <strong>inverted</strong>, for as long as medium-priority work keeps arriving: potentially forever.</p>
+<div class="callout"><p><strong>This bug nearly ended a Mars mission.</strong> In July 1997 the Mars Pathfinder lander began resetting itself, losing data, a few days after landing. Engineers traced it to exactly this pattern in the VxWorks real-time OS: a low-priority data-gathering task held a bus mutex, a high-priority bus task blocked on it, and medium-priority communications tasks kept preempting the low one. The fix, uploaded to Mars, was to turn on priority inheritance for that mutex.</p></div>
+<p>Drag the time slider. Without inheritance, watch M&rsquo;s long run push H&rsquo;s start out to <math><mi>t</mi><mo>=</mo><mn>10</mn></math>. Then tick <strong>priority inheritance</strong>: while H waits, L temporarily <em>inherits</em> H&rsquo;s priority, M can no longer preempt it, L finishes at <math><mi>t</mi><mo>=</mo><mn>5</mn></math>, and H&rsquo;s wait shrinks from 8 time units to 3. Inheritance does not make H wait-free — it bounds H&rsquo;s wait by one critical section, which is the best any lock can promise.</p>
+<div class="diagram">
+<p class="figtitle" id="fig6Title">Figure 6: No priority inheritance, t = 0: L takes the lock</p>
+<svg id="fig6Svg" viewBox="0 0 920 320" role="img" aria-label="Gantt chart of high, medium and low priority tasks with and without priority inheritance"></svg>
+<label class="basetoggle"><input type="checkbox" id="fig6PI" /> Fix: priority inheritance (lock holder borrows the waiter&rsquo;s priority)</label>
+<div class="figcap"><strong>How to read this.</strong> Each row is one task; a filled segment is time actually running, a hatched segment is H blocked on the lock. The dashed marker is the time you have dragged to. The lock badge follows L until it releases.</div>
+</div>
+<div class="sliderbox">
+<h3>Timeline explorer</h3>
+<div class="sliderrow"><label for="fig6Time">Time, <span id="fig6TimeVal">t = 0</span></label><input type="range" id="fig6Time" min="0" max="12" step="1" value="0" /></div>
+<div class="readouts">
+<div class="ro"><b id="fig6HState">Running (L)</b><span>who runs now</span></div>
+<div class="ro"><b id="fig6HWait">8 units</b><span>H total blocked time</span></div>
+<div class="ro"><b id="fig6HStart">t = 11</b><span>H finally runs</span></div>
+</div>
+</div>
+<div class="readbox">
+<h3>The alternatives</h3>
+<ul>
+<li><strong>Priority ceiling protocol:</strong> a lock&rsquo;s holder is raised to the highest priority of <em>any</em> thread that might take the lock — decided in advance. It also prevents deadlock among those locks, at the cost of more blocking for others.</li>
+<li><strong>Remove the lock:</strong> hand data between priority levels through a lock-free queue (Step 8) so the high-priority thread never blocks at all.</li>
+<li><strong>What inheritance does not fix:</strong> chained blocking (H waits on L, who waits on a lock held by someone else) still adds up — inheritance propagates along the chain, but each critical section still costs time.</li>
+</ul></div>
+</div>
+
+## 8 — Semaphores: counting permits, and the bounded buffer
+
+<div class="px">
+<p>A mutex answers &ldquo;may I enter?&rdquo; with yes or no. A <strong>semaphore</strong> (Dijkstra) keeps a <em>count</em> of permits. <code>wait()</code> (historically <code>P()</code>) decrements the count, blocking if it would go negative. <code>signal()</code> (<code>V()</code>) increments it, waking a waiter. A mutex is the special case where the count starts at 1; a semaphore starting at <math><mi>N</mi></math> admits up to <math><mi>N</mi></math> concurrent users of a pooled resource.</p>
+<p>Two semaphores plus one mutex solve the classic <strong>bounded buffer</strong> (producer–consumer) problem with no busy-waiting anywhere: <code>empty</code> counts free slots (starts at capacity), <code>full</code> counts ready items (starts at 0), and the mutex protects the slot array itself for the brief moment of putting or taking. Step through a produce/consume cycle and watch the invariant that makes it correct:</p>
+<table class="formulas">
+<tr><th>The invariant: checked at every step</th><td><math display="block"><mrow><mi>empty</mi><mo>+</mo><mi>full</mi><mo>=</mo><mtext>capacity</mtext></mrow></math><math display="block"><mrow><mn>3</mn><mo>+</mo><mn>0</mn><mo>=</mo><mn>3</mn><mspace width="1em"/><mtext>at the start (Figure 7, step 0)</mtext></mrow></math><math display="block"><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>3</mn><mspace width="1em"/><mtext>at the fullest point below (step 3)</mtext></mrow></math></td></tr>
+<tr><th>The protocol</th><td>Producer: <code>wait(empty)</code>, then <code>lock(mutex)</code>, put item, <code>unlock(mutex)</code>, then <code>signal(full)</code>. Consumer mirrors it with <code>wait(full)</code> and <code>signal(empty)</code>. Ordering matters: acquiring the mutex <em>before</em> the counting semaphore can deadlock: a thread could hold the mutex while blocked on <code>empty</code>, while the consumer who would free a slot needs that same mutex.</td></tr>
+</table>
+<div class="diagram">
+<p class="figtitle" id="fig7Title">Figure 7: Bounded buffer, step 0 of 8: empty = 3, full = 0</p>
+<svg id="fig7Svg" viewBox="0 0 920 300" role="img" aria-label="Bounded buffer with producer, consumer and two counting semaphores"></svg>
+<div class="btns">
+<button class="btn" id="fig7Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig7Next" type="button">Next step →</button>
+<button class="btn" id="fig7Play" type="button">▶ Play</button>
+<button class="btn" id="fig7Reset" type="button">Reset</button>
+<span class="progress" id="fig7Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig7Note"></p>
+<div class="figcap"><strong>How to read this.</strong> Slots fill left to right and drain oldest-first (a queue). The two counters are the semaphores; whenever the producer faces a full buffer or the consumer an empty one, the corresponding <code>wait()</code> simply puts that thread to sleep — no spinning, no polling.</div>
+</div>
+<div class="callout"><p><strong>Condition variables</strong> are the close cousin you will meet in <code>pthread_cond_wait</code> and Java&rsquo;s <code>wait/notify</code>: a thread atomically releases a mutex and sleeps until another thread signals that a condition <em>might</em> now hold — then re-checks it in a loop, because wakeups can be spurious and conditions can be stolen by another waiter. Semaphore, condition variable, and mutex are three faces of one idea: sleep precisely until the state you need is possible.</p></div>
+</div>
+
+## 9 — Lock-free tools: compare-and-swap and the retry loop
+
+<div class="px">
+<p>Every fix so far still <em>blocks</em> someone. Lock-free programming takes the other path: never hold anything, so nobody can be blocked, deadlocked, or inverted. The workhorse is one atomic hardware instruction, <strong>compare-and-swap</strong> (CAS): &ldquo;if the value at this address still equals what I expect, replace it with my new value and tell me; otherwise just tell me.&rdquo; Read, compute, CAS — and if the CAS fails, someone else won the race, so re-read and retry. The losing thread wastes a spin, but the <em>system</em> always progresses: a failed CAS is proof another thread succeeded. That is the definition of <strong>lock-free</strong>.</p>
+<pre class="code"><span class="cm">// lock-free increment: no lock taken, ever</span>&#10;do \{&#10;&nbsp;&nbsp;old = counter;          <span class="cm">// read</span>&#10;\} while (!CAS(&amp;counter, old, old + 1));  <span class="cm">// retry until our swap lands</span></pre>
+<p>Step through the two-thread increment rebuilt on CAS. Compare Figure 1: Thread 2&rsquo;s stale read no longer corrupts anything, because its CAS checks the expected value and fails honestly instead of blindly writing.</p>
+<div class="diagram">
+<p class="figtitle" id="fig8Title">Figure 8: CAS increment, step 0 of 6: counter = 10</p>
+<svg id="fig8Svg" viewBox="0 0 920 310" role="img" aria-label="Two threads incrementing a counter with compare-and-swap"></svg>
+<div class="btns">
+<button class="btn" id="fig8Prev" type="button">← Prev</button>
+<button class="btn primary" id="fig8Next" type="button">Next step →</button>
+<button class="btn" id="fig8Play" type="button">▶ Play</button>
+<button class="btn" id="fig8Reset" type="button">Reset</button>
+<span class="progress" id="fig8Prog" style="align-self:center"></span>
+</div>
+<p class="note" id="fig8Note"></p>
+<div class="figcap"><strong>How to read this.</strong> Each thread carries its <em>expected</em> value — what it read. CAS succeeds only when memory still matches the expectation. A failure is not an error; it is the mechanism working, and the retry loop is the price of admission.</div>
+</div>
+<table class="formulas">
+<tr><th>The ABA problem: CAS&rsquo;s blind spot</th><td>A thread reads value A. Another thread changes A to B and back to A. The first thread&rsquo;s CAS succeeds, the value &ldquo;matches&rdquo;, yet the world changed underneath it: pointers may have been freed and reused. Fixes: attach a version counter to the value and CAS both together (a <em>tagged pointer</em>), or use hazard pointers / epoch reclamation so memory is never reused while anyone might still hold it.</td></tr>
+<tr><th>Progress guarantees, weakest to strongest</th><td><strong>Obstruction-free:</strong> a thread running alone finishes. <strong>Lock-free:</strong> <em>some</em> thread finishes in any execution, an individual thread can still starve in the retry loop, so Step 4 has not entirely left the building. <strong>Wait-free:</strong> <em>every</em> thread finishes in a bounded number of steps: strongest, hardest, and what hard real-time code wants.</td></tr>
+<tr><th>Where lock-free wins, where it loses</th><td>Wins: tiny updates (counters, flags, stack push/pop), read-mostly data, interrupt and signal contexts where blocking is forbidden. Loses: multi-field invariants (CAS guards one word, not a relationship between five), heavy contention (the retry storm can cost more than a lock queue), and anywhere a simple mutex is already fast enough: measure first.</td></tr>
+</table>
+</div>
+
+## 10 — Choosing the tool: a map of the whole page
+
+<div class="px">
+<p>Every problem above is a bad schedule, and every fix removes a class of schedules. This table is the page on one screen — problem, signature symptom, root cause, and the fix (or fixes) that actually address the cause.</p>
+<table class="data">
+<tr><th>Problem</th><th>Symptom</th><th>Root cause</th><th>Worked fixes</th></tr>
+<tr><td><strong>Race condition</strong></td><td>Wrong result, intermittently; heisenbug vanishes under a debugger</td><td>Non-atomic read–modify–write split by an interleaving</td><td>Mutex around the critical section (Fig. 1); atomic / CAS update (Fig. 8); confine data to one thread</td></tr>
+<tr><td><strong>Deadlock</strong></td><td>Total freeze, zero CPU, threads blocked forever</td><td>Cycle in the wait-for graph (all four Coffman conditions)</td><td>Global lock order (Fig. 3); try-lock with timeout and back-off; lock hierarchy checking (<code>lockdep</code>); deadlock detection plus victim rollback</td></tr>
+<tr><td><strong>Starvation</strong></td><td>System healthy, one thread never runs</td><td>Unfair granting: the same winners keep winning</td><td>FIFO fair locks and queues (Fig. 4); ageing; bounded bypass for writers</td></tr>
+<tr><td><strong>Livelock</strong></td><td>100% CPU, constant state changes, zero progress</td><td>Symmetric reactions: retries in perfect lockstep</td><td>Randomised exponential backoff (Fig. 5); jitter; one designated thread yields longer</td></tr>
+<tr><td><strong>Priority inversion</strong></td><td>High-priority task misses deadlines behind unrelated medium work</td><td>Low-priority lock holder preempted by medium-priority threads</td><td>Priority inheritance (Fig. 6); priority ceiling; lock-free handoff queues</td></tr>
+</table>
+<table class="data">
+<tr><th>Tool</th><th>Guarantee</th><th>Blocks?</th><th>Reach for it when</th></tr>
+<tr><td><strong>Mutex</strong></td><td>One thread in the critical section</td><td>Yes: waiters sleep</td><td>Default choice for protecting shared mutable state</td></tr>
+<tr><td><strong>Semaphore</strong></td><td>At most <math><mi>N</mi></math> permit holders</td><td>Yes: when permits run out</td><td>Resource pools, bounded buffers (Fig. 7), rate limiting</td></tr>
+<tr><td><strong>Condition variable</strong></td><td>Sleep until a state predicate may hold</td><td>Yes: releases the mutex while asleep</td><td>Producer–consumer and state-machine waiting inside locked code</td></tr>
+<tr><td><strong>Atomic / CAS loop</strong></td><td>Single-word update is indivisible</td><td>No: retries instead</td><td>Counters, flags, lock-free stacks and queues (Fig. 8)</td></tr>
+<tr><td><strong>Message passing</strong></td><td>No shared mutable state at all</td><td>Only on an empty channel, by design</td><td>Actor systems and CSP (Go channels): &ldquo;share memory by communicating&rdquo; — most races become unrepresentable</td></tr>
+</table>
+<div class="keybox"><p><strong>The discipline underneath every fix.</strong> Share as little as possible, lock as briefly as possible, order what you must nest, bound every wait you can, and let randomness break any symmetry you cannot remove. Concurrency does not forgive optimism — but it richly rewards small critical sections and boring, provable protocols.</p></div>
+Concurrency Problems in Algorithms — an interactive explainer. All simulations run in your browser: the race, deadlock, livelock, bounded-buffer and CAS steppers execute the exact schedules described in their notes, and the starvation, contention and priority-inversion figures compute their readouts from the slider values shown.
+</div>
+
+
+<script set:html={`
+"use strict";
+function $(id){return document.getElementById(id);}
+var NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);if(text!=null)e.textContent=text;return e;}
+function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+function box(svg,x,y,w,h,fill,stroke,rx){return el("rect",{x:x,y:y,width:w,height:h,rx:rx||8,fill:fill,stroke:stroke||"var(--math-line)","stroke-width":1.4},svg);}
+function txt(svg,x,y,str,size,anchor,cls,weight){var t=el("text",{x:x,y:y,"font-size":size||14,"text-anchor":anchor||"middle","font-weight":weight||400},svg,str);if(cls)t.setAttribute("class",cls);return t;}
+function line(svg,x1,y1,x2,y2,stroke,w,dash){var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:stroke,"stroke-width":w||2};if(dash)a["stroke-dasharray"]=dash;return el("line",a,svg);}
+function arrow(svg,x1,y1,x2,y2,stroke,w,dash){line(svg,x1,y1,x2,y2,stroke,w,dash);var ang=Math.atan2(y2-y1,x2-x1),s=8;var p=el("polygon",{points:(x2)+","+y2+" "+(x2-s*Math.cos(ang-0.42))+","+(y2-s*Math.sin(ang-0.42))+" "+(x2-s*Math.cos(ang+0.42))+","+(y2-s*Math.sin(ang+0.42)),fill:stroke},svg);return p;}
+function stepper(ids,getSteps,draw){
+  var st={i:0,timer:null};
+  function render(){var steps=getSteps();if(st.i>steps.length-1)st.i=steps.length-1;if(st.i<0)st.i=0;draw(steps[st.i],st.i,steps.length);$(ids.prev).disabled=(st.i===0);$(ids.next).disabled=(st.i===steps.length-1);$(ids.prog).textContent="Step "+st.i+" of "+(steps.length-1);}
+  function stop(){if(st.timer){clearInterval(st.timer);st.timer=null;$(ids.play).textContent="▶ Play";}}
+  $(ids.next).addEventListener("click",function(){stop();st.i++;render();});
+  $(ids.prev).addEventListener("click",function(){stop();st.i--;render();});
+  $(ids.reset).addEventListener("click",function(){stop();st.i=0;render();});
+  $(ids.play).addEventListener("click",function(){if(st.timer){stop();return;}if(st.i>=getSteps().length-1)st.i=0;$(ids.play).textContent="⏸ Pause";st.timer=setInterval(function(){var steps=getSteps();if(st.i>=steps.length-1){stop();return;}st.i++;render();},1100);render();});
+  return {render:render,reset:function(){stop();st.i=0;render();},stop:stop};
+}
+
+/* ---------- Intro figure: dining philosophers ---------- */
+var f0PhilPos=[{x:340,y:50},{x:473,y:147},{x:422,y:303},{x:258,y:303},{x:207,y:147}];
+var f0ForkPos=[{x:392,y:119},{x:424,y:217},{x:340,y:278},{x:256,y:217},{x:288,y:119}];
+var f0StatePos=[{x:340,y:18,a:"middle"},{x:510,y:143,a:"start"},{x:422,y:350,a:"middle"},{x:258,y:350,a:"middle"},{x:170,y:143,a:"end"}];
+var f0Stroke=["var(--math-blue)","var(--math-orange)","var(--math-teal)","var(--math-gold)","var(--math-red)"];
+var f0Soft=["var(--px-blue-soft)","var(--math-orange-soft)","var(--math-teal-soft)","var(--math-gold-soft)","var(--px-rbred-soft)"];
+var f0Naive=[
+ {holders:[null,null,null,null,null],waits:[null,null,null,null,null],states:["Thinking","Thinking","Thinking","Thinking","Thinking"],head:"all five thinking, all forks on the table",note:"Start. All five philosophers are thinking, so all five forks lie free on the table. Nobody holds anything and nobody waits. Step forward to run the naive protocol: left fork first, then the right fork."},
+ {holders:[1,2,3,4,0],waits:[null,null,null,null,null],states:["Hungry","Hungry","Hungry","Hungry","Hungry"],head:"every philosopher holds their left fork",note:"All five get hungry at the same moment and each picks up the fork on their left: Philosopher 1 takes fork 5, Philosopher 2 takes fork 1, and so on around the table. Every philosopher now holds exactly one fork, and every fork is taken."},
+ {holders:[1,2,3,4,0],waits:[0,1,2,3,4],states:["Waiting","Waiting","Waiting","Waiting","Waiting"],head:"every philosopher waits for their right fork: the ring closes",note:"Each philosopher now reaches for their right fork and blocks, because a neighbour is holding it. Philosopher 1 waits on Philosopher 2, who waits on Philosopher 3, and so on all the way around and back to Philosopher 1. The dashed waiting lines form a complete ring: a circular wait."},
+ {holders:[1,2,3,4,0],waits:[0,1,2,3,4],states:["Waiting","Waiting","Waiting","Waiting","Waiting"],head:"still deadlocked: nobody can eat, ever",note:"Nothing can ever change from here. Nobody is eating, so nobody will ever put a fork down; everybody is waiting, so nobody can pick a second fork up. Meals eaten: 0, forever. This is deadlock (Step 3), reached with five copies of perfectly reasonable-looking code. Tick the fix above and step again."}
+];
+var f0Fix=[
+ {holders:[null,null,null,null,null],waits:[null,null,null,null,null],states:["Thinking","Thinking","Thinking","Thinking","Thinking"],head:"all five thinking, all forks on the table",note:"Start, with one change: Philosophers 1–4 still take their left fork first, but Philosopher 5 takes their RIGHT fork first. Watch what that does to fork 5, the fork Philosopher 1 takes as a left fork and Philosopher 5 now wants first."},
+ {holders:[1,2,3,null,0],waits:[null,null,null,null,4],states:["Hungry","Hungry","Hungry","Hungry","Waiting"],head:"Philosopher 5 blocks empty-handed: Philosopher 1 holds fork 5",note:"Philosophers 1–4 each pick up their left fork, as before. Philosopher 5 reaches first for fork 5, but Philosopher 1 already holds it, so Philosopher 5 blocks holding NOTHING. That empty hand is the whole fix: Philosopher 5 is not holding fork 4 hostage, so fork 4 stays free."},
+ {holders:[1,2,3,3,0],waits:[0,1,2,null,4],states:["Waiting","Waiting","Waiting","Eating","Waiting"],head:"Philosopher 4 gets both forks and eats",note:"Philosophers 1, 2 and 3 block on their right forks, exactly as in the naive run. But Philosopher 4's right fork, fork 4, is free, because Philosopher 5 never took it. Philosopher 4 picks it up and eats. The waiting chain now ENDS at an eating philosopher instead of looping back on itself: there is no ring."},
+ {holders:[1,2,2,null,0],waits:[0,1,null,null,4],states:["Waiting","Waiting","Eating","Done","Waiting"],head:"Philosopher 4 finishes; Philosopher 3 eats",note:"Philosopher 4 finishes and puts down forks 3 and 4. Fork 3 is exactly the right fork Philosopher 3 was waiting for, so Philosopher 3 picks it up and eats. The meal is propagating backwards around the table."},
+ {holders:[1,1,null,null,0],waits:[0,null,null,null,4],states:["Waiting","Eating","Done","Done","Waiting"],head:"Philosopher 3 finishes; Philosopher 2 eats",note:"Philosopher 3 puts down forks 2 and 3, releasing Philosopher 2's right fork. Philosopher 2 eats. Only Philosopher 1 (still waiting for fork 1) and Philosopher 5 (still waiting for fork 5) remain hungry."},
+ {holders:[0,null,null,null,0],waits:[null,null,null,null,4],states:["Eating","Done","Done","Done","Waiting"],head:"Philosopher 2 finishes; Philosopher 1 eats",note:"Philosopher 2 releases fork 1, so Philosopher 1 finally gets a second fork and eats, still holding fork 5, which is why Philosopher 5, patient and empty-handed, is still waiting."},
+ {holders:[null,null,null,4,4],waits:[null,null,null,null,null],states:["Done","Done","Done","Done","Eating"],head:"Philosopher 1 finishes; Philosopher 5 finally eats",note:"Philosopher 1 puts both forks down. Philosopher 5 picks up fork 5 (its first fork, in the reversed order) and then fork 4, and eats. All five have eaten and no state was ever deadlocked: one reversed pickup order broke the circular wait for the whole table."}
+];
+function f0Draw(s,i,n){
+  var svg=$("fig0Svg");clear(svg);var fixed=$("fig0Fix").checked;
+  box(svg,560,30,330,262,"var(--color-code-bg)","var(--math-line)");
+  txt(svg,725,58,"Who holds what",14,"middle",null,700);
+  var tc=el("circle",{cx:340,cy:190,r:100,fill:"var(--color-code-bg)",stroke:"var(--math-line)","stroke-width":1.4},svg);
+  txt(svg,340,186,"shared",12,"middle","sub-t");txt(svg,340,204,"table",12,"middle","sub-t");
+  var p,q,f,h;
+  for(f=0;f<5;f++){h=s.holders[f];if(h!==null)line(svg,f0PhilPos[h].x,f0PhilPos[h].y,f0ForkPos[f].x,f0ForkPos[f].y,f0Stroke[h],2.5);}
+  for(p=0;p<5;p++){q=s.waits[p];if(q!==null)line(svg,f0PhilPos[p].x,f0PhilPos[p].y,f0ForkPos[q].x,f0ForkPos[q].y,"var(--math-red)",2,"5 4");}
+  for(f=0;f<5;f++){h=s.holders[f];box(svg,f0ForkPos[f].x-18,f0ForkPos[f].y-12,36,24,h===null?"var(--math-gold-soft)":"var(--color-bg)",h===null?"var(--math-gold)":f0Stroke[h],6);txt(svg,f0ForkPos[f].x,f0ForkPos[f].y+4.5,"F"+(f+1),12,"middle","mono-t",700);}
+  for(p=0;p<5;p++){var st=s.states[p];var fill=(st==="Eating"||st==="Done")?"var(--math-teal-soft)":(st==="Thinking"?"var(--color-code-bg)":f0Soft[p]);
+    el("circle",{cx:f0PhilPos[p].x,cy:f0PhilPos[p].y,r:27,fill:fill,stroke:f0Stroke[p],"stroke-width":(st==="Eating"?2.6:1.6)},svg);
+    txt(svg,f0PhilPos[p].x,f0PhilPos[p].y+5,"P"+(p+1),14.5,"middle","mono-t",700);
+    txt(svg,f0StatePos[p].x,f0StatePos[p].y,st==="Done"?"Done ✓":st,12,f0StatePos[p].a,null,600);
+  }
+  for(p=0;p<5;p++){var y=88+p*38;var held=[];for(f=0;f<5;f++)if(s.holders[f]===p)held.push("F"+(f+1));
+    el("circle",{cx:584,cy:y-4,r:7,fill:f0Soft[p],stroke:f0Stroke[p],"stroke-width":1.4},svg);
+    txt(svg,598,y,"P"+(p+1),12.5,"start","mono-t",700);
+    var rowTxt=s.states[p]+", holds "+(held.length?held.join(", "):"nothing")+(s.waits[p]!==null?", waits F"+(s.waits[p]+1):"");
+    txt(svg,632,y,rowTxt,12,"start",null,400);
+  }
+  var dead=(!fixed&&s.waits[0]!==null&&s.waits[1]!==null&&s.waits[2]!==null&&s.waits[3]!==null&&s.waits[4]!==null);
+  var last=(i===n-1);
+  var verdict,vc,vfill;
+  if(dead){verdict=last?"✗ DEADLOCK: ring closed, 0 meals":"✗ DEADLOCK: wait ring closed";vc="var(--math-red)";vfill="var(--px-rbred-soft)";}
+  else if(fixed&&last){verdict="✓ All five ate: no deadlock";vc="var(--math-teal)";vfill="var(--math-teal-soft)";}
+  else if(fixed){verdict="✓ No ring: chain ends at a diner";vc="var(--math-teal)";vfill="var(--color-code-bg)";}
+  else{verdict="No deadlock yet…";vc="var(--math-ink2)";vfill="var(--color-code-bg)";}
+  box(svg,560,308,330,52,vfill,dead?"var(--math-red)":"var(--math-line)");
+  var vt=txt(svg,725,340,verdict,13.5,"middle",null,700);vt.setAttribute("fill",vc);
+  txt(svg,340,372,"P1–P5 = philosophers (threads); F1–F5 = forks (locks)",12,"middle","sub-t");
+  $("fig0Title").textContent="Intro figure: "+(fixed?"Opposite-order fix (Philosopher 5 reversed)":"Naive protocol")+", step "+i+" of "+(n-1)+": "+s.head;
+  $("fig0Note").innerHTML=s.note;
+}
+var f0=stepper({prev:"fig0Prev",next:"fig0Next",play:"fig0Play",reset:"fig0Reset",prog:"fig0Prog"},function(){return $("fig0Fix").checked?f0Fix:f0Naive;},f0Draw);
+$("fig0Fix").addEventListener("change",function(){f0.reset();});
+
+/* ---------- Intro figure 2: dining philosophers, free play ---------- */
+var fD={holders:[null,null,null,null,null],selected:null,meals:[0,0,0,0,0],wasEating:[false,false,false,false,false],msg:"No philosopher is selected yet. Click any philosopher (P1–P5) to select them, then click one of the two forks beside their plate."};
+function fDLeft(p){return p;}
+function fDRight(p){return (p+4)%5;}
+function fDHeld(p){var r=[];for(var f=0;f<5;f++)if(fD.holders[f]===p)r.push(f);return r;}
+function fDEating(p){return fD.holders[fDLeft(p)]===p&&fD.holders[fDRight(p)]===p;}
+function fDForkName(f){return "F"+(f+1);}
+function fDPhilName(p){return "P"+(p+1);}
+function fDDeadlock(){for(var f=0;f<5;f++)if(fD.holders[f]===null)return false;for(var p=0;p<5;p++)if(fDHeld(p).length!==1)return false;return true;}
+function fDNoteMeals(){for(var p=0;p<5;p++){var now=fDEating(p);if(now&&!fD.wasEating[p])fD.meals[p]++;fD.wasEating[p]=now;}}
+function fDSelect(p){
+  fD.selected=p;
+  var held=fDHeld(p);
+  if(fDEating(p))fD.msg=fDPhilName(p)+" is selected and is already eating: it holds both its left fork ("+fDForkName(fDLeft(p))+") and its right fork ("+fDForkName(fDRight(p))+"). Click either fork to make it put that fork down.";
+  else if(held.length===1)fD.msg=fDPhilName(p)+" is selected. It holds "+fDForkName(held[0])+" (its "+(held[0]===fDLeft(p)?"left":"right")+" fork). Click its other fork, "+fDForkName(held[0]===fDLeft(p)?fDRight(p):fDLeft(p))+", to complete the pair and eat, or click "+fDForkName(held[0])+" again to put it down.";
+  else fD.msg=fDPhilName(p)+" is selected and holds nothing. Its left fork is "+fDForkName(fDLeft(p))+" and its right fork is "+fDForkName(fDRight(p))+": click either one to pick it up.";
+  fDDraw();
+}
+function fDForkClick(f){
+  if(fD.selected===null){fD.msg="Select a philosopher first: click P1–P5, then click a fork beside them. (You clicked "+fDForkName(f)+", which stays where it is.)";fDDraw();return;}
+  var p=fD.selected,side=(f===fDLeft(p))?"left":(f===fDRight(p)?"right":null);
+  if(side===null){fD.msg=fDForkName(f)+" is not beside "+fDPhilName(p)+". A philosopher can only reach the two forks beside their own plate: "+fDPhilName(p)+"'s left fork is "+fDForkName(fDLeft(p))+" and its right fork is "+fDForkName(fDRight(p))+". Nothing changed.";fDDraw();return;}
+  var h=fD.holders[f];
+  if(h===p){
+    fD.holders[f]=null;fDNoteMeals();
+    fD.msg=fDPhilName(p)+" puts down "+fDForkName(f)+" (its "+side+" fork). "+(fDHeld(p).length===1?("It still holds "+fDForkName(fDHeld(p)[0])+"."):"Its hands are now empty.")+" "+fDForkName(f)+" is free for either neighbour to take.";
+  }else if(h!==null){
+    fD.msg=fDPhilName(p)+" cannot pick up "+fDForkName(f)+": "+fDPhilName(h)+" is already holding it, and a fork has exactly one holder at a time. It stays in "+fDPhilName(h)+"'s hand until that philosopher puts it down: select "+fDPhilName(h)+" and click "+fDForkName(f)+" to free it. Nothing changed.";
+  }else{
+    fD.holders[f]=p;fDNoteMeals();
+    if(fDEating(p))fD.msg=fDPhilName(p)+" picks up "+fDForkName(f)+" (its "+side+" fork), and that completes the pair. "+fDPhilName(p)+" is now EATING (meal "+fD.meals[p]+" for "+fDPhilName(p)+"), holding "+fDForkName(fDLeft(p))+" and "+fDForkName(fDRight(p))+". While it eats, neither neighbour can take those forks.";
+    else fD.msg=fDPhilName(p)+" picks up "+fDForkName(f)+" (its "+side+" fork). It now holds one fork and needs its "+(side==="left"?"right":"left")+" fork, "+fDForkName(side==="left"?fDRight(p):fDLeft(p))+", before it can eat.";
+  }
+  fDDraw();
+}
+function fDSummary(){
+  var eaters=[],oners=[],freeForks=[];
+  for(var p=0;p<5;p++){if(fDEating(p))eaters.push(p);else if(fDHeld(p).length===1)oners.push(p);}
+  for(var f=0;f<5;f++)if(fD.holders[f]===null)freeForks.push(f);
+  if(fDDeadlock())return "<strong class=\\"warn\\">Deadlock: built by your own clicks.</strong> All five forks are held, exactly one per philosopher, so every philosopher's remaining fork is sitting in a neighbour's hand. If everyone now simply waits for a second fork, nobody can ever eat: no one is eating, so no one will ever put a fork down. This is the closed ring from the scripted run above. Break it by selecting any philosopher and clicking the fork they hold to free it.";
+  var s="";
+  if(eaters.length)s+="Eating now: "+eaters.map(function(p){return fDPhilName(p)+" (meal "+fD.meals[p]+")";}).join(", ")+". ";
+  else s+="Nobody is eating. ";
+  if(oners.length)s+=oners.map(function(p){var held=fDHeld(p)[0];var need=held===fDLeft(p)?fDRight(p):fDLeft(p);return fDPhilName(p)+" holds "+fDForkName(held)+" and still needs "+fDForkName(need)+(fD.holders[need]!==null?", currently held by "+fDPhilName(fD.holders[need]):", currently free");}).join(". ")+". ";
+  s+=freeForks.length?("Free forks: "+freeForks.map(fDForkName).join(", ")+"."):"No fork is free.";
+  if(!eaters.length&&!oners.length)s+=" The table is clear: select a philosopher and claim a fork to start.";
+  return s;
+}
+function fDSelectedDetail(){
+  if(fD.selected===null)return "No philosopher is selected.";
+  var p=fD.selected;
+  function stat(f){var h=fD.holders[f];return h===null?"free":(h===p?"held by "+fDPhilName(p):"held by "+fDPhilName(h));}
+  return "Selected: "+fDPhilName(p)+", left fork "+fDForkName(fDLeft(p))+" ("+stat(fDLeft(p))+"), right fork "+fDForkName(fDRight(p))+" ("+stat(fDRight(p))+").";
+}
+function fDDraw(){
+  var svg=$("figDSvg");clear(svg);
+  box(svg,560,30,330,262,"var(--color-code-bg)","var(--math-line)");
+  txt(svg,725,58,"Who holds what",14,"middle",null,700);
+  el("circle",{cx:340,cy:190,r:100,fill:"var(--color-code-bg)",stroke:"var(--math-line)","stroke-width":1.4},svg);
+  txt(svg,340,186,"shared",12,"middle","sub-t");txt(svg,340,204,"table",12,"middle","sub-t");
+  var p,f,h;
+  for(f=0;f<5;f++){h=fD.holders[f];if(h!==null)line(svg,f0PhilPos[h].x,f0PhilPos[h].y,f0ForkPos[f].x,f0ForkPos[f].y,f0Stroke[h],2.5);}
+  for(f=0;f<5;f++)(function(f){
+    var h=fD.holders[f];
+    var reachable=fD.selected!==null&&(f===fDLeft(fD.selected)||f===fDRight(fD.selected));
+    var g=el("g",{style:"cursor:pointer"},svg);
+    el("rect",{x:f0ForkPos[f].x-26,y:f0ForkPos[f].y-20,width:52,height:40,fill:"rgba(0,0,0,0)"},g);
+    if(reachable){var hl=box(g,f0ForkPos[f].x-23,f0ForkPos[f].y-17,46,34,"none","var(--math-teal)",6);hl.setAttribute("stroke-dasharray","4 3");hl.setAttribute("stroke-width",1.8);}
+    box(g,f0ForkPos[f].x-18,f0ForkPos[f].y-12,36,24,h===null?"var(--math-gold-soft)":"var(--color-bg)",h===null?"var(--math-gold)":f0Stroke[h],6);
+    txt(g,f0ForkPos[f].x,f0ForkPos[f].y+4.5,"F"+(f+1),12,"middle","mono-t",700);
+    g.addEventListener("click",function(){fDForkClick(f);});
+  })(f);
+  for(p=0;p<5;p++)(function(p){
+    var held=fDHeld(p),eating=fDEating(p);
+    var state=eating?"Eating":(held.length===1?"Holding 1":"Thinking");
+    var fill=eating?"var(--math-teal-soft)":(held.length===1?f0Soft[p]:"var(--color-code-bg)");
+    var g=el("g",{style:"cursor:pointer"},svg);
+    if(fD.selected===p)el("circle",{cx:f0PhilPos[p].x,cy:f0PhilPos[p].y,r:34,fill:"none",stroke:"var(--math-ink)","stroke-width":2.2},g);
+    el("circle",{cx:f0PhilPos[p].x,cy:f0PhilPos[p].y,r:27,fill:fill,stroke:f0Stroke[p],"stroke-width":eating?2.6:1.6},g);
+    txt(g,f0PhilPos[p].x,f0PhilPos[p].y+5,"P"+(p+1),14.5,"middle","mono-t",700);
+    txt(g,f0StatePos[p].x,f0StatePos[p].y,state,12,f0StatePos[p].a,null,600);
+    g.addEventListener("click",function(){fDSelect(p);});
+  })(p);
+  for(p=0;p<5;p++){var y=88+p*38;var held=fDHeld(p).map(fDForkName);
+    el("circle",{cx:584,cy:y-4,r:7,fill:fDEating(p)?"var(--math-teal-soft)":f0Soft[p],stroke:f0Stroke[p],"stroke-width":1.4},svg);
+    txt(svg,598,y,"P"+(p+1),12.5,"start","mono-t",700);
+    var rowTxt=(fDEating(p)?"Eating":(held.length?"Holds 1 fork":"Thinking"))+", holds "+(held.length?held.join(", "):"nothing")+", meals "+fD.meals[p]+(fD.selected===p?", selected":"");
+    txt(svg,632,y,rowTxt,12,"start",null,400);
+  }
+  var dead=fDDeadlock();
+  var anyEating=false;for(p=0;p<5;p++)if(fDEating(p))anyEating=true;
+  var vc=dead?"var(--math-red)":(anyEating?"var(--math-teal)":"var(--math-ink2)");
+  var vfill=dead?"var(--px-rbred-soft)":"var(--color-code-bg)";
+  box(svg,560,308,330,52,vfill,dead?"var(--math-red)":"var(--math-line)");
+  var vt=txt(svg,725,340,dead?"✗ DEADLOCK: one fork each":(anyEating?"✓ Someone is eating":"No deadlock"),13.5,"middle",null,700);vt.setAttribute("fill",vc);
+  txt(svg,340,372,"Click a philosopher, then click a fork beside them",12,"middle","sub-t");
+  var heldCount=0;for(f=0;f<5;f++)if(fD.holders[f]!==null)heldCount++;
+  var eaters=[];for(p=0;p<5;p++)if(fDEating(p))eaters.push(fDPhilName(p));
+  $("figDTitle").textContent="Try it yourself: "+(dead?"deadlock: every philosopher holds exactly one fork":(eaters.length?eaters.join(", ")+" eating, "+heldCount+" of 5 forks held":(heldCount?heldCount+" of 5 forks held, nobody eating yet":"no forks held, nobody eating")));
+  $("figDHint").textContent=fD.selected===null?"Click a philosopher to select them.":(fDPhilName(fD.selected)+" selected: click one of the two dashed forks beside them to claim or free it.");
+  $("figDOut").innerHTML="<p style=\\"margin:0 0 8px\\">"+fD.msg+"</p><p style=\\"margin:0 0 8px\\">"+fDSummary()+"</p><p style=\\"margin:0\\">"+fDSelectedDetail()+"</p>";
+  $("figDOut").style.borderColor=dead?"var(--math-red)":"var(--math-line)";
+  $("figDOut").style.background=dead?"var(--px-rbred-soft)":"var(--color-code-bg)";
+}
+$("figDReset").addEventListener("click",function(){
+  fD.holders=[null,null,null,null,null];fD.selected=null;fD.meals=[0,0,0,0,0];fD.wasEating=[false,false,false,false,false];
+  fD.msg="Table reset. All five forks are back on the table, every philosopher is thinking, and no philosopher is selected. Click any philosopher (P1–P5) to select them, then click one of the two forks beside their plate.";
+  fDDraw();
+});
+fDDraw();
+
+/* ---------- Figure 1: race / mutex ---------- */
+var f1stepsPlain=[
+ {c:0,r1:"empty",r2:"empty",act:"idle",lock:null,note:"Start. counter = 0 in shared memory. Each thread will run READ, ADD, WRITE. Step forward and watch Thread 2 slip inside Thread 1's window."},
+ {c:0,r1:"0",r2:"empty",act:"t1read",lock:null,note:"Thread 1 READs counter into its private register: reg1 = 0. Nothing has been written yet: counter is still 0."},
+ {c:0,r1:"0",r2:"0",act:"t2read",lock:null,note:"Thread 2 READs counter too: reg2 = 0. Both threads now hold the same starting value. The trap is set."},
+ {c:1,r1:"1",r2:"0",act:"t1write",lock:null,note:"Thread 1 ADDs (reg1 = 1) and WRITEs back: counter = 1. One correct increment has landed."},
+ {c:1,r1:"1",r2:"1",act:"t2write",lock:null,note:"Thread 2 ADDs its stale register (reg2 = 0 + 1 = 1) and WRITEs: counter = 1 again. It never saw Thread 1's update."},
+ {c:1,r1:"1",r2:"1",act:"done",lock:null,note:"Finished. Two increments executed, counter = 1, but the correct answer is 2. One update was lost: a race condition, with every individual line of code 'correct'."}
+];
+var f1stepsMutex=[
+ {c:0,r1:"empty",r2:"empty",act:"idle",lock:"free",note:"Start, with the increment wrapped in lock() and unlock(). counter = 0 and the mutex is free."},
+ {c:0,r1:"empty",r2:"empty",act:"t1lock",lock:"t1",note:"Thread 1 calls lock() and wins: it now holds the mutex and is inside the critical section."},
+ {c:0,r1:"empty",r2:"blocked",act:"t2wait",lock:"t1",note:"Thread 2 calls lock() and BLOCKS: the mutex is held. Thread 2 cannot reach the READ at all. The bad interleaving is now impossible."},
+ {c:1,r1:"1",r2:"blocked",act:"t1write",lock:"free",note:"Thread 1 READs 0, ADDs, WRITEs counter = 1, then unlocks. The critical section ran to completion, unsplit."},
+ {c:2,r1:"1",r2:"2",act:"t2go",lock:"free",note:"Thread 2 wakes, acquires the mutex, READs the fresh value 1, ADDs, and WRITEs counter = 2, then unlocks."},
+ {c:2,r1:"1",r2:"2",act:"done",lock:null,note:"Finished. counter = 2. Correct. The mutex did not make the code faster; it made the bad schedule unreachable."}
+];
+function f1Mode(){return $("fig1Mutex").checked?"mutex":"plain";}
+function f1Draw(s,i,n){
+  var svg=$("fig1Svg");clear(svg);var mode=f1Mode();
+  txt(svg,140,32,"Thread 1",15,"middle",null,700);txt(svg,780,32,"Thread 2",15,"middle",null,700);
+  box(svg,40,50,200,86,s.act.indexOf("t1")===0||s.act==="done"?"var(--px-blue-soft)":"var(--color-code-bg)","var(--math-blue)");
+  txt(svg,140,84,"register",12.5,"middle","sub-t");txt(svg,140,116,"reg1 = "+s.r1,19,"middle","mono-t",700);
+  box(svg,680,50,200,86,s.act.indexOf("t2")===0||s.act==="done"?"var(--math-orange-soft)":"var(--color-code-bg)","var(--math-orange)");
+  txt(svg,780,84,"register",12.5,"middle","sub-t");txt(svg,780,116,"reg2 = "+s.r2,19,"middle","mono-t",700);
+  box(svg,360,50,200,86,"var(--color-bg)","var(--math-ink2)");
+  txt(svg,460,84,"shared memory",12.5,"middle","sub-t");txt(svg,460,116,"counter = "+s.c,19,"middle","mono-t",700);
+  if(s.act==="t1read"||s.act==="t1lock")arrow(svg,365,93,245,93,"var(--math-blue)",2.5);
+  if(s.act==="t2read")arrow(svg,555,93,675,93,"var(--math-orange)",2.5);
+  if(s.act==="t1write")arrow(svg,245,108,355,108,"var(--math-blue)",2.5);
+  if(s.act==="t2write"||s.act==="t2go")arrow(svg,675,108,565,108,"var(--math-orange)",2.5);
+  if(s.act==="t2wait"){line(svg,610,60,610,140,"var(--math-red)",3);txt(svg,610,158,"blocked at lock()",13,"middle",null,600);}
+  if(mode==="mutex"&&s.lock){var lb=box(svg,385,168,150,40,s.lock==="free"?"var(--math-teal-soft)":"var(--math-gold-soft)","var(--math-teal)");txt(svg,460,193,s.lock==="free"?"mutex: free":(s.lock==="t1"?"mutex: Thread 1":"mutex"),13.5,"middle",null,700);}
+  var verdict,vc;
+  if(i===n-1&&mode==="plain"){verdict="✗ Expected 2, got "+s.c+": one update lost";vc="var(--math-red)";}
+  else if(i===n-1){verdict="✓ Expected 2, got "+s.c+": both increments landed";vc="var(--math-teal)";}
+  else{verdict=mode==="mutex"?"Critical section serialises the three steps":"The scheduler is free to interleave the three steps";vc="var(--math-ink2)";}
+  var vt=txt(svg,460,262,verdict,15,"middle",null,700);vt.setAttribute("fill",vc);
+  txt(svg,460,288,"READ → ADD → WRITE is three machine steps, not one",12.5,"middle","sub-t");
+  $("fig1Title").textContent="Figure 1: "+(mode==="mutex"?"With a mutex":"No mutex")+", step "+i+" of "+(n-1)+": counter = "+s.c;
+  $("fig1Note").innerHTML=s.note;
+}
+var f1=stepper({prev:"fig1Prev",next:"fig1Next",play:"fig1Play",reset:"fig1Reset",prog:"fig1Prog"},function(){return f1Mode()==="mutex"?f1stepsMutex:f1stepsPlain;},f1Draw);
+$("fig1Mutex").addEventListener("change",function(){f1.reset();});
+
+/* ---------- Figure 2: Amdahl ---------- */
+function f2Draw(){
+  var n=parseInt($("fig2Threads").value,10),sp=parseInt($("fig2Serial").value,10),s=sp/100;
+  var speed=1/(s+(1-s)/n),ceil=1/s,eff=speed/n*100;
+  $("fig2ThreadsVal").textContent=n;$("fig2SerialVal").textContent=sp+"%";
+  $("fig2Speed").textContent=speed.toFixed(2)+"×";$("fig2Ceil").textContent=ceil.toFixed(1)+"×";$("fig2Eff").textContent=Math.round(eff)+"%";
+  $("fig2Title").textContent="Figure 2: "+n+" threads, "+sp+"% serial: speedup "+speed.toFixed(2)+"× of a "+ceil.toFixed(1)+"× ceiling";
+  var svg=$("fig2Svg");clear(svg);var maxV=Math.max(n,ceil,4),x0=70,W=780;
+  function bw(v){return W*v/maxV;}
+  txt(svg,x0,40,"Actual speedup (Amdahl)",13.5,"start",null,600);
+  box(svg,x0,52,bw(speed),34,"var(--math-teal)","var(--math-teal)");txt(svg,x0+bw(speed)+10,74,speed.toFixed(2)+"×",15,"start","mono-t",700);
+  txt(svg,x0,122,"Naive hope (linear in threads)",13.5,"start",null,600);
+  var hb=box(svg,x0,134,bw(n),34,"none","var(--math-ink3)");hb.setAttribute("stroke-dasharray","5 4");txt(svg,x0+bw(n)+10,156,n.toFixed(2)+"×",15,"start","mono-t",700);
+  txt(svg,x0,204,"Ceiling with infinite threads (1 / s)",13.5,"start",null,600);
+  box(svg,x0,216,Math.min(bw(ceil),W),34,"var(--math-gold-soft)","var(--math-gold)");txt(svg,x0+Math.min(bw(ceil),W)+10,238,ceil.toFixed(1)+"×",15,"start","mono-t",700);
+  txt(svg,x0,282,"Serial fraction s = "+sp+"%: the part fenced off by the mutex never parallelises.",12.5,"start","sub-t");
+}
+$("fig2Threads").addEventListener("input",f2Draw);$("fig2Serial").addEventListener("input",f2Draw);
+
+/* ---------- Figure 3: deadlock ---------- */
+var f3bad=[
+ {h1:["none"],h2:["none"],w1:null,w2:null,note:"Start. Two locks, A and B. Thread 1's code takes A then B; Thread 2's code takes B then A. Either order alone is fine: the mixture is the bug."},
+ {h1:["A"],h2:["none"],w1:null,w2:null,note:"Thread 1 locks A. It holds A and will ask for B next."},
+ {h1:["A"],h2:["B"],w1:null,w2:null,note:"Thread 2 locks B. Each thread now holds exactly the lock the other is about to request. Hold-and-wait is established."},
+ {h1:["A"],h2:["B"],w1:"B",w2:null,note:"Thread 1 requests B, held by Thread 2, and blocks. It keeps holding A while it waits."},
+ {h1:["A"],h2:["B"],w1:"B",w2:"A",note:"Thread 2 requests A, held by Thread 1, and blocks. The wait-for graph now contains the cycle T1 → T2 → T1. DEADLOCK: no thread can ever run again."}
+];
+var f3good=[
+ {h1:["none"],h2:["none"],w1:null,w2:null,note:"Start, with the global order A before B imposed on both threads. Thread 2's code has been rewritten to take A first."},
+ {h1:["A"],h2:["none"],w1:null,w2:null,note:"Thread 1 locks A, the first lock in the global order."},
+ {h1:["A"],h2:["none"],w1:null,w2:"A",note:"Thread 2 also asks for A first, and blocks. Crucially it holds NOTHING while waiting, so it cannot be part of any cycle."},
+ {h1:["A","B"],h2:["none"],w1:null,w2:"A",note:"Thread 1 takes B (A-then-B respects the order), does its work, and releases both locks."},
+ {h1:["none"],h2:["A","B"],w1:null,w2:null,note:"Thread 2 wakes, takes A then B, and completes. No cycle ever formed: with a global order, circular wait is impossible, so deadlock is impossible."}
+];
+function f3Draw(s,i,n){
+  var svg=$("fig3Svg");clear(svg);var fixed=$("fig3Order").checked,showG=$("fig3Graph").checked;
+  txt(svg,130,30,"Thread 1",15,"middle",null,700);txt(svg,470,30,"Thread 2",15,"middle",null,700);
+  box(svg,40,46,180,74,s.h1[0]==="none"?"var(--color-code-bg)":"var(--px-blue-soft)","var(--math-blue)");
+  txt(svg,130,76,"holds",12,"middle","sub-t");txt(svg,130,104,s.h1.join(", ")==="none"?"nothing":s.h1.join(", "),17,"middle","mono-t",700);
+  box(svg,380,46,180,74,s.h2[0]==="none"?"var(--color-code-bg)":"var(--math-orange-soft)","var(--math-orange)");
+  txt(svg,470,76,"holds",12,"middle","sub-t");txt(svg,470,104,s.h2.join(", ")==="none"?"nothing":s.h2.join(", "),17,"middle","mono-t",700);
+  box(svg,215,170,80,52,"var(--math-gold-soft)","var(--math-gold)");txt(svg,255,202,"Lock A",15,"middle",null,700);
+  box(svg,305,170,80,52,"var(--math-gold-soft)","var(--math-gold)");txt(svg,345,202,"Lock B",15,"middle",null,700);
+  if(s.h1.indexOf("A")>=0)arrow(svg,180,124,238,166,"var(--math-blue)",2.5);
+  if(s.h1.indexOf("B")>=0)arrow(svg,205,124,330,166,"var(--math-blue)",2.5);
+  if(s.h2.indexOf("A")>=0)arrow(svg,420,124,262,166,"var(--math-orange)",2.5);
+  if(s.h2.indexOf("B")>=0)arrow(svg,395,124,350,166,"var(--math-orange)",2.5);
+  if(s.w1)arrow(svg,150,140,300,162,"var(--math-red)",2,"6 4");
+  if(s.w2)arrow(svg,450,140,300,162,"var(--math-red)",2,"6 4");
+  if(s.w1)txt(svg,140,262,"T1 waits for "+s.w1,13,"middle",null,600);
+  if(s.w2)txt(svg,460,262,"T2 waits for "+s.w2,13,"middle",null,600);
+  var dead=s.w1&&s.w2;
+  var vt=txt(svg,300,300,dead?"✗ DEADLOCK: circular wait complete":(fixed?"✓ Global order: no cycle can form":"No cycle yet…"),15,"middle",null,700);vt.setAttribute("fill",dead?"var(--math-red)":"var(--math-teal)");
+  if(showG){
+    txt(svg,760,30,"Wait-for graph",14,"middle",null,700);
+    var c1=el("circle",{cx:705,cy:110,r:30,fill:"var(--px-blue-soft)",stroke:"var(--math-blue)","stroke-width":1.6},svg);txt(svg,705,116,"T1",15,"middle","mono-t",700);
+    var c2=el("circle",{cx:815,cy:110,r:30,fill:"var(--math-orange-soft)",stroke:"var(--math-orange)","stroke-width":1.6},svg);txt(svg,815,116,"T2",15,"middle","mono-t",700);
+    if(s.w1)arrow(svg,737,100,781,100,"var(--math-red)",2.5);
+    if(s.w2)arrow(svg,783,122,739,122,"var(--math-red)",2.5);
+    txt(svg,760,172,dead?"cycle: T1 → T2 → T1":"no cycle",13,"middle",null,600);
+    txt(svg,760,196,"a cycle here ⇔ deadlock",12,"middle","sub-t");
+    box(svg,640,240,240,58,dead?"var(--px-rbred-soft)":"var(--color-code-bg)",dead?"var(--math-red)":"var(--math-line)");
+    txt(svg,760,264,dead?"Detector verdict":"Detector verdict",12,"middle","sub-t");
+    txt(svg,760,286,dead?"CYCLE FOUND":"no cycle",14.5,"middle","mono-t",700);
+  }
+  $("fig3Title").textContent="Figure 3: "+(fixed?"Global lock order (fix)":"Opposite lock orders")+", step "+i+" of "+(n-1)+": "+(dead?"deadlocked":(s.w1||s.w2?"waiting":"no locks held / running"));
+  $("fig3Note").innerHTML=s.note;
+}
+var f3=stepper({prev:"fig3Prev",next:"fig3Next",play:"fig3Play",reset:"fig3Reset",prog:"fig3Prog"},function(){return $("fig3Order").checked?f3good:f3bad;},f3Draw);
+$("fig3Order").addEventListener("change",function(){f3.reset();});
+$("fig3Graph").addEventListener("change",function(){f3.render();});
+
+/* ---------- Figure 4: starvation ---------- */
+function f4Draw(){
+  var bias=parseInt($("fig4Bias").value,10),fair=$("fig4Fair").checked;
+  $("fig4BiasVal").textContent=bias+"%";
+  var low,hogTotal;
+  if(fair){low=10;hogTotal=20;}else{low=Math.round(10*(1-bias/100));hogTotal=30-low;}
+  var h1=Math.ceil(hogTotal/2),h2=hogTotal-h1;
+  var longestWait=fair?2:(low===0?30:Math.max(2,Math.round(30/Math.max(low,1))-1));
+  $("fig4Low").textContent=low;$("fig4Wait").textContent=longestWait+(longestWait>=30?" (never)":" quanta");
+  var verdict=fair?"Impossible (FIFO)":(low===0?"STARVED":(low<=3?"Severe risk":"At risk"));
+  $("fig4Verdict").textContent=verdict;
+  $("fig4Title").textContent="Figure 4: "+(fair?"Fair FIFO queue":("Scheduler bias "+bias+"%"))+": Low runs "+low+" of 30 quanta";
+  var svg=$("fig4Svg");clear(svg);var x0=150,W=680;
+  var rows=[["Hog 1",h1,"var(--math-blue)"],["Hog 2",h2,"var(--math-blue)"],["Low",low,"var(--math-orange)"]];
+  for(var r=0;r<3;r++){var y=44+r*66;
+    txt(svg,x0-14,y+22,rows[r][0],14.5,"end",null,600);
+    box(svg,x0,y,Math.max(W*rows[r][1]/30,rows[r][1]?6:2),36,rows[r][1]===0?"var(--color-code-bg)":rows[r][2],rows[r][2]);
+    txt(svg,x0+Math.max(W*rows[r][1]/30,2)+12,y+24,rows[r][1]+" of 30",14.5,"start","mono-t",700);
+  }
+  var msg=fair?"FIFO order: Low is guaranteed a turn within 2 quanta, so starvation is impossible":(low===0?"Low is runnable the whole time and is never chosen: starvation":("Low still runs, but its share shrinks as bias grows: push the slider to 100%"));
+  var mt=txt(svg,460,258,msg,13.5,"middle",null,600);if(low===0&&!fair)mt.setAttribute("fill","var(--math-red)");
+}
+$("fig4Bias").addEventListener("input",f4Draw);$("fig4Fair").addEventListener("change",f4Draw);
+
+/* ---------- Figure 5: livelock ---------- */
+var f5loop=[
+ {a:230,b:690,prog:0,note:"Two robots enter the corridor from opposite ends, each needing to pass the other. Both are running. Both are about to be very polite."},
+ {a:290,b:630,prog:0,note:"They meet in the middle. The corridor is too narrow to pass head-on: someone must sidestep."},
+ {a:290,b:630,side:-1,prog:0,note:"Both sidestep LEFT at the same instant (attempt 1). They are still face to face. No progress: they reacted identically."},
+ {a:290,b:630,side:1,prog:0,note:"Both sidestep RIGHT at the same instant (attempt 2). Still face to face. The CPUs are busy; the corridor is not being crossed."},
+ {a:290,b:630,side:-1,prog:0,note:"Both sidestep LEFT again (attempt 3)… and so on, forever. This is livelock: constant motion, zero progress, nothing blocked. Next from the end loops back to the start."}
+];
+var f5fix=[
+ {a:230,b:690,prog:0,note:"Same corridor, but after a failed pass each robot waits a RANDOM delay before retrying. Watch the symmetry break."},
+ {a:290,b:630,prog:0,note:"They meet and block each other, exactly as before (attempt 1). Both now draw a random backoff."},
+ {a:290,b:630,side:-1,wait:"b",prog:0,note:"Robot B happened to draw the longer backoff (2 time units) and stays put. Robot A's shorter wait expires first: the lockstep is broken."},
+ {a:560,b:630,side:-1,prog:55,note:"With B stationary, A sidesteps and walks past. Progress at last: A is more than halfway across."},
+ {a:700,b:420,prog:100,note:"A exits; B's backoff expires and B crosses the now-empty corridor unopposed. Progress 100%: randomness turned an infinite dance into two crossings."}
+];
+function f5Draw(s,i,n){
+  var svg=$("fig5Svg");clear(svg);var fixed=$("fig5Backoff").checked;
+  box(svg,60,60,800,120,"var(--color-code-bg)","var(--math-line)");txt(svg,460,50,"corridor",12.5,"middle","sub-t");
+  var ay=120+(s.side?-26*s.side:0),by=120+(s.side?26*s.side:0);
+  if(s.wait==="b"){txt(svg,s.b,84,"backoff: waiting",13,"middle",null,600); }
+  var ca=el("circle",{cx:s.a,cy:ay,r:22,fill:"var(--math-blue)",stroke:"var(--math-blue)"},svg);txt(svg,s.a,ay+5,"A",15,"middle","on-dark",700);
+  var cb=el("circle",{cx:s.b,cy:by,r:22,fill:"var(--math-orange)",stroke:"var(--math-orange)"},svg);txt(svg,s.b,by+5,"B",15,"middle","on-dark",700);
+  txt(svg,120,228,"attempts so far",12.5,"start","sub-t");txt(svg,120,254,i,19,"start","mono-t",700);
+  txt(svg,330,228,"progress through corridor",12.5,"start","sub-t");
+  box(svg,330,236,380,18,"var(--color-code-bg)","var(--math-line)");if(s.prog>0)box(svg,330,236,380*s.prog/100,18,"var(--math-teal)","var(--math-teal)");
+  txt(svg,730,254,s.prog+"%",16,"start","mono-t",700);
+  var msg=fixed?(s.prog===100?"✓ Both robots crossed":"Random delays desynchronise the retries"):(s.prog===0?"✗ Motion without progress: livelock":"progress");var mt=txt(svg,460,288,msg,13.5,"middle",null,600);mt.setAttribute("fill",s.prog===100?"var(--math-teal)":(fixed?"var(--math-ink2)":"var(--math-red)"));
+  $("fig5Title").textContent="Figure 5: "+(fixed?"Randomised backoff (fix)":"Lockstep retries")+", attempt "+i+" of "+(n-1)+": progress "+s.prog+"%";
+  $("fig5Note").innerHTML=s.note;
+}
+var f5=stepper({prev:"fig5Prev",next:"fig5Next",play:"fig5Play",reset:"fig5Reset",prog:"fig5Prog"},function(){return $("fig5Backoff").checked?f5fix:f5loop;},f5Draw);
+$("fig5Backoff").addEventListener("change",function(){f5.reset();});
+
+/* ---------- Figure 6: priority inversion ---------- */
+function f6Segs(pi){
+  if(pi)return {L:[[0,2,"run"],[2,5,"boost"]],H:[[5,7,"run"]],M:[[7,12,"run"]],hStart:5,hWait:3,release:5};
+  return {L:[[0,3,"run"],[9,10,"run"]],H:[[10,11,"run"]],M:[[3,9,"run"]],hStart:10,hWait:8,release:10};
+}
+function f6Draw(){
+  var t=parseInt($("fig6Time").value,10),pi=$("fig6PI").checked,segs=f6Segs(pi);
+  $("fig6TimeVal").textContent="t = "+t;
+  function runner(tt){var names=["L","H","M"];for(var k=0;k<names.length;k++){var arr=segs[names[k]];for(var j=0;j<arr.length;j++){if(tt>=arr[j][0]&&tt<arr[j][1])return names[k];}}return "none";}
+  var rn=runner(t);
+  $("fig6HState").textContent=t>=12?"Finished":(rn==="none"?"Idle":("Running ("+rn+")"));
+  $("fig6HWait").textContent=segs.hWait+" units";$("fig6HStart").textContent="t = "+segs.hStart;
+  $("fig6Title").textContent="Figure 6: "+(pi?"Priority inheritance on":"No priority inheritance")+", t = "+t+": "+(t<2?"L takes the lock and starts":(rn==="H"?"H is running":(rn==="M"?(pi?"M runs, H already served":"M runs while H waits"):(rn==="L"?"L runs "+(pi?"(boosted to H's priority)":""):"idle"))));
+  var svg=$("fig6Svg");clear(svg);var x0=120,x1=860,W=x1-x0;function X(tt){return x0+W*tt/12;}
+  var rows=[["H: high",segs.H,"var(--math-orange)"],["M: medium",segs.M,"var(--math-blue)"],["L: low",segs.L,"var(--math-teal)"]];
+  txt(svg,x0,26,"time →",12.5,"start","sub-t");
+  for(var g=0;g<=12;g+=2){line(svg,X(g),34,X(g),246,"var(--math-line)",1);txt(svg,X(g),264,g,11.5,"middle","sub-t");}
+  for(var r=0;r<3;r++){var y=52+r*62;txt(svg,x0-14,y+24,rows[r][0],13.5,"end",null,600);
+    box(svg,x0,y,W,36,"var(--color-code-bg)","var(--math-line)");
+    var arr=rows[r][1];for(var j=0;j<arr.length;j++){var a=arr[j],from=Math.max(a[0],0),to=Math.min(a[1],Math.max(t,0));var full=a[1];
+      box(svg,X(a[0]),y,X(full)-X(a[0]),36,"none",rows[r][2]);
+      if(to>from)box(svg,X(from),y,X(to)-X(from),36,rows[r][2],rows[r][2]);
+      if(a[2]==="boost")txt(svg,(X(a[0])+X(a[1]))/2,y+23,"boosted ↑",12,"middle","on-dark",700);
+    }
+  }
+  if(t>2&&segs.hStart>t){box(svg,X(2),52,X(Math.min(segs.hStart,t))-X(2),36,"none","var(--math-red)");txt(svg,X(2)+8,44,"H blocked on the lock",12.5,"start",null,600);}
+  line(svg,X(t),30,X(t),250,"var(--math-red)",2.5,"5 3");txt(svg,X(t),286,"t = "+t,13,"middle","mono-t",700);
+  txt(svg,x0,308,pi?"L inherits H's priority while H waits, so M cannot preempt it: H waits one critical section (3 units).":"H arrives at t = 2; M (medium) preempts L from t = 3 to t = 9, so H waits 8 units behind work it outranks.",12.5,"start","sub-t");
+}
+$("fig6Time").addEventListener("input",f6Draw);$("fig6PI").addEventListener("change",f6Draw);
+
+/* ---------- Figure 7: bounded buffer ---------- */
+var f7steps=[
+ {buf:[],note:"Start. Buffer capacity 3, all slots empty. empty = 3 (three permits to produce), full = 0 (nothing to consume). Invariant: 3 + 0 = 3."},
+ {buf:["A"],note:"Producer: wait(empty) takes a permit (empty 3 → 2), locks the mutex, puts item A, unlocks, then signal(full) (full 0 → 1)."},
+ {buf:["A","B"],note:"Producer again: wait(empty) (empty 2 → 1), put B, signal(full) (full 1 → 2). Two items ready."},
+ {buf:["A","B","C"],note:"Producer a third time: wait(empty) (empty 1 → 0), put C, signal(full) (full 2 → 3). Buffer FULL: at the fullest point, empty + full = 0 + 3 = 3."},
+ {buf:["A","B","C"],block:"p",note:"Producer tries a fourth item: wait(empty) finds empty = 0 and BLOCKS, asleep. No spinning, no overwritten data: the semaphore is doing its one job."},
+ {buf:["B","C"],note:"Consumer: wait(full) (full 3 → 2), locks, takes the OLDEST item A (queue order), unlocks, signal(empty) (empty 0 → 1). The producer wakes: a slot exists now."},
+ {buf:["B","C","D"],note:"Producer wakes, completes wait(empty) (empty 1 → 0), puts D in the freed slot, signal(full) (full 2 → 3). Buffer: B, C, D."},
+ {buf:["C","D"],note:"Consumer takes B (full 3 → 2, empty 0 → 1). Every step preserved empty + full = 3 and nobody ever polled."},
+ {buf:["C","D"],note:"Steady state reached. Producer and consumer can run at completely different average rates; the buffer absorbs bursts up to its capacity, and the two semaphores apply back-pressure in both directions."}
+];
+function f7Draw(s,i,n){
+  var svg=$("fig7Svg");clear(svg);var full=s.buf.length,empty=3-full;
+  txt(svg,120,44,"Producer",15,"middle",null,700);txt(svg,800,44,"Consumer",15,"middle",null,700);
+  var pb=box(svg,40,58,160,52,s.block==="p"?"var(--px-rbred-soft)":"var(--px-blue-soft)","var(--math-blue)");txt(svg,120,90,s.block==="p"?"asleep: wait(empty)":"ready",13.5,"middle",null,600);
+  box(svg,720,58,160,52,"var(--math-orange-soft)","var(--math-orange)");txt(svg,800,90,"ready",13.5,"middle",null,600);
+  txt(svg,460,44,"buffer (capacity 3)",13.5,"middle","sub-t");
+  for(var k=0;k<3;k++){var x=310+k*105;var filled=k<full;box(svg,x,58,95,64,filled?"var(--math-teal-soft)":"var(--color-code-bg)",filled?"var(--math-teal)":"var(--math-line)");txt(svg,x+47,98,filled?s.buf[k]:"empty",filled?19:12.5,"middle",filled?"mono-t":"sub-t",700);}
+  arrow(svg,205,84,300,84,"var(--math-blue)",2.5);arrow(svg,625,84,715,84,"var(--math-orange)",2.5);
+  box(svg,250,168,190,58,"var(--color-bg)","var(--math-ink2)");txt(svg,345,192,"empty semaphore",12.5,"middle","sub-t");txt(svg,345,216,""+empty,20,"middle","mono-t",700);
+  box(svg,480,168,190,58,"var(--color-bg)","var(--math-ink2)");txt(svg,575,192,"full semaphore",12.5,"middle","sub-t");txt(svg,575,216,""+full,20,"middle","mono-t",700);
+  var ok=(empty+full===3);var vt=txt(svg,460,262,"invariant: empty + full = "+empty+" + "+full+" = "+(empty+full)+(ok?" ✓":" ✗"),14.5,"middle","mono-t",700);vt.setAttribute("fill",ok?"var(--math-teal)":"var(--math-red)");
+  $("fig7Title").textContent="Figure 7: Bounded buffer, step "+i+" of "+(n-1)+": empty = "+empty+", full = "+full;
+  $("fig7Note").innerHTML=s.note;
+}
+var f7=stepper({prev:"fig7Prev",next:"fig7Next",play:"fig7Play",reset:"fig7Reset",prog:"fig7Prog"},function(){return f7steps;},f7Draw);
+
+/* ---------- Figure 8: CAS ---------- */
+var f8steps=[
+ {v:10,e1:"empty",e2:"empty",res:"",note:"Start. counter = 10. Both threads want to increment it, this time with no lock at all, only CAS."},
+ {v:10,e1:"10",e2:"empty",res:"",note:"Thread 1 reads counter: expected1 = 10. It computes its desired value, 11, privately."},
+ {v:10,e1:"10",e2:"10",res:"",note:"Thread 2 reads counter too: expected2 = 10, desired 11. The exact stale-read setup that corrupted Figure 1: watch what CAS does with it."},
+ {v:11,e1:"10 ✓",e2:"10",res:"t1ok",note:"Thread 1 CAS(counter, expected 10, new 11): memory still holds 10, so the swap lands atomically. counter = 11. CAS returns success."},
+ {v:11,e1:"10 ✓",e2:"10 ✗",res:"t2fail",note:"Thread 2 CAS(counter, expected 10, new 11): memory now holds 11, not 10: CAS FAILS and changes nothing. The stale write that lost an update in Figure 1 is refused here."},
+ {v:12,e1:"10 ✓",e2:"11 ✓",res:"t2ok",note:"Thread 2 loops: re-reads counter (expected2 = 11), recomputes desired 12, CAS succeeds. counter = 12."},
+ {v:12,e1:"done",e2:"done",res:"done",note:"Finished. counter = 12. Both increments counted, no lock was ever held, no thread ever blocked. The cost was one failed CAS and one retry."}
+];
+function f8Draw(s,i,n){
+  var svg=$("fig8Svg");clear(svg);
+  txt(svg,140,32,"Thread 1",15,"middle",null,700);txt(svg,780,32,"Thread 2",15,"middle",null,700);
+  box(svg,40,50,200,86,s.res==="t1ok"?"var(--math-teal-soft)":(s.res==="done"?"var(--math-teal-soft)":"var(--px-blue-soft)"),"var(--math-blue)");
+  txt(svg,140,84,"expected",12.5,"middle","sub-t");txt(svg,140,116,s.e1,18,"middle","mono-t",700);
+  box(svg,680,50,200,86,s.res==="t2fail"?"var(--px-rbred-soft)":(s.res==="t2ok"||s.res==="done"?"var(--math-teal-soft)":"var(--math-orange-soft)"),"var(--math-orange)");
+  txt(svg,780,84,"expected",12.5,"middle","sub-t");txt(svg,780,116,s.e2,18,"middle","mono-t",700);
+  box(svg,360,50,200,86,"var(--color-bg)","var(--math-ink2)");txt(svg,460,84,"shared memory (atomic)",12.5,"middle","sub-t");txt(svg,460,116,"counter = "+s.v,19,"middle","mono-t",700);
+  if(s.res==="t1ok")txt(svg,460,168,"CAS(10 → 11) ✓ swapped",15,"middle",null,700);
+  if(s.res==="t2fail"){var ft=txt(svg,460,168,"CAS(10 → 11) ✗ refused: value is 11, not 10",15,"middle",null,700);ft.setAttribute("fill","var(--math-red)");}
+  if(s.res==="t2ok")txt(svg,460,168,"retry: CAS(11 → 12) ✓ swapped",15,"middle",null,700);
+  if(s.res==="done"){var dt=txt(svg,460,168,"✓ Both increments landed: no lock held at any point",15,"middle",null,700);dt.setAttribute("fill","var(--math-teal)");}
+  txt(svg,460,214,"CAS(addr, expected, new): swap only if *addr still equals expected: one indivisible hardware step",12.5,"middle","sub-t");
+  txt(svg,460,252,"a failed CAS proves another thread made progress: that is the lock-free guarantee",12.5,"middle","sub-t");
+  $("fig8Title").textContent="Figure 8: CAS increment, step "+i+" of "+(n-1)+": counter = "+s.v;
+  $("fig8Note").innerHTML=s.note;
+}
+var f8=stepper({prev:"fig8Prev",next:"fig8Next",play:"fig8Play",reset:"fig8Reset",prog:"fig8Prog"},function(){return f8steps;},f8Draw);
+
+/* init */
+f0.render();f1.render();f2Draw();f3.render();f4Draw();f5.render();f6Draw();f7.render();f8.render();
+`} />
