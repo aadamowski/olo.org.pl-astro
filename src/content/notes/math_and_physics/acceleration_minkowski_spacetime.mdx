@@ -58,6 +58,7 @@ tocDepth: 2
 .mn-diagram svg { width:100%; height:auto; display:block; }
 .mn-figcap { font-size:.87rem; color:var(--math-ink2); padding:8px 6px 6px; line-height:1.5; }
 .mn-figcap strong { color:var(--math-ink); }
+.mn-cols { display:grid; grid-template-columns:1fr; gap:22px; margin-top:18px; }
 
 /* ===== Slider boxes + readouts ===== */
 .mn-sliderbox { background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; padding:20px 22px; margin:18px 0; }
@@ -293,6 +294,69 @@ Differentiate the interval and the proper-time rate falls out immediately: <math
 <div class="mn-figcap"><strong>Figure 4: The Lorentz factor γ(β).</strong> Practically 1 in everyday life (at highway speed γ − 1 ≈ 10<sup>−14</sup>), then exploding near <em>c</em>. The orange marker is live — drive it with the slider above.</div>
 </div>
 
+<h3>The traveller's "now" line, unpacked: simultaneity is a slice, not a single moment</h3>
+  <p>Figure 3 labels the traveller's tilted space axis as their "now" line, and that label deserves a slow reading, because the line is the whole content of the relativity of simultaneity. At one event, "now" is unproblematic: it is the event itself, here and now. The line appears when you extend "now" across space and ask: <em>which distant events is the traveller entitled to call simultaneous with this one?</em> The answer is a set of events, one for every place, and on the diagram that set is a line: the set of all events carrying the same traveller time coordinate <span class="mn-var">t′</span>. The traveller's time coordinate is fixed by the Lorentz transformation,</p>
+  <div class="mn-formula">
+    <math><mrow><mi>t′</mi><mo>=</mo><mi>γ</mi><mo stretchy="false">(</mo><mi>t</mi><mo>−</mo><mfrac><mrow><mi>v</mi><mo>&#x2062;</mo><mi>x</mi></mrow><msup><mi>c</mi><mn>2</mn></msup></mfrac><mo stretchy="false">)</mo></mrow></math>
+    <small>Hold <span class="mn-var">t′</span> fixed and let <span class="mn-var">x</span> vary, and <span class="mn-var">t</span> is forced to grow with <span class="mn-var">x</span>: the larger <span class="mn-var">x</span> is, the later the home time must be to keep <span class="mn-var">t′</span> unchanged. That forced growth is exactly the tilt of the "now" line, and its slope on a <span class="mn-var">ct</span> diagram is <span class="mn-var">v</span>/<span class="mn-var">c</span>, the same angle as the traveller's time axis in Figure 3. A home observer holds <span class="mn-var">t</span> fixed instead, so the home "now" line is horizontal. Figure 3b works one example all the way through, at the slider's default speed of 0.60<span class="mn-var">c</span>.</small>
+  </div>
+  <div class="mn-cols">
+    <div class="mn-diagram">
+      <svg viewBox="0 0 640 430" role="img" aria-label="Worked example of a line of simultaneity at 0.6c: the traveller event P, the horizontal home now line meeting Earth at 3.0 years, and the tilted traveller now line meeting Earth at 1.92 years and passing through events A and B">
+        <line x1="40" y1="110" x2="600" y2="110" class="mn-gridl"/><line x1="40" y1="230" x2="600" y2="230" class="mn-gridl"/><line x1="40" y1="290" x2="600" y2="290" class="mn-gridl"/>
+        <line x1="230" y1="20" x2="230" y2="350" class="mn-gridl"/><line x1="290" y1="20" x2="290" y2="350" class="mn-gridl"/><line x1="350" y1="20" x2="350" y2="350" class="mn-gridl"/><line x1="410" y1="20" x2="410" y2="350" class="mn-gridl"/><line x1="470" y1="20" x2="470" y2="350" class="mn-gridl"/><line x1="530" y1="20" x2="530" y2="350" class="mn-gridl"/>
+        <line x1="170" y1="350" x2="470" y2="50" class="mn-cone"/><line x1="170" y1="350" x2="-130" y2="50" class="mn-cone"/>
+        <line x1="36" y1="350" x2="604" y2="350" class="mn-axis"/><line x1="170" y1="392" x2="170" y2="16" class="mn-axis"/>
+        <path d="M604 350 l-10 -4 v8 z" fill="var(--math-ink3)"/><path d="M170 16 l-4 10 h8 z" fill="var(--math-ink3)"/>
+        
+        <line x1="170" y1="350" x2="170" y2="62" class="mn-wl-stay"/>
+        
+        <line x1="170" y1="350" x2="332" y2="80" class="mn-wl-move"/>
+        
+        <line x1="96" y1="170" x2="560" y2="170" stroke="var(--math-teal)" stroke-width="1.8" stroke-dasharray="6 4"/>
+        
+        <line x1="130" y1="259" x2="470" y2="55" stroke="var(--math-blue)" stroke-width="2.8"/>
+        <circle cx="170" cy="350" r="5.5" fill="var(--math-ink)"/>
+        <circle cx="170" cy="170" r="5" fill="var(--math-teal)"/>
+        <circle cx="170" cy="235" r="5.5" fill="var(--math-blue)"/>
+        <circle cx="203" cy="215" r="5.5" fill="var(--math-blue)"/>
+        <circle cx="398" cy="98" r="5.5" fill="var(--math-blue)"/>
+        <circle cx="278" cy="170" r="6.5" fill="var(--math-orange)" stroke="var(--mn-surface)" stroke-width="2"/>
+        <text x="612" y="354" class="mn-t-lab-b" text-anchor="end">x (light-years)</text>
+        <text x="180" y="26" class="mn-t-lab-b">ct (years × c)</text>
+        <text x="44" y="64" class="mn-t-teal">Earth worldline</text>
+        <text x="44" y="80" class="mn-t-small">x = 0: the home twin</text>
+        <text x="214" y="300" class="mn-t-orange">traveller's worldline</text>
+        <text x="214" y="316" class="mn-t-small">moving at 0.60c</text>
+        <text x="632" y="44" class="mn-t-blue mn-t-halo" text-anchor="end">traveller's "now" line</text>
+        <text x="632" y="60" class="mn-t-small mn-t-halo" text-anchor="end">every event on it has t′ = 2.4 yr</text>
+        <text x="566" y="158" class="mn-t-teal mn-t-halo" text-anchor="end">home "now" line through P</text>
+        <text x="158" y="164" class="mn-t-teal mn-t-halo" text-anchor="end">home "now" on Earth</text>
+        <text x="158" y="180" class="mn-t-small mn-t-halo" text-anchor="end">ct = 3.0 yr</text>
+        <text x="158" y="229" class="mn-t-blue mn-t-halo" text-anchor="end">traveller "now" on Earth</text>
+        <text x="158" y="245" class="mn-t-small mn-t-halo" text-anchor="end">ct = 1.92 yr</text>
+        <text x="288" y="192" class="mn-t-orange mn-t-halo">P: the traveller, at this moment</text>
+        <text x="288" y="208" class="mn-t-small mn-t-halo">home position: x = 1.8 ly, ct = 3.0 yr; ship time t′ = 2.4 yr</text>
+        <text x="410" y="92" class="mn-t-blue mn-t-halo">Event A</text>
+        <text x="410" y="108" class="mn-t-small mn-t-halo">home time = 4.2 yr</text>
+        <text x="211" y="238" class="mn-t-blue mn-t-halo">Event B</text>
+        <text x="211" y="254" class="mn-t-small mn-t-halo">home time = 2.25 yr</text>
+        <text x="182" y="374" class="mn-t-small">departure: both frames agree on this event</text>
+      </svg>
+      <div class="mn-figcap"><strong>Figure 3b: One event, two "now" slices, at 0.60<span class="mn-var">c</span>.</strong> The traveller is at event P, which the home frame places at <span class="mn-var">x</span> = 1.8 ly and <span class="mn-var">ct</span> = 3.0 yr, and which the traveller's own clock dates to <span class="mn-var">t′</span> = 2.4 yr. The dashed horizontal line is the home answer to "what is happening now, at P?"; the solid blue line is the traveller's answer. They are different lines through the same event, so they meet Earth's worldline at different events, 3.0 yr versus 1.92 yr, and that 1.08 yr gap is <math><mrow><mfrac><mrow><mi>v</mi><mo>&#x2062;</mo><mi>L</mi></mrow><msup><mi>c</mi><mn>2</mn></msup></mfrac></mrow></math> with <span class="mn-var">L</span> = 1.8 ly: the further away the event, the bigger the disagreement about "now".</div>
+    </div>
+    <div>
+      <div class="mn-readbox">
+        <h3>How to read the blue line</h3>
+        <ul>
+          <li><strong>Start at P and slide along the blue line.</strong> Your position and your home time both change as you slide, but <span class="mn-var">t′</span> never does: by construction, every event on the line is simultaneous <em>for the traveller</em>. Events A and B lie on it, so the traveller groups A and B together with P as one shared "now".</li>
+          <li><strong>Now judge A and B by the home line instead.</strong> Home simultaneity means equal height on the page. A sits at home time 4.2 yr, well above P, so home calls A part of P's <em>future</em>. B sits at home time 2.25 yr, below P, so home calls B part of P's <em>past</em>. Neither frame is wrong: "simultaneous" is a statement about a frame's slicing of spacetime, not a property the events carry on their own.</li>
+          <li><strong>Follow each line back to Earth.</strong> The blue line meets Earth's worldline at <span class="mn-var">ct</span> = 1.92 yr; the dashed line meets it at <span class="mn-var">ct</span> = 3.0 yr. So at the moment of P, the traveller's honest, self-consistent answer to "what time is it on Earth right now?" is 1.92 yr, a full 1.08 yr earlier than the home answer. This is the same construction Step 6 uses at the turnaround, where the traveller swaps to the inbound frame, the "now" line tilts the opposite way, and the Earth event it picks out sweeps forward by 3.6 yr.</li>
+        </ul>
+      </div>
+      <div class="mn-callout"><p><strong>The line is bookkeeping, not eyesight.</strong> The traveller at P cannot <em>see</em> A or B: both are spacelike separated from P, outside its light cone, so no light signal from either has arrived yet. A "now" line is what a frame assigns <em>after the fact</em>, once signals have been collected and their travel times subtracted using that frame's clocks and rulers. Tilting the line relabels distant events as past, present, or future; it never changes the events themselves, and it never lets anyone signal the past, because everything on the line is too far away to reach in time.</p></div>
+    </div>
+  </div>
 ## 4 — Acceleration bends
 
 <p class="mn-stepnum">Step 4 of 9</p>
